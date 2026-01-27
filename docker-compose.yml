@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: algorena
+      POSTGRES_PASSWORD: algorena
+      POSTGRES_DB: algorena-db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  db_data:
