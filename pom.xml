@@ -31,6 +31,7 @@
         <nullaway.version>0.12.12</nullaway.version>
         <errorprone.version>2.44.0</errorprone.version>
         <instancio.version>5.5.1</instancio.version>
+        <flyway.version>11.20.3</flyway.version>
     </properties>
     <dependencies>
         <dependency>
@@ -125,15 +126,16 @@
             <version>1.4.5</version>
             <type>pom</type>
         </dependency>
-        <!-- Flyway core dependency -->
+        <!-- Flyway migration -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <!-- PostgreSQL support for Flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
+            <version>${flyway.version}</version>
         </dependency>
         <!-- NullAway for null-safety checks -->
         <dependency>

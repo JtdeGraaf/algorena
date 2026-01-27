@@ -1,13 +1,13 @@
 services:
   db:
-    image: postgres:16
+    image: postgres:18
     restart: always
     environment:
       POSTGRES_USER: algorena
       POSTGRES_PASSWORD: algorena
       POSTGRES_DB: algorena-db
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
     ports:
       - "5432:5432"
 
