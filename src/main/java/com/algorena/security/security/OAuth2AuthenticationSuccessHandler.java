@@ -27,7 +27,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtService jwtService;
     private final CustomOAuth2UserService userService;
 
-    @Value("${app.frontend.url:http://localhost:5173}")
+    @Value("${app.frontend.url:http://localhost:8080}")
     private String frontendUrl;
 
     @Override
@@ -55,7 +55,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         SecurityContextHolder.getContext().setAuthentication(newAuth);
 
         String token = jwtService.createToken(user);
-        String redirectUrl = frontendUrl + "/login?token=" + token;
+        // TODO redirect to actual frontend url with correct path whenever frontend is ready to handle it
+        String redirectUrl = frontendUrl + "/oauth2/redirect?token=" + token;
         response.sendRedirect(redirectUrl);
     }
 }
