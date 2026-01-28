@@ -1,15 +1,15 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id          BIGSERIAL PRIMARY KEY,
-    provider    TEXT,
-    provider_id TEXT,
-    email       TEXT UNIQUE,
-    username    TEXT UNIQUE             NOT NULL,
-    name        TEXT,
-    language    VARCHAR(2) default 'EN' not null,
-    image_url   TEXT,
-    created  TIMESTAMP  DEFAULT NOW(),
-    last_updated  TIMESTAMP  DEFAULT NOW(),
+    id           BIGSERIAL PRIMARY KEY,
+    provider     TEXT,
+    provider_id  TEXT,
+    email        TEXT UNIQUE,
+    username     TEXT UNIQUE             NOT NULL,
+    name         TEXT,
+    language     VARCHAR(2) default 'EN' not null,
+    image_url    TEXT,
+    created      TIMESTAMP               NOT NULL,
+    last_updated TIMESTAMP               NOT NULL,
     UNIQUE (provider, provider_id)
 );
 

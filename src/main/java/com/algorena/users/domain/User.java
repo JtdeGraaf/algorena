@@ -1,10 +1,10 @@
 package com.algorena.users.domain;
 
+import com.algorena.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jspecify.annotations.Nullable;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,11 +52,5 @@ public class User {
     @Column(name = "role")
     @Builder.Default
     private Set<Role> roles = new HashSet<>(Set.of(Role.USER));
-
-    @Column(name = "created")
-    private LocalDateTime created;
-
-    @Column(name = "last_updated")
-    private LocalDateTime lastUpdated;
 
 }

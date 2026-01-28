@@ -5,7 +5,6 @@ import com.algorena.common.exception.InternalServerException;
 import com.algorena.users.data.UserRepository;
 import com.algorena.users.domain.Language;
 import com.algorena.users.domain.Provider;
-import com.algorena.users.domain.Role;
 import com.algorena.users.domain.User;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +18,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -94,9 +92,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     .name(name)
                     .language(Language.EN)
                     .imageUrl(imageUrl)
-                    .roles(Set.of(Role.USER))
-                    .created(LocalDateTime.now())
-                    .lastUpdated(LocalDateTime.now())
                     .build();
         }
         return userRepository.save(user);
