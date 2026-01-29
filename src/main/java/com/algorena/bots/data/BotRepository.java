@@ -12,5 +12,7 @@ public interface BotRepository extends JpaRepository<Bot, Long> {
     List<Bot> findByUserId(Long userId);
 
     Optional<Bot> findByIdAndUserId(Long id, Long userId);
+
+    List<Bot> findByNameContainingIgnoreCase(String name);
 }
 

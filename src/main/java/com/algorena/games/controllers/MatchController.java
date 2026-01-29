@@ -4,11 +4,14 @@ import com.algorena.games.application.MatchService;
 import com.algorena.games.dto.CreateMatchRequest;
 import com.algorena.games.dto.MakeMoveRequest;
 import com.algorena.games.dto.MatchDTO;
+import com.algorena.games.dto.MatchMoveDTO;
+import com.algorena.security.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +20,14 @@ import java.util.UUID;
 public class MatchController {
 
     private final MatchService matchService;
+
+    @GetMapping
+    public ResponseEntity<List<MatchDTO>> getMatches(@RequestParam(required = false) Long botId) {
+        if (botId != null) {
+            return ResponseEntity.ok(matchService.getMatchesForBot(botId));
+        }
+        return ResponseEntity.ok(List.of());
+    }
 
     @PostMapping
     public ResponseEntity<MatchDTO> createMatch(@Valid @RequestBody CreateMatchRequest request) {
@@ -34,5 +45,10 @@ public class MatchController {
     @GetMapping("/{matchId}")
     public ResponseEntity<MatchDTO> getMatch(@PathVariable UUID matchId) {
         return ResponseEntity.ok(matchService.getMatch(matchId));
+    }
+
+    @GetMapping("/{matchId}/moves")
+    public ResponseEntity<List<MatchMoveDTO>> getMatchMoves(@PathVariable UUID matchId) {
+        return ResponseEntity.ok(matchService.getMatchMoves(matchId));
     }
 }

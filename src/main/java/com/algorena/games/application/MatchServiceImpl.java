@@ -2,6 +2,7 @@ package com.algorena.games.application;
 
 import com.algorena.bots.data.BotRepository;
 import com.algorena.bots.domain.Bot;
+import com.algorena.bots.domain.Game;
 import com.algorena.common.exception.BadRequestException;
 import com.algorena.common.exception.DataNotFoundException;
 import com.algorena.common.exception.ForbiddenException;
@@ -10,23 +11,22 @@ import com.algorena.games.chess.domain.ChessGameState;
 import com.algorena.games.chess.domain.ChessMatchMove;
 import com.algorena.games.data.MatchMoveRepository;
 import com.algorena.games.data.MatchRepository;
+import com.algorena.games.domain.AbstractMatchMove;
 import com.algorena.games.domain.Match;
 import com.algorena.games.domain.MatchParticipant;
 import com.algorena.games.domain.MatchStatus;
-import com.algorena.games.dto.CreateMatchRequest;
-import com.algorena.games.dto.MakeMoveRequest;
-import com.algorena.games.dto.MatchDTO;
-import com.algorena.games.dto.MatchParticipantDTO;
+import com.algorena.games.dto.*;
 import com.algorena.games.engine.GameEngine;
 import com.algorena.games.engine.GameEngineFactory;
 import com.algorena.games.engine.GameResult;
 import com.algorena.security.CurrentUser;
 import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.move.Move;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -170,6 +170,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MatchDTO getMatch(UUID matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
@@ -177,6 +178,20 @@ public class MatchServiceImpl implements MatchService {
     }
 
     private MatchDTO toMatchDTO(Match match) {
+        GameStateDTO stateDTO = null;
+        if (match.getGame() == Game.CHESS) {
+            ChessGameState state = chessGameStateRepository.findByMatchId(match.getId())
+                    .orElse(null);
+            if (state != null) {
+                stateDTO = new ChessGameStateDTO(
+                        state.getFen(),
+                        state.getPgn(),
+                        state.getHalfMoveClock(),
+                        state.getFullMoveNumber()
+                );
+            }
+        }
+
         return new MatchDTO(
                 match.getId(),
                 match.getGame(),
@@ -185,7 +200,8 @@ public class MatchServiceImpl implements MatchService {
                 match.getFinishedAt(),
                 match.getParticipants().stream()
                         .map(this::toMatchParticipantDTO)
-                        .toList()
+                        .toList(),
+                stateDTO
         );
     }
 
@@ -196,6 +212,47 @@ public class MatchServiceImpl implements MatchService {
                 participant.getBot().getName(),
                 participant.getPlayerIndex(),
                 participant.getScore()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchMoveDTO> getMatchMoves(UUID matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new DataNotFoundException("Match not found"));
+
+        return matchMoveRepository.findByMatchIdOrderByCreatedAsc(matchId).stream()
+                .map(this::toMatchMoveDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchDTO> getMatchesForBot(Long botId) {
+        return matchRepository.findByParticipants_Bot_Id(botId).stream()
+                .map(this::toMatchDTO)
+                .toList();
+    }
+
+    private MatchMoveDTO toMatchMoveDTO(AbstractMatchMove move) {
+        String from = null;
+        String to = null;
+        String promotion = null;
+
+        if (move instanceof ChessMatchMove chessMove) {
+            from = chessMove.getFromSquare();
+            to = chessMove.getToSquare();
+            promotion = chessMove.getPromotionPiece();
+        }
+
+        return new MatchMoveDTO(
+                move.getId(),
+                move.getPlayerIndex(),
+                move.getMoveNotation(),
+                move.getCreated(),
+                from,
+                to,
+                promotion
         );
     }
 }

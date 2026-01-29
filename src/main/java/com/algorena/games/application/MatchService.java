@@ -3,7 +3,9 @@ package com.algorena.games.application;
 import com.algorena.games.dto.CreateMatchRequest;
 import com.algorena.games.dto.MakeMoveRequest;
 import com.algorena.games.dto.MatchDTO;
+import com.algorena.games.dto.MatchMoveDTO;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface MatchService {
@@ -30,4 +32,20 @@ public interface MatchService {
      * @return The Match DTO.
      */
     MatchDTO getMatch(UUID matchId);
+
+    /**
+     * Retrieves the history of moves for a match.
+     *
+     * @param matchId The UUID of the match.
+     * @return List of MatchMoveDTO.
+     */
+    List<MatchMoveDTO> getMatchMoves(UUID matchId);
+
+    /**
+     * Retrieves matches played by a specific bot.
+     *
+     * @param botId The ID of the bot.
+     * @return List of MatchDTO.
+     */
+    List<MatchDTO> getMatchesForBot(Long botId);
 }
