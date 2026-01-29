@@ -1,4 +1,4 @@
-package com.algorena.security.security;
+package com.algorena.security;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletResponse;

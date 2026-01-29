@@ -1,4 +1,4 @@
-package com.algorena.security.security;
+package com.algorena.security;
 
 import com.algorena.common.exception.InternalServerException;
 import com.algorena.users.application.CustomOAuth2UserService;

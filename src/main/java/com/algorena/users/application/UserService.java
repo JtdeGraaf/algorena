@@ -1,7 +1,7 @@
 package com.algorena.users.application;
 
 import com.algorena.common.exception.DataNotFoundException;
-import com.algorena.security.security.CurrentUser;
+import com.algorena.security.CurrentUser;
 import com.algorena.users.data.UserRepository;
 import com.algorena.users.domain.User;
 import com.algorena.users.dto.UserDTO;

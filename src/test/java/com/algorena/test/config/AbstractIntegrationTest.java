@@ -1,7 +1,7 @@
 package com.algorena.test.config;
 
 
-import com.algorena.security.security.SimpleUserPrincipal;
+import com.algorena.security.SimpleUserPrincipal;
 import com.algorena.users.data.UserRepository;
 import com.algorena.users.domain.Language;
 import com.algorena.users.domain.Provider;

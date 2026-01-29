@@ -8,7 +8,7 @@ import com.algorena.bots.dto.*;
 import com.algorena.common.exception.DataNotFoundException;
 import com.algorena.common.exception.ForbiddenException;
 import com.algorena.common.exception.InternalServerException;
-import com.algorena.security.security.CurrentUser;
+import com.algorena.security.CurrentUser;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
