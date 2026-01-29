@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.0-RC2</version>
+        <version>4.0.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com</groupId>
@@ -28,8 +28,8 @@
     </scm>
     <properties>
         <java.version>25</java.version>
-        <nullaway.version>0.12.12</nullaway.version>
-        <errorprone.version>2.44.0</errorprone.version>
+        <nullaway.version>0.13.1</nullaway.version>
+        <errorprone.version>2.46.0</errorprone.version>
         <instancio.version>5.5.1</instancio.version>
         <flyway.version>11.20.3</flyway.version>
     </properties>
@@ -188,7 +188,10 @@
                     <compilerArgs>
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
-                        <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=com.algorena -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:ExcludedFieldAnnotations=jakarta.persistence.Id,jakarta.persistence.GeneratedValue</arg>
+                        <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR
+                            -XepOpt:NullAway:AnnotatedPackages=com.algorena -XepOpt:NullAway:JSpecifyMode=true
+                            -XepOpt:NullAway:ExcludedFieldAnnotations=jakarta.persistence.Id,jakarta.persistence.GeneratedValue
+                        </arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
