@@ -1,67 +1,45 @@
 # Algorena
 
-A competitive game arena for developers to build and compete with algorithmic bots.
+A competitive programming platform for bot battles.
 
-## Overview
+## Project Structure
 
-Algorena is infrastructure for algorithmic competition. Developers write bots that compete in structured matches, tournaments, and rankings through programmable APIs. The platform is engine-agnostic and designed to support multiple games over time.
+- `/backend` - Spring Boot REST API (Java 21)
+- `/frontend` - Frontend application (to be created)
 
-## Technical Stack
+## Quick Start
 
-- Java / Spring Boot
-- PostgreSQL with Flyway migrations
-- OAuth2 + JWT authentication
-- Docker Compose for local development
-- OpenAPI/Swagger documentation
+### Using Docker Compose (Recommended)
 
-## Getting Started
+```bash
+docker-compose up
+```
 
-### Prerequisites
-- Java 25+
-- Docker & Docker Compose
-- Maven
+### Manual Setup
 
-### Running Locally
+#### Backend
+```bash
+cd backend
+./mvnw spring-boot:run
+```
 
-1. Start the database:
-   ```bash
-   docker-compose up -d
-   ```
+#### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-2. Set required environment variables (Google OAuth credentials, JWT secret, database config)
+## Documentation
 
-3. Run the application:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+- [Backend README](backend/README.md)
+- [Frontend README](frontend/README.md)
+- [Monorepo Structure Guide](MONOREPO_STRUCTURE.md)
 
-4. Access the API at `http://localhost:8080/swagger-ui.html`
+## API Documentation
 
-## Architecture
-
-The project follows clean architecture principles with domain-driven design:
-
-- **Domain layer** - Core business entities and rules
-- **Application layer** - Use cases and services
-- **Infrastructure layer** - Database, security, external integrations
-- **API layer** - REST controllers and DTOs
-
-Authentication uses OAuth2 for login (Google) with JWT tokens for API access.
-
-## Core Concepts
-
-The platform is built around these key entities:
-
-- **User** - Account that owns bots
-- **Bot** - Programmable competitor
-- **Game** - Ruleset (e.g., Chess)
-- **Match** - Game instance between bots
-- **Tournament** - Structured competition
-- **Ranking** - ELO/Glicko ratings
+http://localhost:8080/swagger-ui.html
 
 ## License
 
-This project is dual-licensed:
-- **BSL 1.1** - Business Source License (see LICENSE-BSL)
-- Converts to **Apache 2.0** after change date (see LICENSE)
-
+See LICENSE and LICENSE-BSL files.

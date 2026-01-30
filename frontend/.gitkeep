@@ -1,0 +1,3 @@
+# Frontend will be created here
+# Use: npm create vite@latest . -- --template react-ts
+# Or: npx create-next-app@latest .
