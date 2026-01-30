@@ -12,6 +12,7 @@ import com.algorena.test.config.AbstractIntegrationTest;
 import com.algorena.users.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -84,13 +85,13 @@ class BotServiceImplIntegrationTest extends AbstractIntegrationTest {
         botRepository.save(otherUserBot);
 
         // When
-        List<BotDTO> userBots = botService.getUserBots();
+        var userBots = botService.getBots(Pageable.unpaged(), testUser.getId(), null, null, null);
 
         // Then
-        assertThat(userBots).hasSize(2);
-        assertThat(userBots.stream().map(BotDTO::name))
+        assertThat(userBots.getContent()).hasSize(2);
+        assertThat(userBots.getContent().stream().map(BotDTO::name))
                 .containsExactlyInAnyOrder("Bot 1", "Bot 2");
-        assertThat(userBots.stream().map(BotDTO::id))
+        assertThat(userBots.getContent().stream().map(BotDTO::id))
                 .containsExactlyInAnyOrder(bot1.id(), bot2.id());
     }
 
@@ -386,11 +387,11 @@ class BotServiceImplIntegrationTest extends AbstractIntegrationTest {
         assertThat(bot.active()).isTrue();
 
         // When - Get user bots
-        List<BotDTO> userBots = botService.getUserBots();
+        var userBots = botService.getBots(Pageable.unpaged(), testUser.getId(), null, null, null);
 
         // Then - Verify bot is in user's bots
-        assertThat(userBots).hasSize(1);
-        assertThat(userBots.getFirst().id()).isEqualTo(bot.id());
+        assertThat(userBots.getContent()).hasSize(1);
+        assertThat(userBots.getContent().getFirst().id()).isEqualTo(bot.id());
 
         // When - Create multiple API keys
         CreateApiKeyRequest apiKeyRequest1 = new CreateApiKeyRequest("Main API Key");
@@ -431,8 +432,8 @@ class BotServiceImplIntegrationTest extends AbstractIntegrationTest {
         botService.deleteBot(bot.id());
 
         // Then - Verify bot and all keys are deleted (cascade)
-        List<BotDTO> finalBots = botService.getUserBots();
-        assertThat(finalBots).isEmpty();
+        var finalBots = botService.getBots(Pageable.unpaged(), testUser.getId(), null, null, null);
+        assertThat(finalBots.getContent()).isEmpty();
         assertThat(botRepository.findById(bot.id())).isEmpty();
         assertThat(apiKeyRepository.findByBotId(bot.id())).isEmpty();
     }

@@ -2,13 +2,13 @@ package com.algorena.users.controllers;
 
 
 import com.algorena.users.application.UserService;
+import com.algorena.users.dto.UpdateUserRequest;
 import com.algorena.users.dto.UserDTO;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -27,5 +27,15 @@ public class UserController {
     public ResponseEntity<UserDTO> getCurrentUserProfile() {
         return ResponseEntity.ok(userService.getCurrentUserDetails());
     }
-    
+
+    /**
+     * Updates the currently authenticated user's profile.
+     *
+     * @param request the update request containing username and/or name
+     * @return ResponseEntity containing the updated user profile
+     */
+    @PatchMapping("/me")
+    public ResponseEntity<UserDTO> updateCurrentUserProfile(@Valid @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateCurrentUser(request));
+    }
 }
