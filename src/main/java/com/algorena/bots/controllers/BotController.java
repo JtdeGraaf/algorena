@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -36,7 +37,7 @@ public class BotController {
     @GetMapping
     @Operation(summary = "Get all bots with optional pagination and filters")
     public ResponseEntity<Page<BotDTO>> getBots(
-            @PageableDefault(size = 20, sort = "created") Pageable pageable,
+            @ParameterObject @PageableDefault(size = 20, sort = "created") Pageable pageable,
             @Parameter(description = "Filter by user ID") @RequestParam(required = false) Long userId,
             @Parameter(description = "Filter by bot name (partial match)") @RequestParam(required = false) String name,
             @Parameter(description = "Filter by game type") @RequestParam(required = false) Game game,
