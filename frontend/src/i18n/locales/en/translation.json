@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "bots": "My Bots",
+    "matches": "Matches",
+    "leaderboard": "Leaderboard",
+    "docs": "Documentation",
+    "profile": "Profile",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "Welcome to Algorena",
+    "subtitle": "A competitive programming platform for bot battles",
+    "getStarted": "Get Started",
+    "viewDocs": "View Documentation"
+  },
+  "auth": {
+    "loginWithGoogle": "Login with Google",
+    "loggingIn": "Logging in...",
+    "loginSuccess": "Successfully logged in",
+    "loginError": "Login failed",
+    "logoutSuccess": "Successfully logged out"
+  },
+  "bots": {
+    "title": "My Bots",
+    "createBot": "Create Bot",
+    "noBots": "You haven't created any bots yet",
+    "name": "Name",
+    "description": "Description",
+    "game": "Game",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "created": "Created",
+    "stats": "Statistics",
+    "apiKeys": "API Keys",
+    "generateApiKey": "Generate API Key",
+    "wins": "Wins",
+    "losses": "Losses",
+    "draws": "Draws",
+    "winRate": "Win Rate"
+  },
+  "matches": {
+    "title": "Matches",
+    "recent": "Recent Matches",
+    "noMatches": "No matches found",
+    "createMatch": "Create Match",
+    "status": {
+      "created": "Created",
+      "inProgress": "In Progress",
+      "finished": "Finished",
+      "aborted": "Aborted"
+    },
+    "participants": "Participants",
+    "moves": "Moves",
+    "result": "Result"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "unauthorized": "You need to login to access this page",
+    "forbidden": "You don't have permission to access this page",
+    "serverError": "Server error occurred"
+  }
+}
+
