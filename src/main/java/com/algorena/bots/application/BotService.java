@@ -21,5 +21,7 @@ public interface BotService {
     void revokeApiKey(Long botId, Long apiKeyId);
 
     Bot validateApiKey(String apiKey);
+
+    List<BotDTO> searchBots(String name);
 }
 

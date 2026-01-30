@@ -35,6 +35,12 @@ public class BotController {
         return ResponseEntity.ok(bots);
     }
 
+    @GetMapping("/search")
+    @Operation(summary = "Search bots by name")
+    public ResponseEntity<List<BotDTO>> searchBots(@RequestParam String name) {
+        return ResponseEntity.ok(botService.searchBots(name));
+    }
+
     @GetMapping("/{botId}")
     @Operation(summary = "Get a specific bot by ID")
     public ResponseEntity<BotDTO> getBotById(@PathVariable Long botId) {

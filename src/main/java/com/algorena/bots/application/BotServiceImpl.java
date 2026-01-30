@@ -162,6 +162,13 @@ public class BotServiceImpl implements BotService {
         throw new ForbiddenException("Invalid API key");
     }
 
+    @Override
+    public List<BotDTO> searchBots(String name) {
+        return botRepository.findByNameContainingIgnoreCase(name).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
     private String generateApiKey() {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[API_KEY_LENGTH];
