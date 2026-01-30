@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,6 +50,11 @@ public class Match extends BaseEntity {
 
     public void finish() {
         this.status = MatchStatus.FINISHED;
+        this.finishedAt = LocalDateTime.now();
+    }
+
+    public void abort() {
+        this.status = MatchStatus.ABORTED;
         this.finishedAt = LocalDateTime.now();
     }
 

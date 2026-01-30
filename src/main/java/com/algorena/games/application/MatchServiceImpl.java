@@ -23,6 +23,7 @@ import com.algorena.security.CurrentUser;
 import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.move.Move;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -232,6 +233,46 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.findByParticipants_Bot_Id(botId).stream()
                 .map(this::toMatchDTO)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchDTO> getCurrentUserMatches() {
+        // Use optimized repository method instead of loading all matches
+        return matchRepository.findByUserIdOrderByCreatedDesc(currentUser.id()).stream()
+                .map(this::toMatchDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MatchDTO> getRecentMatches(int limit) {
+        // Use optimized repository method with Pageable for efficient limiting
+        return matchRepository.findRecentMatches(PageRequest.of(0, limit)).stream()
+                .map(this::toMatchDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void abortMatch(UUID matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new DataNotFoundException("Match not found"));
+
+        if (match.getStatus() != MatchStatus.IN_PROGRESS) {
+            throw new BadRequestException("Only in-progress matches can be aborted");
+        }
+
+        // Check if the current user owns any bot in this match
+        boolean userOwnsBot = match.getParticipants().stream()
+                .anyMatch(p -> p.getBot().getUserId().equals(currentUser.id()));
+
+        if (!userOwnsBot) {
+            throw new ForbiddenException("You can only abort matches involving your bots");
+        }
+
+        match.abort();
+        matchRepository.save(match);
     }
 
     private MatchMoveDTO toMatchMoveDTO(AbstractMatchMove move) {

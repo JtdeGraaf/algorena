@@ -25,7 +25,14 @@ public class MatchController {
         if (botId != null) {
             return ResponseEntity.ok(matchService.getMatchesForBot(botId));
         }
-        return ResponseEntity.ok(List.of());
+        // Return current user's matches if no botId specified
+        return ResponseEntity.ok(matchService.getCurrentUserMatches());
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<MatchDTO>> getRecentMatches(
+            @RequestParam(defaultValue = "50") int limit) {
+        return ResponseEntity.ok(matchService.getRecentMatches(limit));
     }
 
     @PostMapping
@@ -49,5 +56,11 @@ public class MatchController {
     @GetMapping("/{matchId}/moves")
     public ResponseEntity<List<MatchMoveDTO>> getMatchMoves(@PathVariable UUID matchId) {
         return ResponseEntity.ok(matchService.getMatchMoves(matchId));
+    }
+
+    @PostMapping("/{matchId}/abort")
+    public ResponseEntity<Void> abortMatch(@PathVariable UUID matchId) {
+        matchService.abortMatch(matchId);
+        return ResponseEntity.noContent().build();
     }
 }

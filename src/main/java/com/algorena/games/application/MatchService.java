@@ -48,4 +48,26 @@ public interface MatchService {
      * @return List of MatchDTO.
      */
     List<MatchDTO> getMatchesForBot(Long botId);
+
+    /**
+     * Retrieves all matches for the current user's bots.
+     *
+     * @return List of MatchDTO.
+     */
+    List<MatchDTO> getCurrentUserMatches();
+
+    /**
+     * Retrieves recent matches across the platform.
+     *
+     * @param limit Maximum number of matches to return.
+     * @return List of MatchDTO.
+     */
+    List<MatchDTO> getRecentMatches(int limit);
+
+    /**
+     * Aborts an in-progress match.
+     *
+     * @param matchId The UUID of the match to abort.
+     */
+    void abortMatch(UUID matchId);
 }

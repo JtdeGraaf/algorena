@@ -46,7 +46,7 @@ public class Bot extends BaseEntity {
         this.active = false;
     }
 
-    public void updateDetails(String name, String description) {
+    public void updateDetails(String name, @Nullable String description) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Bot name cannot be blank");
         }
