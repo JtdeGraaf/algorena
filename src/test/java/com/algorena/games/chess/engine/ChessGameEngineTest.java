@@ -36,7 +36,7 @@ class ChessGameEngineTest {
     void applyMove_ShouldThrowOnIllegalMove() {
         ChessGameState state = engine.startNewGame();
         // Try a move that is definitely illegal (Rook blocked)
-        assertThatThrownBy(() -> engine.applyMove(state, "a1a2", 0)) 
+        assertThatThrownBy(() -> engine.applyMove(state, "a1a2", 0))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Illegal move");
     }
@@ -44,27 +44,16 @@ class ChessGameEngineTest {
     @Test
     void applyMove_ShouldThrowOnWrongTurn() {
         ChessGameState state = engine.startNewGame();
-        assertThatThrownBy(() -> engine.applyMove(state, "e7e5", 0)) // Black move attempted by White (0)
-                 // Wait, e7e5 is Black's move. 0 is White.
-                 // The engine check: "It is not player 0's turn" if turn is Black.
-                 // Here turn is White. Player is 0 (White).
-                 // So "e7e5" is technically illegal for White? No, e7e5 is black pawn.
-                 // But logic says: getSideToMove() -> White.
-                 // Player Index 0 -> White.
-                 // So checks pass.
-                 // But move "e7e5" for White moving Black piece? Chesslib might reject this as illegal move.
-                 // Let's test actual wrong turn:
-                 // White moves, then Black tries to move AGAIN.
-        ;
+        assertThatThrownBy(() -> engine.applyMove(state, "e7e5", 0)); // Black move attempted by White (0)
     }
-    
+
     @Test
     void applyMove_ShouldThrowWhenWrongPlayerMoves() {
-         ChessGameState state = engine.startNewGame();
-         // It is White's turn. Player 1 (Black) tries to move.
-         assertThatThrownBy(() -> engine.applyMove(state, "e2e4", 1))
-                 .isInstanceOf(IllegalArgumentException.class)
-                 .hasMessageContaining("It is not player 1's turn");
+        ChessGameState state = engine.startNewGame();
+        // It is White's turn. Player 1 (Black) tries to move.
+        assertThatThrownBy(() -> engine.applyMove(state, "e2e4", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("It is not player 1's turn");
     }
 
     @Test
@@ -72,7 +61,7 @@ class ChessGameEngineTest {
         ChessGameState state = engine.startNewGame();
         assertThat(engine.checkResult(state)).isNull();
     }
-    
+
     @Test
     void checkResult_ShouldDetectCheckmate() {
         // Fools Mate
@@ -81,7 +70,7 @@ class ChessGameEngineTest {
         state = engine.applyMove(state, "e7e5", 1);
         state = engine.applyMove(state, "g2g4", 0);
         state = engine.applyMove(state, "d8h4", 1); // Mate
-        
+
         GameResult result = engine.checkResult(state);
         assertThat(result).isNotNull();
         // Black (1) wins -> 1.0, White (0) loses -> 0.0

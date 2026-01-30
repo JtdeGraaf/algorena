@@ -5,7 +5,6 @@ import com.algorena.games.dto.CreateMatchRequest;
 import com.algorena.games.dto.MakeMoveRequest;
 import com.algorena.games.dto.MatchDTO;
 import com.algorena.games.dto.MatchMoveDTO;
-import com.algorena.security.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
