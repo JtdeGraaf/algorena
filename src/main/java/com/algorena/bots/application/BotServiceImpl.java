@@ -224,7 +224,7 @@ public class BotServiceImpl implements BotService {
             }
         }
 
-        double winRate = totalMatches > 0 ? (double) wins / totalMatches : 0.0;
+        double winRate = totalMatches > 0 ? (wins + 0.5 * draws) / totalMatches : 0.0;
 
         return new BotStatsDTO(
                 bot.getId(),
