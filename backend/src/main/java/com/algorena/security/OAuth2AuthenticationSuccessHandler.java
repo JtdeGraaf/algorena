@@ -55,7 +55,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         SecurityContextHolder.getContext().setAuthentication(newAuth);
 
         String token = jwtService.createToken(user);
-        // TODO redirect to actual frontend url with correct path whenever frontend is ready to handle it
         String redirectUrl = frontendUrl + "/oauth2/redirect?token=" + token;
         response.sendRedirect(redirectUrl);
     }

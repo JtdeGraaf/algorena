@@ -6,7 +6,7 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { setAccessToken, clearAccessToken, getAccessToken } from '@/api/client';
 import { config } from '@/lib/config';
 
@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = useCallback(async () => {
     const token = getAccessToken();
+    console.log('[Auth] fetchUser called, token exists:', !!token);
     if (!token) {
       setIsLoading(false);
       return;
@@ -58,14 +59,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       });
 
+      console.log('[Auth] /api/v1/users/me response status:', response.status);
+
       if (response.ok) {
         const userData = await response.json();
+        console.log('[Auth] User data received:', userData);
         setUser(userData);
       } else {
+        console.log('[Auth] Response not ok, clearing token');
         clearAccessToken();
         setUser(null);
       }
-    } catch {
+    } catch (err) {
+      console.error('[Auth] Error fetching user:', err);
       clearAccessToken();
       setUser(null);
     } finally {
@@ -103,12 +109,15 @@ export function useAuth() {
 
 export function OAuth2RedirectHandler() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const token = searchParams.get('token');
     const errorParam = searchParams.get('error');
+
+    console.log('[OAuth2Redirect] token from URL:', token ? `${token.substring(0, 20)}...` : null);
+    console.log('[OAuth2Redirect] error from URL:', errorParam);
 
     if (errorParam) {
       setError(errorParam);
@@ -116,13 +125,24 @@ export function OAuth2RedirectHandler() {
     }
 
     if (token) {
+      console.log('[OAuth2Redirect] Saving token to localStorage...');
       setAccessToken(token);
-      navigate('/', { replace: true });
-      window.location.reload();
+
+      // Verify token was saved
+      const savedToken = getAccessToken();
+      console.log('[OAuth2Redirect] Token saved successfully:', !!savedToken);
+      console.log('[OAuth2Redirect] Saved token value:', savedToken ? `${savedToken.substring(0, 20)}...` : null);
+
+      setSuccess(true);
+
+      // Delay redirect to see the logs
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     } else {
       setError('No token received');
     }
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
   if (error) {
     return (
@@ -133,6 +153,17 @@ export function OAuth2RedirectHandler() {
           <a href="/" className="mt-4 inline-block text-emerald-500 hover:underline">
             Go back home
           </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-emerald-500">Login Successful!</h1>
+          <p className="mt-2 text-zinc-400">Redirecting...</p>
         </div>
       </div>
     );
