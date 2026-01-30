@@ -6,6 +6,8 @@ import com.algorena.games.dto.MakeMoveRequest;
 import com.algorena.games.dto.MatchDTO;
 import com.algorena.games.dto.MatchMoveDTO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +33,7 @@ public class MatchController {
 
     @GetMapping("/recent")
     public ResponseEntity<List<MatchDTO>> getRecentMatches(
-            @RequestParam(defaultValue = "50") int limit) {
+            @RequestParam(defaultValue = "50") @Valid @Min(1) @Max(100) int limit) {
         return ResponseEntity.ok(matchService.getRecentMatches(limit));
     }
 
