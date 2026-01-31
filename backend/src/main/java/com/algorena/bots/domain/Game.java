@@ -1,7 +1,8 @@
 package com.algorena.bots.domain;
 
 public enum Game {
-    CHESS
+    CHESS,
+    CONNECT_FOUR
 }
 
 

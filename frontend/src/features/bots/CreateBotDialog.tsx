@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
 import { useCreateBot } from './useBots';
 import { Loader2 } from 'lucide-react';
 
@@ -17,6 +18,7 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [game, setGame] = useState<'CHESS' | 'CONNECT_FOUR'>('CHESS');
   const createBot = useCreateBot();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,10 +27,11 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
       await createBot.mutateAsync({
         name,
         description: description || undefined,
-        game: 'CHESS',
+        game,
       });
       setName('');
       setDescription('');
+      setGame('CHESS');
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to create bot:', error);
@@ -38,6 +41,7 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
   const handleClose = () => {
     setName('');
     setDescription('');
+    setGame('CHESS');
     onOpenChange(false);
   };
 
@@ -75,8 +79,16 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label>{t('bots.game')}</Label>
-            <Input value="Chess" disabled className="bg-zinc-800" />
+            <Label htmlFor="game">{t('bots.game')}</Label>
+            <Select
+              id="game"
+              value={game}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setGame(e.target.value as 'CHESS' | 'CONNECT_FOUR')}
+              className="bg-zinc-900 border-zinc-700"
+            >
+              <option value="CHESS">Chess</option>
+              <option value="CONNECT_FOUR">Connect 4</option>
+            </Select>
             <p className="text-xs text-zinc-500">More games coming soon!</p>
           </div>
           <DialogFooter className="pt-4">

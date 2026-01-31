@@ -10,6 +10,9 @@ import com.algorena.games.chess.data.ChessGameStateRepository;
 import com.algorena.games.chess.domain.ChessGameState;
 import com.algorena.games.chess.domain.ChessMatchMove;
 import com.algorena.games.chess.engine.ChessGameEngine;
+import com.algorena.games.connect4.domain.Connect4GameState;
+import com.algorena.games.connect4.domain.Connect4MatchMove;
+import com.algorena.games.connect4.engine.Connect4GameEngine;
 import com.algorena.games.data.MatchMoveRepository;
 import com.algorena.games.data.MatchRepository;
 import com.algorena.games.domain.AbstractMatchMove;
@@ -38,6 +41,7 @@ public class MatchServiceImpl implements MatchService {
     private final MatchRepository matchRepository;
     private final MatchMoveRepository matchMoveRepository;
     private final ChessGameStateRepository chessGameStateRepository;
+    private final com.algorena.games.connect4.data.Connect4GameStateRepository connect4GameStateRepository;
     private final GameEngineFactory gameEngineFactory;
     private final BotRepository botRepository;
     private final CurrentUser currentUser;
@@ -86,10 +90,17 @@ public class MatchServiceImpl implements MatchService {
     private void initializeGameState(Match match) {
         switch (match.getGame()) {
             case CHESS -> {
-                GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(com.algorena.bots.domain.Game.CHESS);
+                GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(Game.CHESS);
                 ChessGameState initialState = engine.startNewGame();
                 initialState.assignMatch(match);
                 chessGameStateRepository.save(initialState);
+            }
+            case CONNECT_FOUR -> {
+                GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
+                Connect4GameState initialState = engine.startNewGame();
+                initialState.assignMatch(match);
+                // Explicitly save the relationship or ensure match is persisted first (it is saved above)
+                connect4GameStateRepository.save(initialState);
             }
             default -> throw new UnsupportedOperationException("Game not supported: " + match.getGame());
         }
@@ -119,7 +130,44 @@ public class MatchServiceImpl implements MatchService {
 
         switch (match.getGame()) {
             case CHESS -> handleChessMove(match, participant, request.move());
+            case CONNECT_FOUR -> handleConnect4Move(match, participant, request.move());
             default -> throw new UnsupportedOperationException("Game not supported");
+        }
+    }
+
+    private void handleConnect4Move(Match match, MatchParticipant participant, String moveString) {
+        Connect4GameState state = connect4GameStateRepository.findByMatchId(match.getId())
+                .orElseThrow(() -> new DataNotFoundException("Game state not found"));
+
+        GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
+
+        int columnIndex;
+        try {
+            columnIndex = Integer.parseInt(moveString);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("Invalid move format: must be a column index (0-6)");
+        }
+
+        // Apply Move
+        Connect4GameState newState = engine.applyMove(state, columnIndex, participant.getPlayerIndex());
+
+        // Update State
+        state.updateBoardState(newState.getBoard(), newState.getLastMoveColumn());
+        connect4GameStateRepository.save(state);
+
+        // Record Move
+        Connect4MatchMove matchMove = Connect4MatchMove.builder()
+                .match(match)
+                .playerIndex(participant.getPlayerIndex())
+                .moveNotation(moveString)
+                .columnIndex(columnIndex)
+                .build();
+        matchMoveRepository.save(matchMove);
+
+        // Check Result
+        GameResult result = engine.checkResult(state);
+        if (result != null) {
+            finishMatch(match, result);
         }
     }
 
@@ -127,7 +175,7 @@ public class MatchServiceImpl implements MatchService {
         ChessGameState state = chessGameStateRepository.findByMatchId(match.getId())
                 .orElseThrow(() -> new DataNotFoundException("Game state not found"));
 
-        GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(com.algorena.bots.domain.Game.CHESS);
+        GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(Game.CHESS);
 
         // Apply Move (Engine validates turn and rules)
         ChessGameState newState = engine.applyMove(state, moveNotation, participant.getPlayerIndex());
@@ -190,6 +238,15 @@ public class MatchServiceImpl implements MatchService {
                         state.getPgn(),
                         state.getHalfMoveClock(),
                         state.getFullMoveNumber()
+                );
+            }
+        } else if (match.getGame() == Game.CONNECT_FOUR) {
+            Connect4GameState state = connect4GameStateRepository.findByMatchId(match.getId())
+                    .orElse(null);
+            if (state != null) {
+                stateDTO = new Connect4GameStateDTO(
+                        state.getBoard(),
+                        state.getLastMoveColumn()
                 );
             }
         }
@@ -294,6 +351,16 @@ public class MatchServiceImpl implements MatchService {
             if (engine instanceof ChessGameEngine chessEngine) {
                 return chessEngine.getLegalMoves(state);
             }
+        } else if (match.getGame() == Game.CONNECT_FOUR) {
+            Connect4GameState state = connect4GameStateRepository.findByMatchId(matchId)
+                    .orElseThrow(() -> new DataNotFoundException("Game state not found"));
+            
+            GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
+            if (engine instanceof Connect4GameEngine connect4Engine) {
+                return connect4Engine.getLegalMoves(state).stream()
+                        .map(String::valueOf)
+                        .toList();
+            }
         }
         
         return List.of();
@@ -308,6 +375,11 @@ public class MatchServiceImpl implements MatchService {
             from = chessMove.getFromSquare();
             to = chessMove.getToSquare();
             promotion = chessMove.getPromotionPiece();
+        } else if (move instanceof Connect4MatchMove connect4Move) {
+             // For Connect 4, we might not populate from/to squares in the same way,
+             // or we could map "column" to "to" if frontend expects it.
+             // For now, leaving as null, relying on moveNotation ("3")
+             to = String.valueOf(connect4Move.getColumnIndex());
         }
 
         return new MatchMoveDTO(

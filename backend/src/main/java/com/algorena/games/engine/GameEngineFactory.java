@@ -2,6 +2,7 @@ package com.algorena.games.engine;
 
 import com.algorena.bots.domain.Game;
 import com.algorena.games.chess.engine.ChessGameEngine;
+import com.algorena.games.connect4.engine.Connect4GameEngine;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -12,8 +13,11 @@ public class GameEngineFactory {
 
     private final Map<Game, GameEngine<?, ?>> engines;
 
-    public GameEngineFactory(ChessGameEngine chessGameEngine) {
-        this.engines = Map.of(Game.CHESS, chessGameEngine);
+    public GameEngineFactory(ChessGameEngine chessGameEngine, Connect4GameEngine connect4GameEngine) {
+        this.engines = Map.of(
+                Game.CHESS, chessGameEngine,
+                Game.CONNECT_FOUR, connect4GameEngine
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -22,3 +26,4 @@ public class GameEngineFactory {
                 .orElseThrow(() -> new IllegalArgumentException("No engine found for game: " + game));
     }
 }
+

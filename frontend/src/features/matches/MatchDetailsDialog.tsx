@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Chessboard } from '@/components/Chessboard';
+import { Connect4Board } from '@/components/Connect4Board';
 import { MatchReplayDialog } from './MatchReplayDialog';
 import { useMatchMoves, useAbortMatch, useMakeMove, useMatch, useLegalMoves } from './useMatches';
 import { useBots } from '@/features/bots/useBots';
@@ -167,111 +168,130 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
               </div>
             </div>
 
-            {/* Main content - Chessboard and info side by side */}
+            {/* Main content - Game Board and info side by side */}
             <div className={cn(
               'flex gap-6',
               isFullscreen ? 'flex-row' : 'flex-col md:flex-row'
             )}>
-              {/* Left: Chessboard */}
-              {match.game === 'CHESS' && match.state?.fen && (
-                <div className="flex flex-col items-center gap-3">
+              {/* Left: Game Board */}
+              <div className="flex flex-col items-center gap-3">
+                {match.game === 'CHESS' && match.state && 'fen' in match.state && (
                   <Chessboard
-                    fen={match.state.fen}
+                    fen={match.state.fen as string}
                     size={isFullscreen ? 'xl' : 'lg'}
                     interactive={manualMoveMode && !!selectedBotId}
                     legalMoves={legalMoves}
                     onMove={handleManualMove}
                     onInvalidMove={(reason) => setMoveError(reason || 'Invalid move')}
                   />
+                )}
 
-                  <div className="flex gap-2">
-                    {canReplay && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setReplayOpen(true)}
-                      >
-                        <Play className="h-4 w-4" />
-                        Replay
-                      </Button>
-                    )}
+                {match.game === 'CONNECT_FOUR' && match.state && 'board' in match.state && (
+                  <Connect4Board
+                    board={match.state.board as string}
+                    size={isFullscreen ? 'xl' : 'lg'}
+                    interactive={manualMoveMode && !!selectedBotId}
+                    legalMoves={legalMoves}
+                    onMove={(col) => handleManualMove('', col)} // From is empty for C4
+                    onInvalidMove={(reason) => setMoveError(reason || 'Invalid move')}
+                  />
+                )}
+
+                <div className="flex gap-2">
+                  {canReplay && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={toggleFullscreen}
+                      className="gap-2"
+                      onClick={() => setReplayOpen(true)}
                     >
-                      {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                      <Play className="h-4 w-4" />
+                      Replay
                     </Button>
-                  </div>
-
-                  {/* Manual move controls */}
-                  {canManualMove && myBotsInMatch.length > 0 && (
-                    <div className="w-full space-y-2 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-                      <div className="flex items-center gap-2">
-                        <Hand className="h-4 w-4 text-amber-500" />
-                        <span className="text-sm font-medium">Manual Move</span>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor="bot-select" className="text-xs whitespace-nowrap">Play as:</Label>
-                          <Select
-                            id="bot-select"
-                            value={selectedBotId?.toString() || ''}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                              setSelectedBotId(e.target.value ? parseInt(e.target.value) : null);
-                              setManualMoveMode(!!e.target.value);
-                            }}
-                            className="flex-1"
-                          >
-                            <option value="">Select bot...</option>
-                            {myBotsInMatch.map(bot => {
-                              const participant = participants.find(p => p.botId === bot.id);
-                              return (
-                                <option key={bot.id} value={bot.id?.toString()}>
-                                  {bot.name} ({participant?.playerIndex === 0 ? 'White' : 'Black'})
-                                </option>
-                              );
-                            })}
-                          </Select>
-                        </div>
-
-                        {manualMoveMode && (
-                          <p className="text-xs text-zinc-500">
-                            Click a piece, then click the target square to move
-                          </p>
-                        )}
-
-                        {moveError && (
-                          <p className="text-xs text-red-400">{moveError}</p>
-                        )}
-
-                        {makeMoveAction.isPending && (
-                          <div className="flex items-center gap-2 text-xs text-zinc-400">
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            Making move...
-                          </div>
-                        )}
-                      </div>
-                    </div>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleFullscreen}
+                  >
+                    {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                  </Button>
                 </div>
-              )}
+
+                {/* Manual move controls */}
+                {canManualMove && myBotsInMatch.length > 0 && (
+                  <div className="w-full space-y-2 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+                    <div className="flex items-center gap-2">
+                      <Hand className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-medium">Manual Move</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="bot-select" className="text-xs whitespace-nowrap">Play as:</Label>
+                        <Select
+                          id="bot-select"
+                          value={selectedBotId?.toString() || ''}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                            setSelectedBotId(e.target.value ? parseInt(e.target.value) : null);
+                            setManualMoveMode(!!e.target.value);
+                          }}
+                          className="flex-1"
+                        >
+                          <option value="">Select bot...</option>
+                          {myBotsInMatch.map(bot => {
+                            const participant = participants.find(p => p.botId === bot.id);
+                            return (
+                              <option key={bot.id} value={bot.id?.toString()}>
+                                {bot.name} ({participant?.playerIndex === 0 
+                                  ? (match.game === 'CONNECT_FOUR' ? 'Player 1' : 'White') 
+                                  : (match.game === 'CONNECT_FOUR' ? 'Player 2' : 'Black')})
+                              </option>
+                            );
+                          })}
+                        </Select>
+                      </div>
+
+                      {manualMoveMode && (
+                        <p className="text-xs text-zinc-500">
+                          {match.game === 'CHESS' 
+                            ? 'Click a piece, then click the target square to move' 
+                            : 'Click a column to drop a piece'}
+                        </p>
+                      )}
+
+                      {moveError && (
+                        <p className="text-xs text-red-400">{moveError}</p>
+                      )}
+
+                      {makeMoveAction.isPending && (
+                        <div className="flex items-center gap-2 text-xs text-zinc-400">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Making move...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Right: Match info */}
               <div className="flex-1 space-y-4">
                 {/* Participants */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-                    <div className="text-xs text-zinc-500">Player 1 (White)</div>
+                    <div className="text-xs text-zinc-500">
+                        {match.game === 'CONNECT_FOUR' ? 'Player 1 (Red)' : 'Player 1 (White)'}
+                    </div>
                     <div className="mt-1 font-medium">{player1?.botName || 'Unknown'}</div>
                     {match.status === 'FINISHED' && (
                       <div className="mt-1 text-xl font-bold text-emerald-500">{player1?.score ?? 0}</div>
                     )}
                   </div>
                   <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-                    <div className="text-xs text-zinc-500">Player 2 (Black)</div>
+                    <div className="text-xs text-zinc-500">
+                        {match.game === 'CONNECT_FOUR' ? 'Player 2 (Yellow)' : 'Player 2 (Black)'}
+                    </div>
                     <div className="mt-1 font-medium">{player2?.botName || 'Unknown'}</div>
                     {match.status === 'FINISHED' && (
                       <div className="mt-1 text-xl font-bold text-emerald-500">{player2?.score ?? 0}</div>
@@ -293,12 +313,12 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                   )}
                 </div>
 
-                {/* FEN */}
-                {match.state?.fen && (
+                {/* FEN (Chess only) */}
+                {match.game === 'CHESS' && match.state && 'fen' in match.state && (
                   <div className="text-sm">
                     <span className="font-medium text-zinc-400">FEN:</span>
                     <code className="ml-2 block mt-1 break-all rounded bg-zinc-900 px-2 py-1 text-xs text-zinc-300">
-                      {match.state.fen}
+                      {match.state.fen as string}
                     </code>
                   </div>
                 )}
@@ -347,11 +367,11 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                 </div>
 
                 {/* PGN (only in fullscreen or if short) */}
-                {match.state?.pgn && (isFullscreen || match.state.pgn.length < 200) && (
+                {match.game === 'CHESS' && match.state && 'pgn' in match.state && (isFullscreen || (match.state.pgn as string).length < 200) && (
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">PGN</h4>
                     <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-900 p-3 text-xs text-zinc-300 max-h-24">
-                      {match.state.pgn}
+                      {match.state.pgn as string}
                     </pre>
                   </div>
                 )}
@@ -388,4 +408,3 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
     </>
   );
 }
-

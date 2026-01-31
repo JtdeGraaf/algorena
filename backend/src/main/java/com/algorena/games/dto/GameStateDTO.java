@@ -9,7 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         property = "type"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ChessGameStateDTO.class, name = "CHESS")
+        @JsonSubTypes.Type(value = ChessGameStateDTO.class, name = "CHESS"),
+        @JsonSubTypes.Type(value = Connect4GameStateDTO.class, name = "CONNECT_FOUR")
 })
 public interface GameStateDTO {
 }

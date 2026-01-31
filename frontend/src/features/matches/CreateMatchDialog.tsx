@@ -14,10 +14,11 @@ interface CreateMatchDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type GameType = 'CHESS';
+type GameType = 'CHESS' | 'CONNECT_FOUR';
 
 const GAMES: { id: GameType; name: string; description: string }[] = [
   { id: 'CHESS', name: 'Chess', description: 'Classic chess game' },
+  { id: 'CONNECT_FOUR', name: 'Connect 4', description: 'Drop discs to connect 4 in a row' },
 ];
 
 export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps) {

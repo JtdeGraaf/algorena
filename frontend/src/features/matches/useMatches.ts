@@ -157,7 +157,7 @@ export function useMakeMove() {
 }
 
 // Hook to get all bots (for opponent selection)
-export function useAllBots(filters?: { game?: 'CHESS'; name?: string; active?: boolean }) {
+export function useAllBots(filters?: { game?: 'CHESS' | 'CONNECT_FOUR'; name?: string; active?: boolean }) {
   return useQuery({
     queryKey: botKeys.list(filters || {}),
     queryFn: async () => {

@@ -58,7 +58,7 @@ export type BotDto = {
     id?: number;
     name?: string;
     description?: string;
-    game?: 'CHESS';
+    game?: 'CHESS' | 'CONNECT_FOUR';
     active?: boolean;
     created?: string;
     lastUpdated?: string;
@@ -67,7 +67,7 @@ export type BotDto = {
 export type CreateMatchRequest = {
     bot1Id?: number;
     bot2Id?: number;
-    game?: 'CHESS';
+    game?: 'CHESS' | 'CONNECT_FOUR';
 };
 
 export type ChessGameStateDto = Omit<GameStateDto, 'type'> & {
@@ -78,18 +78,24 @@ export type ChessGameStateDto = Omit<GameStateDto, 'type'> & {
     type: 'ChessGameStateDTO';
 };
 
+export type Connect4GameStateDto = Omit<GameStateDto, 'type'> & {
+    board?: string;
+    lastMoveColumn?: number;
+    type: 'Connect4GameStateDTO';
+};
+
 export type GameStateDto = {
     type: string;
 };
 
 export type MatchDto = {
     id?: string;
-    game?: 'CHESS';
+    game?: 'CHESS' | 'CONNECT_FOUR';
     status?: 'CREATED' | 'IN_PROGRESS' | 'FINISHED' | 'ABORTED';
     startedAt?: string;
     finishedAt?: string;
     participants?: Array<MatchParticipantDto>;
-    state?: ChessGameStateDto;
+    state?: ChessGameStateDto | Connect4GameStateDto;
 };
 
 export type MatchParticipantDto = {
@@ -108,7 +114,7 @@ export type MakeMoveRequest = {
 export type CreateBotRequest = {
     name: string;
     description?: string;
-    game: 'CHESS';
+    game: 'CHESS' | 'CONNECT_FOUR';
 };
 
 export type CreateApiKeyRequest = {
@@ -538,7 +544,7 @@ export type GetBotsData = {
         /**
          * Filter by game type
          */
-        game?: 'CHESS';
+        game?: 'CHESS' | 'CONNECT_FOUR';
         /**
          * Filter by active status
          */
