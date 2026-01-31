@@ -24,6 +24,7 @@ Algorena is a competitive programming platform where developers can create bots 
 - **UI Components**: Custom shadcn-style components
 - **API Client**: Auto-generated from OpenAPI using @hey-api/openapi-ts
 - **Icons**: Lucide React
+- **Chess Logic**: chess.js (for move replay)
 
 ## Project Structure
 
@@ -69,6 +70,7 @@ algorena-root/
     │   ├── components/
     │   │   ├── Layout.tsx
     │   │   ├── Navbar.tsx
+    │   │   ├── Chessboard.tsx       # Visual chess board with FEN parsing
     │   │   └── ui/                  # Reusable UI components
     │   │       ├── button.tsx
     │   │       ├── card.tsx
@@ -91,7 +93,8 @@ algorena-root/
     │   │       ├── useMatches.ts    # React Query hooks
     │   │       ├── MatchCard.tsx
     │   │       ├── CreateMatchDialog.tsx
-    │   │       └── MatchDetailsDialog.tsx
+    │   │       ├── MatchDetailsDialog.tsx
+    │   │       └── MatchReplayDialog.tsx  # Step-through match replay
     │   ├── i18n/
     │   │   ├── i18n.ts
     │   │   └── locales/en/translation.json
@@ -130,6 +133,13 @@ algorena-root/
 - Match details with moves history
 - Abort active matches
 - Chess game state (FEN, PGN)
+- **Visual chessboard** showing current position
+- **Match replay** with step-through controls:
+  - Navigate with arrow keys or buttons
+  - Auto-play with adjustable speed (0.5x, 1x, 2x, 4x)
+  - Highlighted squares showing last move
+  - Click on any move to jump to that position
+  - Keyboard shortcuts: ←/→ (prev/next), Home/End, Space (play/pause)
 
 ## API Endpoints
 
