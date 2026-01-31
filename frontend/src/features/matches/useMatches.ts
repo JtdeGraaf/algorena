@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMatches, getRecentMatches, getMatch, getMatchMoves, createMatch, abortMatch, getBots } from '@/api/generated';
+import { getMatches, getRecentMatches, getMatch, getMatchMoves, createMatch, abortMatch, makeMove, getBots } from '@/api/generated';
 import type { CreateMatchRequest } from '@/api/generated';
+import { getAccessToken } from '@/api/client';
 
 export const matchKeys = {
   all: ['matches'] as const,
@@ -10,6 +11,7 @@ export const matchKeys = {
   details: () => [...matchKeys.all, 'detail'] as const,
   detail: (id: string) => [...matchKeys.details(), id] as const,
   moves: (id: string) => [...matchKeys.all, 'moves', id] as const,
+  legalMoves: (id: string) => [...matchKeys.all, 'legal-moves', id] as const,
 };
 
 export const botKeys = {
@@ -72,6 +74,29 @@ export function useMatchMoves(matchId: string) {
   });
 }
 
+export function useLegalMoves(matchId: string) {
+  return useQuery({
+    queryKey: matchKeys.legalMoves(matchId),
+    queryFn: async () => {
+      // Manual fetch because client generation is skipped or doesn't support this endpoint yet
+      const token = getAccessToken();
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`/api/v1/matches/${matchId}/legal-moves`, { headers });
+      if (!res.ok) {
+        throw new Error('Failed to fetch legal moves');
+      }
+      return res.json() as Promise<string[]>;
+    },
+    enabled: !!matchId,
+  });
+}
+
 export function useCreateMatch() {
   const queryClient = useQueryClient();
 
@@ -105,6 +130,28 @@ export function useAbortMatch() {
       queryClient.invalidateQueries({ queryKey: matchKeys.lists() });
       queryClient.invalidateQueries({ queryKey: matchKeys.recent() });
       queryClient.invalidateQueries({ queryKey: matchKeys.detail(matchId) });
+    },
+  });
+}
+
+export function useMakeMove() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ matchId, botId, move }: { matchId: string; botId: number; move: string }) => {
+      const response = await makeMove({
+        path: { matchId },
+        body: { botId, move }
+      });
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to make move');
+      }
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: matchKeys.detail(variables.matchId) });
+      queryClient.invalidateQueries({ queryKey: matchKeys.moves(variables.matchId) });
+      queryClient.invalidateQueries({ queryKey: matchKeys.lists() });
     },
   });
 }

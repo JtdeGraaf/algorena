@@ -133,13 +133,16 @@ algorena-root/
 - Match details with moves history
 - Abort active matches
 - Chess game state (FEN, PGN)
-- **Visual chessboard** showing current position
+- **Visual chessboard** with warm wood-tone colors for better contrast
+- **Fullscreen mode** for detailed match view
+- **Manual move capability** - humans can step in and make moves for their bots during in-progress matches
 - **Match replay** with step-through controls:
   - Navigate with arrow keys or buttons
   - Auto-play with adjustable speed (0.5x, 1x, 2x, 4x)
-  - Highlighted squares showing last move
+  - Highlighted squares showing last move (green) and selected piece (blue)
   - Click on any move to jump to that position
   - Keyboard shortcuts: ←/→ (prev/next), Home/End, Space (play/pause)
+  - Multiple board sizes: sm, md, lg, xl, full
 
 ## API Endpoints
 

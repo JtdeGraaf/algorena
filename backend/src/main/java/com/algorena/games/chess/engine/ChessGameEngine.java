@@ -9,6 +9,8 @@ import com.github.bhlangonijr.chesslib.move.Move;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ChessGameEngine implements GameEngine<ChessGameState, String> {
 
@@ -31,7 +33,8 @@ public class ChessGameEngine implements GameEngine<ChessGameState, String> {
         }
 
         Move move = new Move(moveNotation, turn);
-        if (!board.isMoveLegal(move, true)) {
+        // Use legalMoves() instead of isMoveLegal() as the latter has bugs with some invalid moves (e.g. e8e5 for king)
+        if (!board.legalMoves().contains(move)) {
              throw new IllegalArgumentException("Illegal move: " + moveNotation);
         }
         
@@ -55,6 +58,14 @@ public class ChessGameEngine implements GameEngine<ChessGameState, String> {
         }
 
         return null; // Game is ongoing
+    }
+
+    public List<String> getLegalMoves(ChessGameState state) {
+        Board board = new Board();
+        board.loadFromFen(state.getFen());
+        return board.legalMoves().stream()
+                .map(Move::toString)
+                .toList();
     }
 
     private ChessGameState createGameState(Board board) {

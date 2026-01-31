@@ -79,4 +79,15 @@ class ChessGameEngineTest {
             assertThat(result.scores().getScore(0)).isEqualTo(0.0);
         }
     }
+
+    @Test
+    void applyMove_ShouldRejectCorruptKingMove() {
+        ChessGameState state = new ChessGameState();
+        // FEN from the issue report where King tries to move 3 squares to capture King
+        state.updateBoardState("rnb1kbnr/p1P2ppp/8/1p2K3/8/8/PPP2PPP/RNB2BNR b kq - 0 7", 0, 7);
+        
+        assertThatThrownBy(() -> engine.applyMove(state, "e8e5", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Illegal move");
+    }
 }

@@ -70,4 +70,13 @@ public interface MatchService {
      * @param matchId The UUID of the match to abort.
      */
     void abortMatch(UUID matchId);
+
+    /**
+     * Retrieves all legal moves for the current state of the match.
+     * Currently only supported for Chess.
+     *
+     * @param matchId The UUID of the match.
+     * @return List of legal moves in UCI notation (e.g., "e2e4").
+     */
+    List<String> getLegalMoves(UUID matchId);
 }

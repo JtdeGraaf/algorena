@@ -9,6 +9,7 @@ import com.algorena.common.exception.ForbiddenException;
 import com.algorena.games.chess.data.ChessGameStateRepository;
 import com.algorena.games.chess.domain.ChessGameState;
 import com.algorena.games.chess.domain.ChessMatchMove;
+import com.algorena.games.chess.engine.ChessGameEngine;
 import com.algorena.games.data.MatchMoveRepository;
 import com.algorena.games.data.MatchRepository;
 import com.algorena.games.domain.AbstractMatchMove;
@@ -273,6 +274,29 @@ public class MatchServiceImpl implements MatchService {
 
         match.abort();
         matchRepository.save(match);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getLegalMoves(UUID matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new DataNotFoundException("Match not found"));
+
+        if (match.getStatus() != MatchStatus.IN_PROGRESS) {
+            return List.of();
+        }
+
+        if (match.getGame() == Game.CHESS) {
+            ChessGameState state = chessGameStateRepository.findByMatchId(matchId)
+                    .orElseThrow(() -> new DataNotFoundException("Game state not found"));
+            
+            GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(Game.CHESS);
+            if (engine instanceof ChessGameEngine chessEngine) {
+                return chessEngine.getLegalMoves(state);
+            }
+        }
+        
+        return List.of();
     }
 
     private MatchMoveDTO toMatchMoveDTO(AbstractMatchMove move) {

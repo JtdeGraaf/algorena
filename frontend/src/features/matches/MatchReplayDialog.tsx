@@ -41,12 +41,13 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
       try {
         if (move.fromSquare && move.toSquare) {
           chess.move({
-            from: move.fromSquare,
-            to: move.toSquare,
+            from: move.fromSquare.toLowerCase(),
+            to: move.toSquare.toLowerCase(),
             promotion: move.promotionPiece?.toLowerCase() as 'q' | 'r' | 'b' | 'n' | undefined,
           });
         } else if (move.moveNotation) {
-          chess.move(move.moveNotation);
+          // Move notation might also need lowercasing for the square parts
+          chess.move(move.moveNotation.toLowerCase());
         }
         result.push({ fen: chess.fen(), move });
       } catch (e) {
@@ -178,10 +179,10 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
             <div className="flex flex-col items-center gap-4">
               <Chessboard
                 fen={currentPosition.fen}
-                size="lg"
+                size="xl"
                 highlightSquares={
                   currentMove
-                    ? { from: currentMove.fromSquare, to: currentMove.toSquare }
+                    ? { from: currentMove.fromSquare?.toLowerCase(), to: currentMove.toSquare?.toLowerCase() }
                     : undefined
                 }
               />

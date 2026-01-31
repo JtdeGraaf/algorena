@@ -60,6 +60,11 @@ public class MatchController {
         return ResponseEntity.ok(matchService.getMatchMoves(matchId));
     }
 
+    @GetMapping("/{matchId}/legal-moves")
+    public ResponseEntity<List<String>> getLegalMoves(@PathVariable UUID matchId) {
+        return ResponseEntity.ok(matchService.getLegalMoves(matchId));
+    }
+
     @PostMapping("/{matchId}/abort")
     public ResponseEntity<Void> abortMatch(@PathVariable UUID matchId) {
         matchService.abortMatch(matchId);

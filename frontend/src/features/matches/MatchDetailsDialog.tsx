@@ -2,10 +2,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
 import { Chessboard } from '@/components/Chessboard';
 import { MatchReplayDialog } from './MatchReplayDialog';
-import { useMatchMoves, useAbortMatch } from './useMatches';
-import { Loader2, Swords, Clock, CheckCircle, XCircle, PlayCircle, StopCircle, Play } from 'lucide-react';
+import { useMatchMoves, useAbortMatch, useMakeMove, useMatch, useLegalMoves } from './useMatches';
+import { useBots } from '@/features/bots/useBots';
+import {
+  Loader2, Swords, Clock, CheckCircle, XCircle, PlayCircle,
+  StopCircle, Play, Maximize2, Minimize2, Hand
+} from 'lucide-react';
 import type { MatchDto } from '@/api/generated';
 import { cn } from '@/lib/utils';
 
@@ -15,11 +21,23 @@ interface MatchDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function MatchDetailsDialog({ match, open, onOpenChange }: MatchDetailsDialogProps) {
+export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: MatchDetailsDialogProps) {
   const { t } = useTranslation();
-  const { data: moves, isLoading: movesLoading } = useMatchMoves(match?.id || '');
+  const { data: freshMatch, refetch: refetchMatch } = useMatch(initialMatch?.id || '');
+  const { data: moves, isLoading: movesLoading, refetch: refetchMoves } = useMatchMoves(initialMatch?.id || '');
+  const { data: legalMoves, refetch: refetchLegalMoves } = useLegalMoves(initialMatch?.id || '');
   const abortMatch = useAbortMatch();
+  const makeMoveAction = useMakeMove();
+  const { data: botsPage } = useBots();
+
   const [replayOpen, setReplayOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [manualMoveMode, setManualMoveMode] = useState(false);
+  const [selectedBotId, setSelectedBotId] = useState<number | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
+
+  // Use fresh match data if available, otherwise fall back to initial
+  const match = freshMatch || initialMatch;
 
   if (!match) return null;
 
@@ -64,6 +82,13 @@ export function MatchDetailsDialog({ match, open, onOpenChange }: MatchDetailsDi
 
   const canAbort = match.status === 'CREATED' || match.status === 'IN_PROGRESS';
   const canReplay = moves && moves.length > 0;
+  const canManualMove = match.status === 'IN_PROGRESS';
+
+  // Get user's bots that are in this match
+  const myBots = botsPage?.content || [];
+  const myBotsInMatch = myBots.filter(bot =>
+    participants.some(p => p.botId === bot.id)
+  );
 
   const handleAbort = async () => {
     if (!match.id) return;
@@ -75,21 +100,62 @@ export function MatchDetailsDialog({ match, open, onOpenChange }: MatchDetailsDi
     }
   };
 
+  const handleManualMove = async (from: string, to: string) => {
+    if (!match.id || !selectedBotId) {
+      setMoveError('Please select a bot first');
+      return;
+    }
+
+    setMoveError(null);
+
+    try {
+      await makeMoveAction.mutateAsync({
+        matchId: match.id,
+        botId: selectedBotId,
+        move: `${from}${to}`,
+      });
+      // Refetch to get updated state - match, moves, and legal moves
+      await Promise.all([refetchMatch(), refetchMoves(), refetchLegalMoves()]);
+    } catch (error) {
+      setMoveError((error as Error).message);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className={cn(
+          'transition-all duration-200',
+          isFullscreen ? 'max-w-6xl h-[90vh]' : 'max-w-3xl'
+        )}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Swords className="h-5 w-5 text-emerald-500" />
-              Match Details
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <Swords className="h-5 w-5 text-emerald-500" />
+                Match Details
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+            </div>
             <DialogDescription>
               {player1?.botName} vs {player2?.botName}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className={cn(
+            'space-y-6 py-4',
+            isFullscreen && 'overflow-y-auto max-h-[calc(90vh-8rem)]'
+          )}>
             {/* Status and info */}
             <div className="flex items-center justify-between">
               <div className={cn('flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium', getStatusColor())}>
@@ -102,21 +168,93 @@ export function MatchDetailsDialog({ match, open, onOpenChange }: MatchDetailsDi
             </div>
 
             {/* Main content - Chessboard and info side by side */}
-            <div className="flex gap-6">
+            <div className={cn(
+              'flex gap-6',
+              isFullscreen ? 'flex-row' : 'flex-col md:flex-row'
+            )}>
               {/* Left: Chessboard */}
               {match.game === 'CHESS' && match.state?.fen && (
                 <div className="flex flex-col items-center gap-3">
-                  <Chessboard fen={match.state.fen} size="md" />
-                  {canReplay && (
+                  <Chessboard
+                    fen={match.state.fen}
+                    size={isFullscreen ? 'xl' : 'lg'}
+                    interactive={manualMoveMode && !!selectedBotId}
+                    legalMoves={legalMoves}
+                    onMove={handleManualMove}
+                    onInvalidMove={(reason) => setMoveError(reason || 'Invalid move')}
+                  />
+
+                  <div className="flex gap-2">
+                    {canReplay && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => setReplayOpen(true)}
+                      >
+                        <Play className="h-4 w-4" />
+                        Replay
+                      </Button>
+                    )}
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      className="gap-2"
-                      onClick={() => setReplayOpen(true)}
+                      onClick={toggleFullscreen}
                     >
-                      <Play className="h-4 w-4" />
-                      Replay Match
+                      {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                     </Button>
+                  </div>
+
+                  {/* Manual move controls */}
+                  {canManualMove && myBotsInMatch.length > 0 && (
+                    <div className="w-full space-y-2 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+                      <div className="flex items-center gap-2">
+                        <Hand className="h-4 w-4 text-amber-500" />
+                        <span className="text-sm font-medium">Manual Move</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="bot-select" className="text-xs whitespace-nowrap">Play as:</Label>
+                          <Select
+                            id="bot-select"
+                            value={selectedBotId?.toString() || ''}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                              setSelectedBotId(e.target.value ? parseInt(e.target.value) : null);
+                              setManualMoveMode(!!e.target.value);
+                            }}
+                            className="flex-1"
+                          >
+                            <option value="">Select bot...</option>
+                            {myBotsInMatch.map(bot => {
+                              const participant = participants.find(p => p.botId === bot.id);
+                              return (
+                                <option key={bot.id} value={bot.id?.toString()}>
+                                  {bot.name} ({participant?.playerIndex === 0 ? 'White' : 'Black'})
+                                </option>
+                              );
+                            })}
+                          </Select>
+                        </div>
+
+                        {manualMoveMode && (
+                          <p className="text-xs text-zinc-500">
+                            Click a piece, then click the target square to move
+                          </p>
+                        )}
+
+                        {moveError && (
+                          <p className="text-xs text-red-400">{moveError}</p>
+                        )}
+
+                        {makeMoveAction.isPending && (
+                          <div className="flex items-center gap-2 text-xs text-zinc-400">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Making move...
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
@@ -164,57 +302,60 @@ export function MatchDetailsDialog({ match, open, onOpenChange }: MatchDetailsDi
                     </code>
                   </div>
                 )}
-              </div>
-            </div>
 
-            {/* PGN */}
-            {match.state?.pgn && (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">PGN</h4>
-                <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-900 p-3 text-xs text-zinc-300">
-                  {match.state.pgn}
-                </pre>
-              </div>
-            )}
+                {/* Moves list */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">{t('matches.moves')} ({moves?.length || 0})</h4>
+                    {canReplay && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-xs"
+                        onClick={() => setReplayOpen(true)}
+                      >
+                        <Play className="h-3 w-3" />
+                        Open Replay
+                      </Button>
+                    )}
+                  </div>
+                  {movesLoading ? (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                    </div>
+                  ) : moves && moves.length > 0 ? (
+                    <div className={cn(
+                      'overflow-y-auto rounded-lg bg-zinc-900 p-3',
+                      isFullscreen ? 'max-h-48' : 'max-h-32'
+                    )}>
+                      <div className="flex flex-wrap gap-1 text-sm font-mono">
+                        {moves.map((move, index) => {
+                          const moveNum = Math.floor(index / 2) + 1;
+                          const isWhite = move.playerIndex === 0;
+                          return (
+                            <span key={move.id || index} className="text-zinc-300">
+                              {isWhite && <span className="text-zinc-500">{moveNum}.</span>}
+                              {move.moveNotation}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-zinc-500">No moves yet</p>
+                  )}
+                </div>
 
-            {/* Moves list */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">{t('matches.moves')} ({moves?.length || 0})</h4>
-                {canReplay && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-2 text-xs"
-                    onClick={() => setReplayOpen(true)}
-                  >
-                    <Play className="h-3 w-3" />
-                    Open Replay
-                  </Button>
+                {/* PGN (only in fullscreen or if short) */}
+                {match.state?.pgn && (isFullscreen || match.state.pgn.length < 200) && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">PGN</h4>
+                    <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-900 p-3 text-xs text-zinc-300 max-h-24">
+                      {match.state.pgn}
+                    </pre>
+                  </div>
                 )}
               </div>
-              {movesLoading ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
-                </div>
-              ) : moves && moves.length > 0 ? (
-                <div className="max-h-32 overflow-y-auto rounded-lg bg-zinc-900 p-3">
-                  <div className="flex flex-wrap gap-1 text-sm font-mono">
-                    {moves.map((move, index) => {
-                      const moveNum = Math.floor(index / 2) + 1;
-                      const isWhite = move.playerIndex === 0;
-                      return (
-                        <span key={move.id || index} className="text-zinc-300">
-                          {isWhite && <span className="text-zinc-500">{moveNum}.</span>}
-                          {move.moveNotation}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-zinc-500">No moves yet</p>
-              )}
             </div>
 
             {/* Actions */}
