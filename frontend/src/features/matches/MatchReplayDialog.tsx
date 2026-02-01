@@ -26,9 +26,12 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1000); // ms per move
 
+  // Only support Chess replay for now
+  const isChess = match?.game === 'CHESS';
+
   // Calculate all positions from moves
   const positions = useMemo(() => {
-    if (!moves || moves.length === 0) {
+    if (!isChess || !moves || moves.length === 0) {
       return [{ fen: INITIAL_FEN, move: null as MatchMoveDto | null }];
     }
 
@@ -56,7 +59,7 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
     }
 
     return result;
-  }, [moves]);
+  }, [moves, isChess]);
 
   // Current position
   const currentPosition = positions[currentMoveIndex + 1] || positions[0];
@@ -172,6 +175,17 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
         {movesLoading ? (
           <div className="flex justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+          </div>
+        ) : !isChess ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <Swords className="h-16 w-16 text-zinc-600" />
+            <h3 className="mt-4 text-lg font-semibold">Replay Not Available</h3>
+            <p className="mt-2 text-sm text-zinc-500">
+              Match replay is currently only supported for Chess games.
+            </p>
+            <p className="text-sm text-zinc-500">
+              Game type: {match.game}
+            </p>
           </div>
         ) : (
           <div className="flex gap-6 py-4">

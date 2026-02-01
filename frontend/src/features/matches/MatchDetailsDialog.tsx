@@ -82,7 +82,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
   const player2 = participants.find(p => p.playerIndex === 1);
 
   const canAbort = match.status === 'CREATED' || match.status === 'IN_PROGRESS';
-  const canReplay = moves && moves.length > 0;
+  const canReplay = match.game === 'CHESS' && moves && moves.length > 0;
   const canManualMove = match.status === 'IN_PROGRESS';
 
   // Get user's bots that are in this match

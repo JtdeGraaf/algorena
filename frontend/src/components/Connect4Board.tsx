@@ -35,9 +35,9 @@ export function Connect4Board({
 
   const getPieceColor = (char: string) => {
     switch (char) {
-      case '1': return 'bg-red-500 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border-red-700';
-      case '2': return 'bg-yellow-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] border-yellow-600';
-      default: return 'bg-zinc-900 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]';
+      case '1': return 'bg-emerald-500 border-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]';
+      case '2': return 'bg-red-500 border-2 border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.3)]';
+      default: return 'bg-zinc-900 border-2 border-zinc-800';
     }
   };
 
@@ -65,46 +65,86 @@ export function Connect4Board({
   }
 
   return (
-    <div className={cn('relative rounded-lg bg-blue-700 p-2 shadow-xl', sizeClasses[size], className)}>
-      <div 
-        className="grid h-full w-full grid-cols-7 grid-rows-6 gap-1 sm:gap-2"
-        onMouseLeave={() => setHoveredColumn(null)}
-      >
-        {grid.map(({ r, c, char }) => {
-          const isLegal = legalMoves?.includes(c.toString());
-          const isHovered = hoveredColumn === c;
-          
-          return (
-            <div
-              key={`${r}-${c}`}
-              className="relative flex items-center justify-center"
-              onMouseEnter={() => setHoveredColumn(c)}
-              onClick={() => handleColumnClick(c)}
-            >
-              {/* Slot Hole */}
-              <div className={cn(
-                "h-full w-full rounded-full border-2 sm:border-4 transition-colors duration-200",
-                getPieceColor(char),
-                // Highlight valid move on hover (only on empty top slots visually, or just column highlight)
-                interactive && isHovered && isLegal && char === '0' && "ring-2 ring-white/50",
-                interactive && isLegal ? "cursor-pointer" : "cursor-default"
-              )} />
-              
-              {/* Column Highlight Overlay */}
-              {interactive && isHovered && (
-                <div className={cn(
-                  "absolute inset-0 z-10 rounded-full",
-                  isLegal ? "bg-white/10" : "bg-red-500/20 cursor-not-allowed"
-                )} />
-              )}
-            </div>
-          );
-        })}
+    <div className={cn('relative', sizeClasses[size], className)}>
+      {/* Terminal-style header */}
+      <div className="mb-2 flex items-center gap-2 rounded-t border border-b-0 border-zinc-700 bg-zinc-900 px-3 py-1.5">
+        <div className="flex gap-1.5">
+          <div className="h-2 w-2 rounded-full bg-red-500/60" />
+          <div className="h-2 w-2 rounded-full bg-yellow-500/60" />
+          <div className="h-2 w-2 rounded-full bg-emerald-500/60" />
+        </div>
+        <div className="font-mono text-xs text-zinc-500">connect4.game</div>
       </div>
-      
-      {/* Base */}
-      <div className="absolute -bottom-4 left-0 right-0 h-4 rounded-b-xl bg-blue-800 shadow-lg" />
-      <div className="absolute -bottom-4 left-4 right-4 h-4 translate-y-1 rounded-b-lg bg-blue-900/50 blur-sm" />
+
+      {/* Game board */}
+      <div className="rounded-b border border-zinc-700 bg-zinc-950 p-3 shadow-xl">
+        {/* Column numbers */}
+        <div className="mb-2 grid grid-cols-7 gap-1 px-1 font-mono text-xs text-zinc-600">
+          {Array.from({ length: 7 }, (_, i) => (
+            <div key={i} className="text-center">{i}</div>
+          ))}
+        </div>
+
+        <div
+          className="grid h-full w-full grid-cols-7 grid-rows-6 gap-1.5 rounded bg-zinc-900/50 p-2"
+          onMouseLeave={() => setHoveredColumn(null)}
+        >
+          {grid.map(({ r, c, char }) => {
+            const isLegal = legalMoves?.includes(c.toString());
+            const isHovered = hoveredColumn === c;
+
+            return (
+              <div
+                key={`${r}-${c}`}
+                className="relative flex items-center justify-center"
+                onMouseEnter={() => setHoveredColumn(c)}
+                onClick={() => handleColumnClick(c)}
+              >
+                {/* Slot */}
+                <div className={cn(
+                  "h-full w-full rounded-full transition-all duration-200",
+                  getPieceColor(char),
+                  // Glow effect for pieces
+                  char !== '0' && "animate-pulse-slow",
+                  // Highlight valid move on hover
+                  interactive && isHovered && isLegal && "ring-2 ring-emerald-500/50",
+                  interactive && isLegal ? "cursor-pointer hover:scale-105" : "",
+                  !isLegal && interactive && isHovered && "ring-2 ring-red-500/50"
+                )} />
+
+                {/* Column indicator on hover */}
+                {interactive && isHovered && r === ROWS - 1 && (
+                  <div className={cn(
+                    "absolute -top-6 text-xs font-mono",
+                    isLegal ? "text-emerald-500" : "text-red-500"
+                  )}>
+                    ▼
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Status indicator */}
+        <div className="mt-2 flex items-center justify-between px-1 font-mono text-xs">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <div className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="text-zinc-500">P1</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="h-2 w-2 rounded-full bg-red-500" />
+              <span className="text-zinc-500">P2</span>
+            </div>
+          </div>
+          {interactive && (
+            <span className="text-zinc-600">
+              {legalMoves && legalMoves.length > 0 ? 'Your turn' : 'Waiting...'}
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
