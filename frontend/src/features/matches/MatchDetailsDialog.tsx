@@ -199,6 +199,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
 
                 <div className="flex gap-2">
                   {canReplay && (
+                      <div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -208,7 +209,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                       <Play className="h-4 w-4" />
                       Replay
                     </Button>
-                  )}
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -216,7 +217,10 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                   >
                     {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                   </Button>
+                      </div>
+                    )}
                 </div>
+
 
                 {/* Manual move controls */}
                 {canManualMove && myBotsInMatch.length > 0 && (
