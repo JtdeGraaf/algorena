@@ -367,7 +367,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                 </div>
 
                 {/* PGN (only in fullscreen or if short) */}
-                {match.game === 'CHESS' && match.state && 'pgn' in match.state && (isFullscreen || (match.state.pgn as string).length < 200) && (
+                {match.game === 'CHESS' && match.state && 'pgn' in match.state && match.state.pgn && (isFullscreen || (match.state.pgn as string).length < 200) && (
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">PGN</h4>
                     <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-900 p-3 text-xs text-zinc-300 max-h-24">
