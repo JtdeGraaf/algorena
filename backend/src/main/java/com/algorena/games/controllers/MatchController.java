@@ -2,7 +2,6 @@ package com.algorena.games.controllers;
 
 import com.algorena.games.application.MatchService;
 import com.algorena.games.dto.CreateMatchRequest;
-import com.algorena.games.dto.MakeMoveRequest;
 import com.algorena.games.dto.MatchDTO;
 import com.algorena.games.dto.MatchMoveDTO;
 import jakarta.validation.Valid;
@@ -41,13 +40,6 @@ public class MatchController {
     public ResponseEntity<MatchDTO> createMatch(@Valid @RequestBody CreateMatchRequest request) {
         MatchDTO match = matchService.createMatch(request);
         return ResponseEntity.ok(match);
-    }
-
-    @PostMapping("/{matchId}/move")
-    public ResponseEntity<Void> makeMove(@PathVariable UUID matchId,
-                                         @Valid @RequestBody MakeMoveRequest request) {
-        matchService.makeMove(matchId, request);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{matchId}")

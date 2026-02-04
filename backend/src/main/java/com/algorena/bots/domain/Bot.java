@@ -38,6 +38,13 @@ public class Bot extends BaseEntity {
     @Builder.Default
     private boolean active = true;
 
+    @Column(name = "endpoint", nullable = false, length = 500)
+    private String endpoint;
+
+    @Nullable
+    @Column(name = "api_key", length = 255)
+    private String apiKey;
+
     public void activate() {
         this.active = true;
     }
@@ -58,6 +65,17 @@ public class Bot extends BaseEntity {
         }
         this.name = name;
         this.description = description;
+    }
+
+    public void updateEndpoint(String endpoint, @Nullable String apiKey) {
+        if (endpoint == null || endpoint.isBlank()) {
+            throw new IllegalArgumentException("Bot endpoint cannot be blank");
+        }
+        if (endpoint.length() > 500) {
+            throw new IllegalArgumentException("Endpoint cannot exceed 500 characters");
+        }
+        this.endpoint = endpoint;
+        this.apiKey = apiKey;
     }
 }
 

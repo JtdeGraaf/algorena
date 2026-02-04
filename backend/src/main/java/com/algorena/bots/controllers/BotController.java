@@ -17,8 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/bots")
 @PreAuthorize("hasRole('USER')")
@@ -73,26 +71,4 @@ public class BotController {
         botService.deleteBot(botId);
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping("/{botId}/api-keys")
-    @Operation(summary = "Generate a new API key for a bot")
-    public ResponseEntity<CreateApiKeyResponse> createApiKey(@PathVariable Long botId, @Valid @RequestBody CreateApiKeyRequest request) {
-        CreateApiKeyResponse response = botService.createApiKey(botId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @GetMapping("/{botId}/api-keys")
-    @Operation(summary = "Get all API keys for a bot")
-    public ResponseEntity<List<ApiKeyDTO>> getBotApiKeys(@PathVariable Long botId) {
-        List<ApiKeyDTO> apiKeys = botService.getBotApiKeys(botId);
-        return ResponseEntity.ok(apiKeys);
-    }
-
-    @DeleteMapping("/{botId}/api-keys/{apiKeyId}")
-    @Operation(summary = "Revoke an API key")
-    public ResponseEntity<Void> revokeApiKey(@PathVariable Long botId, @PathVariable Long apiKeyId) {
-        botService.revokeApiKey(botId, apiKeyId);
-        return ResponseEntity.noContent().build();
-    }
 }
-

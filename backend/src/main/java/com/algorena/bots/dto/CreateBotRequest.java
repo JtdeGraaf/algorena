@@ -16,6 +16,14 @@ public record CreateBotRequest(
         String description,
 
         @NotNull(message = "Game is required")
-        Game game
+        Game game,
+
+        @NotBlank(message = "Endpoint URL is required")
+        @Size(max = 500, message = "Endpoint must not exceed 500 characters")
+        String endpoint,
+
+        @Nullable
+        @Size(max = 255, message = "API key must not exceed 255 characters")
+        String apiKey
 ) {
 }

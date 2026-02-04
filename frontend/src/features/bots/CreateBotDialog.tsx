@@ -19,6 +19,8 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [game, setGame] = useState<'CHESS' | 'CONNECT_FOUR'>('CHESS');
+  const [endpoint, setEndpoint] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const createBot = useCreateBot();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,10 +30,14 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
         name,
         description: description || undefined,
         game,
+        endpoint,
+        apiKey: apiKey || undefined,
       });
       setName('');
       setDescription('');
       setGame('CHESS');
+      setEndpoint('');
+      setApiKey('');
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to create bot:', error);
@@ -42,6 +48,8 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
     setName('');
     setDescription('');
     setGame('CHESS');
+    setEndpoint('');
+    setApiKey('');
     onOpenChange(false);
   };
 
@@ -51,7 +59,7 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
         <DialogHeader>
           <DialogTitle>{t('bots.createBot')}</DialogTitle>
           <DialogDescription>
-            Create a new bot to compete in the arena. You'll get an API key to connect your bot.
+            Create a new bot to compete in the arena. Your bot must expose an HTTP endpoint that accepts move requests.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -91,11 +99,40 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
             </Select>
             <p className="text-xs text-zinc-500">More games coming soon!</p>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="endpoint">Endpoint URL *</Label>
+            <Input
+              id="endpoint"
+              type="url"
+              value={endpoint}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndpoint(e.target.value)}
+              placeholder="https://your-bot.example.com/move"
+              required
+              maxLength={500}
+            />
+            <p className="text-xs text-zinc-500">
+              The URL where Algorena will send move requests to your bot.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="apiKey">API Key (optional)</Label>
+            <Input
+              id="apiKey"
+              type="password"
+              value={apiKey}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
+              placeholder="Your bot's secret key"
+              maxLength={255}
+            />
+            <p className="text-xs text-zinc-500">
+              Sent in X-Algorena-API-Key header so your bot can verify requests are from Algorena.
+            </p>
+          </div>
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={handleClose}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" disabled={createBot.isPending || !name.trim()}>
+            <Button type="submit" disabled={createBot.isPending || !name.trim() || !endpoint.trim()}>
               {createBot.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t('common.create')}
             </Button>
@@ -105,4 +142,3 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
     </Dialog>
   );
 }
-

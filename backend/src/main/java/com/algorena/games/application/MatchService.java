@@ -1,7 +1,6 @@
 package com.algorena.games.application;
 
 import com.algorena.games.dto.CreateMatchRequest;
-import com.algorena.games.dto.MakeMoveRequest;
 import com.algorena.games.dto.MatchDTO;
 import com.algorena.games.dto.MatchMoveDTO;
 
@@ -11,19 +10,12 @@ import java.util.UUID;
 public interface MatchService {
     /**
      * Creates a new match between two bots for a specific game.
+     * The match will be executed asynchronously in the background.
      *
      * @param request The request containing bot IDs and game type.
      * @return The created Match DTO.
      */
     MatchDTO createMatch(CreateMatchRequest request);
-
-    /**
-     * Applies a move to an ongoing match.
-     *
-     * @param matchId The UUID of the match.
-     * @param request The request containing bot ID and move notation.
-     */
-    void makeMove(UUID matchId, MakeMoveRequest request);
 
     /**
      * Retrieves a match by its ID.
@@ -73,7 +65,6 @@ public interface MatchService {
 
     /**
      * Retrieves all legal moves for the current state of the match.
-     * Currently only supported for Chess.
      *
      * @param matchId The UUID of the match.
      * @return List of legal moves in UCI notation (e.g., "e2e4").

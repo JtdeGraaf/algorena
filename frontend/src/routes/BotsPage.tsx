@@ -8,8 +8,7 @@ import { useBotStats } from '@/features/bots/useBots';
 import { CreateBotDialog } from '@/features/bots/CreateBotDialog';
 import { EditBotDialog } from '@/features/bots/EditBotDialog';
 import { DeleteBotDialog } from '@/features/bots/DeleteBotDialog';
-import { ApiKeysDialog } from '@/features/bots/ApiKeysDialog';
-import { Bot, Plus, Loader2, Edit2, Trash2, Key, Circle } from 'lucide-react';
+import { Bot, Plus, Loader2, Edit2, Trash2, Circle } from 'lucide-react';
 import type { BotDto } from '@/api/generated';
 import { cn } from '@/lib/utils';
 
@@ -45,7 +44,6 @@ export function BotsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editBot, setEditBot] = useState<BotDto | null>(null);
   const [deleteBot, setDeleteBot] = useState<BotDto | null>(null);
-  const [apiKeysBot, setApiKeysBot] = useState<BotDto | null>(null);
 
   if (!isAuthenticated) {
     return (
@@ -153,15 +151,6 @@ export function BotsPage() {
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7"
-                    onClick={() => setApiKeysBot(bot)}
-                    title="API Keys"
-                  >
-                    <Key className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
                     onClick={() => setEditBot(bot)}
                     title="Edit"
                   >
@@ -199,14 +188,6 @@ export function BotsPage() {
         open={!!deleteBot}
         onOpenChange={(open) => !open && setDeleteBot(null)}
       />
-
-      {apiKeysBot && (
-        <ApiKeysDialog
-          bot={apiKeysBot}
-          open={true}
-          onOpenChange={(open) => !open && setApiKeysBot(null)}
-        />
-      )}
     </div>
   );
 }

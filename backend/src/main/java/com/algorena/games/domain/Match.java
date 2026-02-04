@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,6 +44,10 @@ public class Match extends BaseEntity {
     @Builder.Default
     private List<MatchParticipant> participants = new ArrayList<>();
 
+    @Nullable
+    @Column(name = "forfeit_reason", length = 50)
+    private String forfeitReason;
+
     public void start() {
         this.status = MatchStatus.IN_PROGRESS;
         this.startedAt = LocalDateTime.now();
@@ -60,5 +65,11 @@ public class Match extends BaseEntity {
 
     public void addParticipant(MatchParticipant participant) {
         this.participants.add(participant);
+    }
+
+    public void forfeit(String reason) {
+        this.forfeitReason = reason;
+        this.status = MatchStatus.FINISHED;
+        this.finishedAt = LocalDateTime.now();
     }
 }

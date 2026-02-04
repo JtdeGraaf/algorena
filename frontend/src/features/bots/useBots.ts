@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBots, createBot, updateBot, deleteBot, getBotStats, getBotApiKeys, createApiKey, revokeApiKey } from '@/api/generated';
-import type { CreateBotRequest, UpdateBotRequest, CreateApiKeyRequest } from '@/api/generated';
+import { getBots, createBot, updateBot, deleteBot, getBotStats } from '@/api/generated';
+import type { CreateBotRequest, UpdateBotRequest } from '@/api/generated';
 
 export const botKeys = {
   all: ['bots'] as const,
@@ -9,7 +9,6 @@ export const botKeys = {
   details: () => [...botKeys.all, 'detail'] as const,
   detail: (id: number) => [...botKeys.details(), id] as const,
   stats: (id: number) => [...botKeys.all, 'stats', id] as const,
-  apiKeys: (id: number) => [...botKeys.all, 'apiKeys', id] as const,
 };
 
 export function useBots() {
@@ -32,20 +31,6 @@ export function useBotStats(botId: number) {
       const response = await getBotStats({ path: { botId } });
       if (response.error) {
         throw new Error(response.error.message || 'Failed to fetch bot stats');
-      }
-      return response.data;
-    },
-    enabled: !!botId,
-  });
-}
-
-export function useBotApiKeys(botId: number) {
-  return useQuery({
-    queryKey: botKeys.apiKeys(botId),
-    queryFn: async () => {
-      const response = await getBotApiKeys({ path: { botId } });
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to fetch API keys');
       }
       return response.data;
     },
@@ -104,38 +89,3 @@ export function useDeleteBot() {
     },
   });
 }
-
-export function useCreateApiKey() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ botId, data }: { botId: number; data: CreateApiKeyRequest }) => {
-      const response = await createApiKey({ path: { botId }, body: data });
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to create API key');
-      }
-      return response.data;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: botKeys.apiKeys(variables.botId) });
-    },
-  });
-}
-
-export function useRevokeApiKey() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ botId, apiKeyId }: { botId: number; apiKeyId: number }) => {
-      const response = await revokeApiKey({ path: { botId, apiKeyId } });
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to revoke API key');
-      }
-      return response.data;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: botKeys.apiKeys(variables.botId) });
-    },
-  });
-}
-

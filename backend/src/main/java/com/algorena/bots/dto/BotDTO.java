@@ -11,6 +11,7 @@ public record BotDTO(
         @Nullable String description,
         Game game,
         boolean active,
+        String endpoint,
         LocalDateTime created,
         LocalDateTime lastUpdated
 ) {

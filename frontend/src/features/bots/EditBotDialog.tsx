@@ -20,6 +20,8 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [active, setActive] = useState(true);
+  const [endpoint, setEndpoint] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const updateBot = useUpdateBot();
 
   useEffect(() => {
@@ -27,6 +29,10 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
       setName(bot.name || '');
       setDescription(bot.description || '');
       setActive(bot.active ?? true);
+      setEndpoint(bot.endpoint || '');
+      // API key is not returned from the server for security, so we leave it empty
+      // User can enter a new one if they want to change it
+      setApiKey('');
     }
   }, [bot]);
 
@@ -41,6 +47,8 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
           name,
           description: description || undefined,
           active,
+          endpoint,
+          apiKey: apiKey || undefined,
         },
       });
       onOpenChange(false);
@@ -86,6 +94,35 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
               maxLength={500}
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-endpoint">Endpoint URL *</Label>
+            <Input
+              id="edit-endpoint"
+              type="url"
+              value={endpoint}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndpoint(e.target.value)}
+              placeholder="https://your-bot.example.com/move"
+              required
+              maxLength={500}
+            />
+            <p className="text-xs text-zinc-500">
+              The URL where Algorena will send move requests to your bot.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-apiKey">API Key (optional)</Label>
+            <Input
+              id="edit-apiKey"
+              type="password"
+              value={apiKey}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
+              placeholder="Enter new key to change, or leave empty"
+              maxLength={255}
+            />
+            <p className="text-xs text-zinc-500">
+              Sent in X-Algorena-API-Key header. Leave empty to keep the current key.
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -100,7 +137,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
             <Button type="button" variant="outline" onClick={handleClose}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" disabled={updateBot.isPending || !name.trim()}>
+            <Button type="submit" disabled={updateBot.isPending || !name.trim() || !endpoint.trim()}>
               {updateBot.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t('common.save')}
             </Button>
@@ -110,4 +147,3 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
     </Dialog>
   );
 }
-

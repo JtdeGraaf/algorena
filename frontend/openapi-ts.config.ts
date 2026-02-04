@@ -1,14 +1,14 @@
-import { defineConfig } from '@hey-api/openapi-ts';
+import {defineConfig} from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  input: '../backend/temp api specs for frontend.json',
-  output: {
-    path: 'src/api/generated',
-  },
-  plugins: [
-    '@hey-api/typescript',
-    '@hey-api/sdk',
-    '@hey-api/client-fetch',
-  ],
+    input: 'http://localhost:8080/v3/api-docs',
+    output: {
+        path: 'src/api/generated',
+    },
+    plugins: [
+        '@hey-api/typescript',
+        '@hey-api/sdk',
+        '@hey-api/client-fetch',
+    ],
 });
 

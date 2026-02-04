@@ -22,10 +22,7 @@ import com.algorena.games.domain.MatchStatus;
 import com.algorena.games.dto.*;
 import com.algorena.games.engine.GameEngine;
 import com.algorena.games.engine.GameEngineFactory;
-import com.algorena.games.engine.GameResult;
 import com.algorena.security.CurrentUser;
-import com.github.bhlangonijr.chesslib.Side;
-import com.github.bhlangonijr.chesslib.move.Move;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -45,6 +42,7 @@ public class MatchServiceImpl implements MatchService {
     private final GameEngineFactory gameEngineFactory;
     private final BotRepository botRepository;
     private final CurrentUser currentUser;
+    private final MatchExecutorService matchExecutorService;
 
     @Override
     @Transactional
@@ -67,13 +65,13 @@ public class MatchServiceImpl implements MatchService {
         MatchParticipant p1 = MatchParticipant.builder()
                 .match(match)
                 .bot(bot1)
-                .playerIndex(0) // White
+                .playerIndex(0) // White / Player 1
                 .build();
 
         MatchParticipant p2 = MatchParticipant.builder()
                 .match(match)
                 .bot(bot2)
-                .playerIndex(1) // Black
+                .playerIndex(1) // Black / Player 2
                 .build();
 
         match.addParticipant(p1);
@@ -83,6 +81,9 @@ public class MatchServiceImpl implements MatchService {
 
         // Initialize Game State
         initializeGameState(match);
+
+        // Start async match execution
+        matchExecutorService.executeMatch(match.getId());
 
         return toMatchDTO(match);
     }
@@ -99,124 +100,10 @@ public class MatchServiceImpl implements MatchService {
                 GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
                 Connect4GameState initialState = engine.startNewGame();
                 initialState.assignMatch(match);
-                // Explicitly save the relationship or ensure match is persisted first (it is saved above)
                 connect4GameStateRepository.save(initialState);
             }
             default -> throw new UnsupportedOperationException("Game not supported: " + match.getGame());
         }
-    }
-
-    @Override
-    @Transactional
-    public void makeMove(UUID matchId, MakeMoveRequest request) {
-        Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new DataNotFoundException("Match not found"));
-
-        Bot bot = botRepository.findById(request.botId())
-                .orElseThrow(() -> new DataNotFoundException("Bot not found: " + request.botId()));
-
-        if (!bot.getUserId().equals(currentUser.id())) {
-            throw new ForbiddenException("You do not own this bot");
-        }
-
-        if (match.getStatus() != MatchStatus.IN_PROGRESS) {
-            throw new BadRequestException("Match is not in progress");
-        }
-
-        MatchParticipant participant = match.getParticipants().stream()
-                .filter(p -> p.getBot().getId().equals(bot.getId()))
-                .findFirst()
-                .orElseThrow(() -> new ForbiddenException("Bot is not a participant in this match"));
-
-        switch (match.getGame()) {
-            case CHESS -> handleChessMove(match, participant, request.move());
-            case CONNECT_FOUR -> handleConnect4Move(match, participant, request.move());
-            default -> throw new UnsupportedOperationException("Game not supported");
-        }
-    }
-
-    private void handleConnect4Move(Match match, MatchParticipant participant, String moveString) {
-        Connect4GameState state = connect4GameStateRepository.findByMatchId(match.getId())
-                .orElseThrow(() -> new DataNotFoundException("Game state not found"));
-
-        GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
-
-        int columnIndex;
-        try {
-            columnIndex = Integer.parseInt(moveString);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("Invalid move format: must be a column index (0-6)");
-        }
-
-        // Apply Move
-        Connect4GameState newState = engine.applyMove(state, columnIndex, participant.getPlayerIndex());
-
-        // Update State
-        state.updateBoardState(newState.getBoard(), newState.getLastMoveColumn());
-        connect4GameStateRepository.save(state);
-
-        // Record Move
-        Connect4MatchMove matchMove = Connect4MatchMove.builder()
-                .match(match)
-                .playerIndex(participant.getPlayerIndex())
-                .moveNotation(moveString)
-                .columnIndex(columnIndex)
-                .build();
-        matchMoveRepository.save(matchMove);
-
-        // Check Result
-        GameResult result = engine.checkResult(state);
-        if (result != null) {
-            finishMatch(match, result);
-        }
-    }
-
-    private void handleChessMove(Match match, MatchParticipant participant, String moveNotation) {
-        ChessGameState state = chessGameStateRepository.findByMatchId(match.getId())
-                .orElseThrow(() -> new DataNotFoundException("Game state not found"));
-
-        GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(Game.CHESS);
-
-        // Apply Move (Engine validates turn and rules)
-        ChessGameState newState = engine.applyMove(state, moveNotation, participant.getPlayerIndex());
-
-        // Update State
-        state.updateBoardState(newState.getFen(), newState.getHalfMoveClock(), newState.getFullMoveNumber());
-
-        chessGameStateRepository.save(state);
-
-        // Record Move
-        // Parse move details
-        Move move = new Move(moveNotation, Side.WHITE);
-        String promotion = move.getPromotion().equals(com.github.bhlangonijr.chesslib.Piece.NONE) ? null : move.getPromotion().value();
-
-        ChessMatchMove matchMove = ChessMatchMove.builder()
-                .match(match)
-                .playerIndex(participant.getPlayerIndex())
-                .moveNotation(moveNotation)
-                .fromSquare(move.getFrom().value())
-                .toSquare(move.getTo().value())
-                .promotionPiece(promotion)
-                .build();
-        matchMoveRepository.save(matchMove);
-
-        // Check Result
-        GameResult result = engine.checkResult(state);
-        if (result != null) {
-            finishMatch(match, result);
-        }
-    }
-
-    private void finishMatch(Match match, GameResult result) {
-        match.finish();
-
-        for (MatchParticipant p : match.getParticipants()) {
-            // Default to 0.0 if the player is not in the scores map (e.g. forfeit/loss)
-            Double score = result.scores().getScore(p.getPlayerIndex());
-            p.recordScore(score);
-        }
-
-        matchRepository.save(match);
     }
 
     @Override
@@ -296,7 +183,6 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(readOnly = true)
     public List<MatchDTO> getCurrentUserMatches() {
-        // Use optimized repository method instead of loading all matches
         return matchRepository.findByUserIdOrderByCreatedDesc(currentUser.id()).stream()
                 .map(this::toMatchDTO)
                 .toList();
@@ -305,7 +191,6 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(readOnly = true)
     public List<MatchDTO> getRecentMatches(int limit) {
-        // Use optimized repository method with Pageable for efficient limiting
         return matchRepository.findRecentMatches(PageRequest.of(0, limit)).stream()
                 .map(this::toMatchDTO)
                 .toList();
@@ -346,7 +231,7 @@ public class MatchServiceImpl implements MatchService {
         if (match.getGame() == Game.CHESS) {
             ChessGameState state = chessGameStateRepository.findByMatchId(matchId)
                     .orElseThrow(() -> new DataNotFoundException("Game state not found"));
-            
+
             GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(Game.CHESS);
             if (engine instanceof ChessGameEngine chessEngine) {
                 return chessEngine.getLegalMoves(state);
@@ -354,7 +239,7 @@ public class MatchServiceImpl implements MatchService {
         } else if (match.getGame() == Game.CONNECT_FOUR) {
             Connect4GameState state = connect4GameStateRepository.findByMatchId(matchId)
                     .orElseThrow(() -> new DataNotFoundException("Game state not found"));
-            
+
             GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
             if (engine instanceof Connect4GameEngine connect4Engine) {
                 return connect4Engine.getLegalMoves(state).stream()
@@ -362,7 +247,7 @@ public class MatchServiceImpl implements MatchService {
                         .toList();
             }
         }
-        
+
         return List.of();
     }
 
@@ -376,9 +261,6 @@ public class MatchServiceImpl implements MatchService {
             to = chessMove.getToSquare();
             promotion = chessMove.getPromotionPiece();
         } else if (move instanceof Connect4MatchMove connect4Move) {
-             // For Connect 4, we might not populate from/to squares in the same way,
-             // or we could map "column" to "to" if frontend expects it.
-             // For now, leaving as null, relying on moveNotation ("3")
              to = String.valueOf(connect4Move.getColumnIndex());
         }
 

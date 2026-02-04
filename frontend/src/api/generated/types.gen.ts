@@ -52,6 +52,8 @@ export type UpdateBotRequest = {
     name: string;
     description?: string;
     active?: boolean;
+    endpoint: string;
+    apiKey?: string;
 };
 
 export type BotDto = {
@@ -60,6 +62,7 @@ export type BotDto = {
     description?: string;
     game?: 'CHESS' | 'CONNECT_FOUR';
     active?: boolean;
+    endpoint?: string;
     created?: string;
     lastUpdated?: string;
 };
@@ -106,34 +109,12 @@ export type MatchParticipantDto = {
     score?: number;
 };
 
-export type MakeMoveRequest = {
-    botId?: number;
-    move?: string;
-};
-
 export type CreateBotRequest = {
     name: string;
     description?: string;
     game: 'CHESS' | 'CONNECT_FOUR';
-};
-
-export type CreateApiKeyRequest = {
-    name?: string;
-};
-
-export type ApiKeyDto = {
-    id?: number;
-    name?: string;
-    keyPrefix?: string;
-    lastUsed?: string;
-    expiresAt?: string;
-    revoked?: boolean;
-    created?: string;
-};
-
-export type CreateApiKeyResponse = {
-    apiKey?: ApiKeyDto;
-    plainTextKey?: string;
+    endpoint: string;
+    apiKey?: string;
 };
 
 export type UpdateUserRequest = {
@@ -158,25 +139,25 @@ export type MatchMoveDto = {
 };
 
 export type PageBotDto = {
-    totalElements?: number;
     totalPages?: number;
+    totalElements?: number;
     size?: number;
     content?: Array<BotDto>;
     number?: number;
+    sort?: SortObject;
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
-    sort?: SortObject;
     pageable?: PageableObject;
     empty?: boolean;
 };
 
 export type PageableObject = {
     offset?: number;
-    paged?: boolean;
     sort?: SortObject;
-    pageSize?: number;
+    paged?: boolean;
     pageNumber?: number;
+    pageSize?: number;
     unpaged?: boolean;
 };
 
@@ -427,51 +408,6 @@ export type CreateMatchResponses = {
 
 export type CreateMatchResponse = CreateMatchResponses[keyof CreateMatchResponses];
 
-export type MakeMoveData = {
-    body: MakeMoveRequest;
-    path: {
-        matchId: string;
-    };
-    query?: never;
-    url: '/api/v1/matches/{matchId}/move';
-};
-
-export type MakeMoveErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type MakeMoveError = MakeMoveErrors[keyof MakeMoveErrors];
-
-export type MakeMoveResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
 export type AbortMatchData = {
     body?: never;
     path: {
@@ -636,105 +572,11 @@ export type CreateBotResponses = {
 
 export type CreateBotResponse = CreateBotResponses[keyof CreateBotResponses];
 
-export type GetBotApiKeysData = {
-    body?: never;
-    path: {
-        botId: number;
-    };
-    query?: never;
-    url: '/api/v1/bots/{botId}/api-keys';
-};
-
-export type GetBotApiKeysErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type GetBotApiKeysError = GetBotApiKeysErrors[keyof GetBotApiKeysErrors];
-
-export type GetBotApiKeysResponses = {
-    /**
-     * OK
-     */
-    200: Array<ApiKeyDto>;
-};
-
-export type GetBotApiKeysResponse = GetBotApiKeysResponses[keyof GetBotApiKeysResponses];
-
-export type CreateApiKeyData = {
-    body: CreateApiKeyRequest;
-    path: {
-        botId: number;
-    };
-    query?: never;
-    url: '/api/v1/bots/{botId}/api-keys';
-};
-
-export type CreateApiKeyErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type CreateApiKeyError = CreateApiKeyErrors[keyof CreateApiKeyErrors];
-
-export type CreateApiKeyResponses = {
-    /**
-     * OK
-     */
-    200: CreateApiKeyResponse;
-};
-
-export type CreateApiKeyResponse2 = CreateApiKeyResponses[keyof CreateApiKeyResponses];
-
 export type GetCurrentUserProfileData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/users/me';
+    url: '/api/v1/users/me';
 };
 
 export type GetCurrentUserProfileErrors = {
@@ -779,7 +621,7 @@ export type UpdateCurrentUserProfileData = {
     body: UpdateUserRequest;
     path?: never;
     query?: never;
-    url: '/users/me';
+    url: '/api/v1/users/me';
 };
 
 export type UpdateCurrentUserProfileErrors = {
@@ -914,6 +756,53 @@ export type GetMatchMovesResponses = {
 
 export type GetMatchMovesResponse = GetMatchMovesResponses[keyof GetMatchMovesResponses];
 
+export type GetLegalMovesData = {
+    body?: never;
+    path: {
+        matchId: string;
+    };
+    query?: never;
+    url: '/api/v1/matches/{matchId}/legal-moves';
+};
+
+export type GetLegalMovesErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetLegalMovesError = GetLegalMovesErrors[keyof GetLegalMovesErrors];
+
+export type GetLegalMovesResponses = {
+    /**
+     * OK
+     */
+    200: Array<string>;
+};
+
+export type GetLegalMovesResponse = GetLegalMovesResponses[keyof GetLegalMovesResponses];
+
 export type GetRecentMatchesData = {
     body?: never;
     path?: never;
@@ -1007,49 +896,3 @@ export type GetBotStatsResponses = {
 };
 
 export type GetBotStatsResponse = GetBotStatsResponses[keyof GetBotStatsResponses];
-
-export type RevokeApiKeyData = {
-    body?: never;
-    path: {
-        botId: number;
-        apiKeyId: number;
-    };
-    query?: never;
-    url: '/api/v1/bots/{botId}/api-keys/{apiKeyId}';
-};
-
-export type RevokeApiKeyErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type RevokeApiKeyError = RevokeApiKeyErrors[keyof RevokeApiKeyErrors];
-
-export type RevokeApiKeyResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};

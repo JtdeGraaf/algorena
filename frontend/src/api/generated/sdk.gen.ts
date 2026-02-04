@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AbortMatchData, AbortMatchErrors, AbortMatchResponses, CreateApiKeyData, CreateApiKeyErrors, CreateApiKeyResponses, CreateBotData, CreateBotErrors, CreateBotResponses, CreateMatchData, CreateMatchErrors, CreateMatchResponses, DeleteBotData, DeleteBotErrors, DeleteBotResponses, GetBotApiKeysData, GetBotApiKeysErrors, GetBotApiKeysResponses, GetBotByIdData, GetBotByIdErrors, GetBotByIdResponses, GetBotsData, GetBotsErrors, GetBotsResponses, GetBotStatsData, GetBotStatsErrors, GetBotStatsResponses, GetCurrentUserProfileData, GetCurrentUserProfileErrors, GetCurrentUserProfileResponses, GetMatchData, GetMatchErrors, GetMatchesData, GetMatchesErrors, GetMatchesResponses, GetMatchMovesData, GetMatchMovesErrors, GetMatchMovesResponses, GetMatchResponses, GetRecentMatchesData, GetRecentMatchesErrors, GetRecentMatchesResponses, MakeMoveData, MakeMoveErrors, MakeMoveResponses, RevokeApiKeyData, RevokeApiKeyErrors, RevokeApiKeyResponses, UpdateBotData, UpdateBotErrors, UpdateBotResponses, UpdateCurrentUserProfileData, UpdateCurrentUserProfileErrors, UpdateCurrentUserProfileResponses } from './types.gen';
+import type { AbortMatchData, AbortMatchErrors, AbortMatchResponses, CreateBotData, CreateBotErrors, CreateBotResponses, CreateMatchData, CreateMatchErrors, CreateMatchResponses, DeleteBotData, DeleteBotErrors, DeleteBotResponses, GetBotByIdData, GetBotByIdErrors, GetBotByIdResponses, GetBotsData, GetBotsErrors, GetBotsResponses, GetBotStatsData, GetBotStatsErrors, GetBotStatsResponses, GetCurrentUserProfileData, GetCurrentUserProfileErrors, GetCurrentUserProfileResponses, GetLegalMovesData, GetLegalMovesErrors, GetLegalMovesResponses, GetMatchData, GetMatchErrors, GetMatchesData, GetMatchesErrors, GetMatchesResponses, GetMatchMovesData, GetMatchMovesErrors, GetMatchMovesResponses, GetMatchResponses, GetRecentMatchesData, GetRecentMatchesErrors, GetRecentMatchesResponses, UpdateBotData, UpdateBotErrors, UpdateBotResponses, UpdateCurrentUserProfileData, UpdateCurrentUserProfileErrors, UpdateCurrentUserProfileResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -65,16 +65,6 @@ export const createMatch = <ThrowOnError extends boolean = false>(options: Optio
     }
 });
 
-export const makeMove = <ThrowOnError extends boolean = false>(options: Options<MakeMoveData, ThrowOnError>) => (options.client ?? client).post<MakeMoveResponses, MakeMoveErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/matches/{matchId}/move',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
 export const abortMatch = <ThrowOnError extends boolean = false>(options: Options<AbortMatchData, ThrowOnError>) => (options.client ?? client).post<AbortMatchResponses, AbortMatchErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/matches/{matchId}/abort',
@@ -103,37 +93,15 @@ export const createBot = <ThrowOnError extends boolean = false>(options: Options
     }
 });
 
-/**
- * Get all API keys for a bot
- */
-export const getBotApiKeys = <ThrowOnError extends boolean = false>(options: Options<GetBotApiKeysData, ThrowOnError>) => (options.client ?? client).get<GetBotApiKeysResponses, GetBotApiKeysErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/bots/{botId}/api-keys',
-    ...options
-});
-
-/**
- * Generate a new API key for a bot
- */
-export const createApiKey = <ThrowOnError extends boolean = false>(options: Options<CreateApiKeyData, ThrowOnError>) => (options.client ?? client).post<CreateApiKeyResponses, CreateApiKeyErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/bots/{botId}/api-keys',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
 export const getCurrentUserProfile = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserProfileData, ThrowOnError>) => (options?.client ?? client).get<GetCurrentUserProfileResponses, GetCurrentUserProfileErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/users/me',
+    url: '/api/v1/users/me',
     ...options
 });
 
 export const updateCurrentUserProfile = <ThrowOnError extends boolean = false>(options: Options<UpdateCurrentUserProfileData, ThrowOnError>) => (options.client ?? client).patch<UpdateCurrentUserProfileResponses, UpdateCurrentUserProfileErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/users/me',
+    url: '/api/v1/users/me',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -153,6 +121,12 @@ export const getMatchMoves = <ThrowOnError extends boolean = false>(options: Opt
     ...options
 });
 
+export const getLegalMoves = <ThrowOnError extends boolean = false>(options: Options<GetLegalMovesData, ThrowOnError>) => (options.client ?? client).get<GetLegalMovesResponses, GetLegalMovesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/matches/{matchId}/legal-moves',
+    ...options
+});
+
 export const getRecentMatches = <ThrowOnError extends boolean = false>(options?: Options<GetRecentMatchesData, ThrowOnError>) => (options?.client ?? client).get<GetRecentMatchesResponses, GetRecentMatchesErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/matches/recent',
@@ -165,14 +139,5 @@ export const getRecentMatches = <ThrowOnError extends boolean = false>(options?:
 export const getBotStats = <ThrowOnError extends boolean = false>(options: Options<GetBotStatsData, ThrowOnError>) => (options.client ?? client).get<GetBotStatsResponses, GetBotStatsErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/bots/{botId}/stats',
-    ...options
-});
-
-/**
- * Revoke an API key
- */
-export const revokeApiKey = <ThrowOnError extends boolean = false>(options: Options<RevokeApiKeyData, ThrowOnError>) => (options.client ?? client).delete<RevokeApiKeyResponses, RevokeApiKeyErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/bots/{botId}/api-keys/{apiKeyId}',
     ...options
 });
