@@ -1,15 +1,90 @@
+version: '3.8'
+
 services:
-  db:
-    image: postgres:18
-    restart: always
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: algorena-postgres
     environment:
+      POSTGRES_DB: algorena
       POSTGRES_USER: algorena
       POSTGRES_PASSWORD: algorena
-      POSTGRES_DB: algorena-db
-    volumes:
-      - db_data:/var/lib/postgresql
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U algorena"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend (Spring Boot)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: algorena-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/algorena
+      SPRING_DATASOURCE_USERNAME: algorena
+      SPRING_DATASOURCE_PASSWORD: algorena
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Mount source for hot reload (Maven spring-boot-devtools will handle it)
+      - ./backend/src:/app/src
+
+  # Frontend (Vite Dev Server)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: algorena-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      # Vite will proxy to backend
+      VITE_API_URL: http://backend:8080
+    depends_on:
+      - backend
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/postcss.config.js:/app/postcss.config.js
+      # Preserve node_modules in container
+      - /app/node_modules
+
+  # Random Bot
+  random-bot:
+    build:
+      context: ./bots/random-bot
+      dockerfile: Dockerfile
+    container_name: algorena-random-bot
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      API_KEY: random-bot-key
+
+  # Greedy Bot
+  greedy-bot:
+    build:
+      context: ./bots/greedy-bot
+      dockerfile: Dockerfile
+    container_name: algorena-greedy-bot
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      API_KEY: greedy-bot-key
 
 volumes:
-  db_data:
+  postgres_data:
