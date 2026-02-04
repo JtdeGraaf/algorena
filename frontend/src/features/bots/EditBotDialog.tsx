@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,24 +17,12 @@ interface EditBotDialogProps {
 
 export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
   const { t } = useTranslation();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [active, setActive] = useState(true);
-  const [endpoint, setEndpoint] = useState('');
+  const [name, setName] = useState(bot?.name || '');
+  const [description, setDescription] = useState(bot?.description || '');
+  const [active, setActive] = useState(bot?.active ?? true);
+  const [endpoint, setEndpoint] = useState(bot?.endpoint || '');
   const [apiKey, setApiKey] = useState('');
   const updateBot = useUpdateBot();
-
-  useEffect(() => {
-    if (bot) {
-      setName(bot.name || '');
-      setDescription(bot.description || '');
-      setActive(bot.active ?? true);
-      setEndpoint(bot.endpoint || '');
-      // API key is not returned from the server for security, so we leave it empty
-      // User can enter a new one if they want to change it
-      setApiKey('');
-    }
-  }, [bot]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +58,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
             Update your bot's details.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form key={bot?.id} onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="edit-name">{t('bots.name')} *</Label>
             <Input

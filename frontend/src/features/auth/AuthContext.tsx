@@ -99,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -109,22 +110,18 @@ export function useAuth() {
 
 export function OAuth2RedirectHandler() {
   const [searchParams] = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+
+  // Derive state from URL params instead of setting in useEffect
+  const token = searchParams.get('token');
+  const errorParam = searchParams.get('error');
+  const error = errorParam || (token ? null : 'No token received');
+  const success = !!token && !errorParam;
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const errorParam = searchParams.get('error');
-
     console.log('[OAuth2Redirect] token from URL:', token ? `${token.substring(0, 20)}...` : null);
     console.log('[OAuth2Redirect] error from URL:', errorParam);
 
-    if (errorParam) {
-      setError(errorParam);
-      return;
-    }
-
-    if (token) {
+    if (token && !errorParam) {
       console.log('[OAuth2Redirect] Saving token to localStorage...');
       setAccessToken(token);
 
@@ -133,16 +130,12 @@ export function OAuth2RedirectHandler() {
       console.log('[OAuth2Redirect] Token saved successfully:', !!savedToken);
       console.log('[OAuth2Redirect] Saved token value:', savedToken ? `${savedToken.substring(0, 20)}...` : null);
 
-      setSuccess(true);
-
       // Delay redirect to see the logs
       setTimeout(() => {
         window.location.href = '/';
       }, 1000);
-    } else {
-      setError('No token received');
     }
-  }, [searchParams]);
+  }, [token, errorParam]);
 
   if (error) {
     return (

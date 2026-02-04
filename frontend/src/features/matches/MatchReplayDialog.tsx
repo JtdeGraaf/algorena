@@ -109,13 +109,7 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
     return () => clearInterval(interval);
   }, [isPlaying, positions.length, playSpeed]);
 
-  // Reset when dialog opens/closes or match changes
-  useEffect(() => {
-    if (open) {
-      setCurrentMoveIndex(-1);
-      setIsPlaying(false);
-    }
-  }, [open, match?.id]);
+  // State is reset when dialog opens by using match?.id as key on DialogContent below
 
   // Keyboard navigation
   useEffect(() => {
@@ -161,7 +155,7 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent key={`${open}-${match?.id}`} className="max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Swords className="h-5 w-5 text-emerald-500" />
