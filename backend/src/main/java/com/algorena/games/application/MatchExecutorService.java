@@ -120,7 +120,7 @@ public class MatchExecutorService {
     }
 
     private Match fetchMatch(UUID matchId) {
-        return matchRepository.findById(matchId)
+        return matchRepository.findByIdWithParticipants(matchId)
                 .orElseThrow(() -> new IllegalStateException("Match not found: " + matchId));
     }
 

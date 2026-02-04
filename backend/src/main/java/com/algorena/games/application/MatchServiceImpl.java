@@ -45,8 +45,17 @@ public class MatchServiceImpl implements MatchService {
     private final MatchExecutorService matchExecutorService;
 
     @Override
-    @Transactional
     public MatchDTO createMatch(CreateMatchRequest request) {
+        MatchDTO matchDTO = createMatchInTransaction(request);
+
+        // Start async match execution after transaction commits
+        matchExecutorService.executeMatch(matchDTO.id());
+
+        return matchDTO;
+    }
+
+    @Transactional
+    protected MatchDTO createMatchInTransaction(CreateMatchRequest request) {
         Bot bot1 = botRepository.findById(request.bot1Id())
                 .orElseThrow(() -> new DataNotFoundException("Bot not found: " + request.bot1Id()));
         Bot bot2 = botRepository.findById(request.bot2Id())
@@ -82,9 +91,7 @@ public class MatchServiceImpl implements MatchService {
         // Initialize Game State
         initializeGameState(match);
 
-        // Start async match execution
-        matchExecutorService.executeMatch(match.getId());
-
+        // Build DTO while still in transaction (to access lazy-loaded collections)
         return toMatchDTO(match);
     }
 

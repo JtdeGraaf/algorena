@@ -21,7 +21,6 @@ public class BotClientService {
 
     private static final String API_KEY_HEADER = "X-Algorena-API-Key";
     private static final String MATCH_ID_HEADER = "X-Algorena-Match-ID";
-
     private final RestClient restClient;
 
     public BotClientService(RestClient botRestClient) {

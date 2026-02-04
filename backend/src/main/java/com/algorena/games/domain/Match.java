@@ -69,7 +69,7 @@ public class Match extends BaseEntity {
 
     public void forfeit(String reason) {
         this.forfeitReason = reason;
-        this.status = MatchStatus.FINISHED;
+        this.status = MatchStatus.FORFEITED;
         this.finishedAt = LocalDateTime.now();
     }
 }

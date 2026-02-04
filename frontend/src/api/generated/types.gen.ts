@@ -94,7 +94,7 @@ export type GameStateDto = {
 export type MatchDto = {
     id?: string;
     game?: 'CHESS' | 'CONNECT_FOUR';
-    status?: 'CREATED' | 'IN_PROGRESS' | 'FINISHED' | 'ABORTED';
+    status?: 'CREATED' | 'IN_PROGRESS' | 'FINISHED' | 'FORFEITED' | 'ABORTED';
     startedAt?: string;
     finishedAt?: string;
     participants?: Array<MatchParticipantDto>;
@@ -139,25 +139,25 @@ export type MatchMoveDto = {
 };
 
 export type PageBotDto = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<BotDto>;
     number?: number;
+    pageable?: PageableObject;
     sort?: SortObject;
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
-    pageable?: PageableObject;
     empty?: boolean;
 };
 
 export type PageableObject = {
     offset?: number;
-    sort?: SortObject;
     paged?: boolean;
     pageNumber?: number;
     pageSize?: number;
+    sort?: SortObject;
     unpaged?: boolean;
 };
 
