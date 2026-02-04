@@ -35,3 +35,12 @@ app.post('/move', (req, res) => {
   // Return the move in the expected format
   res.json({ move });
 });
+
+app.listen(PORT, () => {
+  console.log(`🤖 Random Bot running on port ${PORT}`);
+  console.log(`   POST /move - Make a random move`);
+  console.log(`   GET /health - Health check`);
+  if (API_KEY) {
+    console.log(`   API Key: ${API_KEY}`);
+  }
+});
