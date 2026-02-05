@@ -203,16 +203,18 @@ export function MatchesPage() {
                     </span>
                   </div>
                 </TerminalTableCell>
-                <TerminalTableCell className="font-semibold">
+                <TerminalTableCell>
                   <div className="flex items-center gap-2">
                     <span className={cn(
-                      winner?.botId === player1?.botId && 'text-primary'
+                      'text-text-secondary',
+                      winner?.botId === player1?.botId && 'font-semibold text-primary'
                     )}>
                       {player1?.botName || '???'}
                     </span>
-                    <span className="text-surface-muted">vs</span>
+                    <span className="text-text-muted">vs</span>
                     <span className={cn(
-                      winner?.botId === player2?.botId && 'text-primary'
+                      'text-text-secondary',
+                      winner?.botId === player2?.botId && 'font-semibold text-primary'
                     )}>
                       {player2?.botName || '???'}
                     </span>
