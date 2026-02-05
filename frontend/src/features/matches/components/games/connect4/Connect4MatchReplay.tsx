@@ -24,7 +24,7 @@ export function Connect4MatchReplay({
   return (
     <div className="flex gap-6 py-4">
       {/* Connect4 Board */}
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 flex-1">
         <Connect4Board
           board={currentPosition.state}
           size="xl"
@@ -32,7 +32,7 @@ export function Connect4MatchReplay({
       </div>
 
       {/* Move list and info */}
-      <div className="flex-1 space-y-3">
+      <div className="w-64 space-y-3">
         <h4 className="font-medium">Move History</h4>
 
         {/* Current position info */}
@@ -80,9 +80,6 @@ export function Connect4MatchReplay({
                     {isPlayer1 ? 'Red' : 'Yellow'}
                   </span>
                   <span className="font-mono">→ Col {move.toSquare}</span>
-                  <span className="ml-auto text-xs text-zinc-600">
-                    {isPlayer1 ? player1?.botName?.slice(0, 8) : player2?.botName?.slice(0, 8)}
-                  </span>
                 </button>
               );
             })}

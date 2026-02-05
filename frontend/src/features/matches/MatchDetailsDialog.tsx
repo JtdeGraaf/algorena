@@ -47,7 +47,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-fit">
           <DialogClose onClose={() => onOpenChange(false)} />
 
           <DialogHeader>
@@ -67,9 +67,9 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
             {/* Main content - Game Board and info side by side */}
             <div className="flex flex-col gap-6 md:flex-row">
               {/* Left: Game Board */}
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center flex-1">
                 {DetailsComponent ? (
-                  <DetailsComponent match={match} moves={moves} isFullscreen={false} />
+                  <DetailsComponent match={match} moves={moves} isFullscreen={true} />
                 ) : (
                   <div className="flex flex-col items-center justify-center p-8 text-center">
                     <Swords className="h-16 w-16 text-zinc-600" />

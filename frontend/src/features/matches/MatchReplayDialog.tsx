@@ -74,7 +74,7 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent key={`${open}-${match?.id}`} className="max-w-4xl">
+      <DialogContent key={`${open}-${match?.id}`} className="max-w-fit">
         <DialogClose onClose={() => onOpenChange(false)} />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

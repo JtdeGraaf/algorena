@@ -26,7 +26,7 @@ export function MatchInfoPanel({ match, moves }: MatchInfoPanelProps) {
   };
 
   return (
-    <div className="flex-1 space-y-4">
+    <div className="w-72 space-y-4">
       {/* Participants */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
@@ -58,16 +58,6 @@ export function MatchInfoPanel({ match, moves }: MatchInfoPanelProps) {
           </div>
         )}
       </div>
-
-      {/* FEN (Chess only) */}
-      {match.game === 'CHESS' && match.state && 'fen' in match.state && (
-        <div className="text-sm">
-          <span className="font-medium text-zinc-400">FEN:</span>
-          <code className="ml-2 block mt-1 break-all rounded bg-zinc-900 px-2 py-1 text-xs text-zinc-300">
-            {match.state.fen as string}
-          </code>
-        </div>
-      )}
 
       {/* Move count */}
       <div className="text-sm">

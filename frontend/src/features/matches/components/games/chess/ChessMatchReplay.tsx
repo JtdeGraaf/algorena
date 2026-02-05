@@ -24,7 +24,7 @@ export function ChessMatchReplay({
   return (
     <div className="flex gap-6 py-4">
       {/* Chessboard */}
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 flex-1">
         <Chessboard
           fen={currentPosition.state}
           size="xl"
@@ -37,7 +37,7 @@ export function ChessMatchReplay({
       </div>
 
       {/* Move list and info */}
-      <div className="flex-1 space-y-3">
+      <div className="w-64 space-y-3">
         <h4 className="font-medium">Move History</h4>
 
         {/* Current position info */}
@@ -78,9 +78,6 @@ export function ChessMatchReplay({
                 >
                   <span className="w-6 text-zinc-500">{isWhite ? `${moveNum}.` : ''}</span>
                   <span className="font-mono">{move.moveNotation}</span>
-                  <span className="ml-auto text-xs text-zinc-600">
-                    {isWhite ? player1?.botName?.slice(0, 8) : player2?.botName?.slice(0, 8)}
-                  </span>
                 </button>
               );
             })}
