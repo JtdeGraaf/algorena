@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { MatchReplayDialog } from './MatchReplayDialog';
 import { useMatch, useMatchMoves } from './useMatches';
-import { Loader2, Maximize2, Minimize2, Play, Swords } from 'lucide-react';
+import { Loader2, Play, Swords } from 'lucide-react';
 import type { MatchDto } from '@/api/generated';
-import { cn } from '@/lib/utils';
 import { getGameComponents, isGameRegistered } from './components/games/registry';
 import type { GameDetailsProps } from './components/games/types';
 import { MatchStatusInfo } from './components/shared/MatchStatusInfo';
@@ -23,7 +22,6 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
   const { data: moves, isLoading: movesLoading } = useMatchMoves(initialMatch?.id || '');
 
   const [replayOpen, setReplayOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Use fresh match data if available, otherwise fall back to initial
   const match = freshMatch || initialMatch;
@@ -46,59 +44,32 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
     console.error('Game type not registered:', match.game);
   }
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent
-          className={cn(
-            'transition-all duration-200',
-            isFullscreen ? 'max-w-6xl h-[90vh]' : 'max-w-3xl'
-          )}
-        >
+        <DialogContent className="max-w-4xl">
+          <DialogClose onClose={() => onOpenChange(false)} />
+
           <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2">
-                <Swords className="h-5 w-5 text-emerald-500" />
-                Match Details
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleFullscreen}
-                title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-              >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </Button>
-            </div>
+            <DialogTitle className="flex items-center gap-2">
+              <Swords className="h-5 w-5 text-emerald-500" />
+              Match Details
+            </DialogTitle>
             <DialogDescription>
               {player1?.botName} vs {player2?.botName}
             </DialogDescription>
           </DialogHeader>
 
-          <div
-            className={cn(
-              'space-y-6 py-4',
-              isFullscreen && 'overflow-y-auto max-h-[calc(90vh-8rem)]'
-            )}
-          >
+          <div className="space-y-6 py-4">
             {/* Status and info */}
             <MatchStatusInfo match={match} />
 
             {/* Main content - Game Board and info side by side */}
-            <div
-              className={cn(
-                'flex gap-6',
-                isFullscreen ? 'flex-row' : 'flex-col md:flex-row'
-              )}
-            >
+            <div className="flex flex-col gap-6 md:flex-row">
               {/* Left: Game Board */}
               <div className="flex flex-col items-center">
                 {DetailsComponent ? (
-                  <DetailsComponent match={match} moves={moves} isFullscreen={isFullscreen} />
+                  <DetailsComponent match={match} moves={moves} isFullscreen={false} />
                 ) : (
                   <div className="flex flex-col items-center justify-center p-8 text-center">
                     <Swords className="h-16 w-16 text-zinc-600" />
@@ -134,12 +105,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                   <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
                 </div>
               ) : moves && moves.length > 0 ? (
-                <div
-                  className={cn(
-                    'overflow-y-auto rounded-lg bg-zinc-900 p-3',
-                    isFullscreen ? 'max-h-48' : 'max-h-32'
-                  )}
-                >
+                <div className="overflow-y-auto rounded-lg bg-zinc-900 p-3 max-h-32">
                   <div className="flex flex-wrap gap-1 text-sm font-mono">
                     {moves.map((move, index) => {
                       const moveNum = Math.floor(index / 2) + 1;
@@ -158,12 +124,12 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
               )}
             </div>
 
-            {/* PGN (Chess only, in fullscreen or if short) */}
+            {/* PGN (Chess only, if short) */}
             {match.game === 'CHESS' &&
               match.state &&
               'pgn' in match.state &&
               match.state.pgn &&
-              (isFullscreen || (match.state.pgn as string).length < 200) && (
+              (match.state.pgn as string).length < 200 && (
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">PGN</h4>
                   <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-900 p-3 text-xs text-zinc-300 max-h-24">

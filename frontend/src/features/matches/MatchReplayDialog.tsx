@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { useMatchMoves } from './useMatches';
 import { Loader2, Swords } from 'lucide-react';
 import type { MatchDto } from '@/api/generated';
@@ -75,6 +75,7 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent key={`${open}-${match?.id}`} className="max-w-4xl">
+        <DialogClose onClose={() => onOpenChange(false)} />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Swords className="h-5 w-5 text-emerald-500" />
