@@ -45,7 +45,7 @@ export function DialogContent({ children, className }: DialogContentProps) {
   return (
     <div
       className={cn(
-        'w-full rounded-lg border border-zinc-800 bg-zinc-950 p-6 shadow-lg',
+        'w-full rounded-lg border border-border bg-background p-6 shadow-lg',
         className
       )}
     >
@@ -74,7 +74,7 @@ interface DialogTitleProps {
 
 export function DialogTitle({ children, className }: DialogTitleProps) {
   return (
-    <h2 className={cn('text-lg font-semibold leading-none tracking-tight text-zinc-100', className)}>
+    <h2 className={cn('text-lg font-semibold leading-none tracking-tight text-text-primary', className)}>
       {children}
     </h2>
   );
@@ -86,7 +86,7 @@ interface DialogDescriptionProps {
 }
 
 export function DialogDescription({ children, className }: DialogDescriptionProps) {
-  return <p className={cn('text-sm text-zinc-400', className)}>{children}</p>;
+  return <p className={cn('text-sm text-text-secondary', className)}>{children}</p>;
 }
 
 interface DialogFooterProps {
@@ -112,7 +112,7 @@ export function DialogClose({ onClose, className }: DialogCloseProps) {
     <button
       onClick={onClose}
       className={cn(
-        'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-zinc-950 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:ring-offset-2 disabled:pointer-events-none',
+        'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring-default focus:ring-offset-2 disabled:pointer-events-none',
         className
       )}
     >

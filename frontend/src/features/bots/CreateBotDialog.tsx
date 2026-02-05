@@ -92,12 +92,12 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
               id="game"
               value={game}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setGame(e.target.value as 'CHESS' | 'CONNECT_FOUR')}
-              className="bg-zinc-900 border-zinc-700"
+              className="bg-surface border-border-hover"
             >
               <option value="CHESS">Chess</option>
               <option value="CONNECT_FOUR">Connect 4</option>
             </Select>
-            <p className="text-xs text-zinc-500">More games coming soon!</p>
+            <p className="text-xs text-text-muted">More games coming soon!</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="endpoint">Endpoint URL *</Label>
@@ -110,7 +110,7 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
               required
               maxLength={500}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-text-muted">
               The URL where Algorena will send move requests to your bot.
             </p>
           </div>
@@ -124,7 +124,7 @@ export function CreateBotDialog({ open, onOpenChange }: CreateBotDialogProps) {
               placeholder="Your bot's secret key"
               maxLength={255}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-text-muted">
               Sent in X-Algorena-API-Key header so your bot can verify requests are from Algorena.
             </p>
           </div>

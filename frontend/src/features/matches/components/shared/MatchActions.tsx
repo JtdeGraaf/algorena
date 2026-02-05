@@ -29,7 +29,7 @@ export function MatchActions({ match, onClose }: MatchActionsProps) {
   if (!canAbort) return null;
 
   return (
-    <div className="flex justify-end border-t border-zinc-800 pt-4">
+    <div className="flex justify-end border-t border-border pt-4">
       <Button
         variant="destructive"
         onClick={handleAbort}

@@ -41,7 +41,7 @@ export function ReplayControls({
   const moveNumber = currentMoveIndex + 1;
 
   return (
-    <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
+    <div className="flex items-center justify-between border-t border-border pt-4">
       {/* Playback controls */}
       <div className="flex items-center gap-2">
         <Button
@@ -100,12 +100,12 @@ export function ReplayControls({
 
       {/* Progress indicator and speed control */}
       <div className="flex items-center gap-4">
-        <div className="text-sm text-zinc-400">
+        <div className="text-sm text-text-secondary">
           Move {moveNumber} of {totalMoves}
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500">Speed:</span>
+          <span className="text-xs text-text-muted">Speed:</span>
           {[2000, 1000, 500, 250].map(speed => (
             <button
               key={speed}
@@ -113,8 +113,8 @@ export function ReplayControls({
               className={cn(
                 'rounded px-2 py-0.5 text-xs transition-colors',
                 playSpeed === speed
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                  ? 'bg-primary text-white'
+                  : 'bg-surface-elevated text-text-secondary hover:bg-surface-hover'
               )}
             >
               {speed === 2000 ? '0.5x' : speed === 1000 ? '1x' : speed === 500 ? '2x' : '4x'}

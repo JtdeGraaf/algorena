@@ -9,33 +9,33 @@ interface TerminalTableProps {
 
 export function TerminalTable({ title, headers, children, className }: TerminalTableProps) {
   return (
-    <div className={cn('overflow-hidden rounded-lg border border-zinc-700 bg-zinc-950 shadow-xl', className)}>
+    <div className={cn('overflow-hidden rounded-lg border border-border-hover bg-background shadow-xl', className)}>
       {/* Terminal-style header */}
-      <div className="flex items-center gap-2 border-b border-zinc-700 bg-zinc-900 px-4 py-2">
+      <div className="flex items-center gap-2 border-b border-border-hover bg-surface px-4 py-2">
         <div className="flex gap-1.5">
           <div className="h-2 w-2 rounded-full bg-red-500/60" />
           <div className="h-2 w-2 rounded-full bg-yellow-500/60" />
-          <div className="h-2 w-2 rounded-full bg-emerald-500/60" />
+          <div className="h-2 w-2 rounded-full bg-primary/60" />
         </div>
-        <div className="font-mono text-sm text-zinc-400">{title}</div>
+        <div className="font-mono text-sm text-text-secondary">{title}</div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-900/50">
+            <tr className="border-b border-border bg-surface/50">
               {headers.map((header, i) => (
                 <th
                   key={i}
-                  className="px-4 py-2 text-left font-mono text-xs uppercase tracking-wider text-zinc-500"
+                  className="px-4 py-2 text-left font-mono text-xs uppercase tracking-wider text-text-muted"
                 >
                   {header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800/50">
+          <tbody className="divide-y divide-border/50">
             {children}
           </tbody>
         </table>
@@ -56,7 +56,7 @@ export function TerminalTableRow({ children, onClick, className }: TerminalTable
       onClick={onClick}
       className={cn(
         'font-mono text-sm transition-colors',
-        onClick && 'cursor-pointer hover:bg-zinc-800/50',
+        onClick && 'cursor-pointer hover:bg-surface-elevated/50',
         className
       )}
     >

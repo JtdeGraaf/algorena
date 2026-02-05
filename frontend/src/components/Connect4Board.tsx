@@ -37,7 +37,7 @@ export function Connect4Board({
     switch (char) {
       case '1': return 'bg-emerald-500 border-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]';
       case '2': return 'bg-red-500 border-2 border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.3)]';
-      default: return 'bg-zinc-900 border-2 border-zinc-800';
+      default: return 'bg-surface border-2 border-border';
     }
   };
 
@@ -67,26 +67,26 @@ export function Connect4Board({
   return (
     <div className={cn('relative', sizeClasses[size], className)}>
       {/* Terminal-style header */}
-      <div className="mb-2 flex items-center gap-2 rounded-t border border-b-0 border-zinc-700 bg-zinc-900 px-3 py-1.5">
+      <div className="mb-2 flex items-center gap-2 rounded-t border border-b-0 border-border-hover bg-surface px-3 py-1.5">
         <div className="flex gap-1.5">
           <div className="h-2 w-2 rounded-full bg-red-500/60" />
           <div className="h-2 w-2 rounded-full bg-yellow-500/60" />
-          <div className="h-2 w-2 rounded-full bg-emerald-500/60" />
+          <div className="h-2 w-2 rounded-full bg-primary/60" />
         </div>
-        <div className="font-mono text-xs text-zinc-500">connect4.game</div>
+        <div className="font-mono text-xs text-text-muted">connect4.game</div>
       </div>
 
       {/* Game board */}
-      <div className="rounded-b border border-zinc-700 bg-zinc-950 p-3 shadow-xl">
+      <div className="rounded-b border border-border-hover bg-background p-3 shadow-xl">
         {/* Column numbers */}
-        <div className="mb-2 grid grid-cols-7 gap-1 px-1 font-mono text-xs text-zinc-600">
+        <div className="mb-2 grid grid-cols-7 gap-1 px-1 font-mono text-xs text-text-muted">
           {Array.from({ length: 7 }, (_, i) => (
             <div key={i} className="text-center">{i}</div>
           ))}
         </div>
 
         <div
-          className="grid h-full w-full grid-cols-7 grid-rows-6 gap-1.5 rounded bg-zinc-900/50 p-2"
+          className="grid h-full w-full grid-cols-7 grid-rows-6 gap-1.5 rounded bg-surface/50 p-2"
           onMouseLeave={() => setHoveredColumn(null)}
         >
           {grid.map(({ r, c, char }) => {
@@ -131,15 +131,15 @@ export function Connect4Board({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="text-zinc-500">P1</span>
+              <span className="text-text-muted">P1</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 rounded-full bg-red-500" />
-              <span className="text-zinc-500">P2</span>
+              <span className="text-text-muted">P2</span>
             </div>
           </div>
           {interactive && (
-            <span className="text-zinc-600">
+            <span className="text-text-muted">
               {legalMoves && legalMoves.length > 0 ? 'Your turn' : 'Waiting...'}
             </span>
           )}

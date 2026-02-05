@@ -1,11 +1,48 @@
 @import 'tailwindcss';
 
+@theme {
+  /* Background colors */
+  --color-background: #09090b;         /* zinc-950 */
+  --color-surface: #18181b;            /* zinc-900 */
+  --color-surface-elevated: #27272a;   /* zinc-800 */
+  --color-surface-hover: #3f3f46;      /* zinc-700 */
+  --color-surface-muted: #52525b;      /* zinc-600 */
+
+  /* Border colors */
+  --color-border: #27272a;             /* zinc-800 */
+  --color-border-hover: #3f3f46;       /* zinc-700 */
+
+  /* Text colors */
+  --color-text-primary: #e4e4e7;       /* zinc-200 - default text */
+  --color-text-bright: #fafafa;        /* zinc-100 - bright white */
+  --color-text-secondary: #a1a1aa;     /* zinc-400 */
+  --color-text-muted: #71717a;         /* zinc-500 */
+  --color-text-inverse: #18181b;       /* zinc-900 */
+
+  /* Primary/Accent colors */
+  --color-primary: #10b981;            /* emerald-500 */
+  --color-primary-hover: #059669;      /* emerald-600 */
+  --color-primary-active: #047857;     /* emerald-700 */
+  --color-primary-light: #34d399;      /* emerald-400 */
+
+  /* Error/Destructive colors */
+  --color-error: #dc2626;              /* red-600 */
+  --color-error-hover: #b91c1c;        /* red-700 */
+
+  /* Focus ring */
+  --color-focus-ring: #10b981;         /* emerald-500 */
+  --color-focus-ring-offset: #09090b;  /* zinc-950 */
+
+  /* Ring colors */
+  --color-ring-default: #d4d4d8;       /* zinc-300 */
+}
+
 :root {
   color-scheme: dark;
 }
 
 html {
-  @apply bg-zinc-950 text-zinc-100;
+  @apply bg-background text-text-primary;
 }
 
 body {
@@ -18,15 +55,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-zinc-900;
+  @apply bg-surface;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-zinc-700;
+  @apply rounded-full bg-surface-hover;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-zinc-600;
+  @apply bg-surface-muted;
 }
 
 pre, code {
@@ -34,7 +71,7 @@ pre, code {
 }
 
 :focus-visible {
-  @apply outline-none ring-2 ring-emerald-500 ring-offset-2 ring-offset-zinc-950;
+  @apply outline-none ring-2 ring-focus-ring ring-offset-2 ring-offset-focus-ring-offset;
 }
 
 @keyframes pulse-slow {

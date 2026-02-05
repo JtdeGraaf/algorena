@@ -36,10 +36,10 @@ export function HomePage() {
     <div className="space-y-16">
       <section className="py-12 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
-          <h1 className="font-mono text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl md:text-6xl">
-            <span className="text-emerald-500">{'>'}</span> {t('home.title')}
+          <h1 className="font-mono text-4xl font-bold tracking-tight text-text-primary sm:text-5xl md:text-6xl">
+            <span className="text-primary">{'>'}</span> {t('home.title')}
           </h1>
-          <p className="text-lg text-zinc-400 sm:text-xl">
+          <p className="text-lg text-text-secondary sm:text-xl">
             {t('home.subtitle')}
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-4">
@@ -63,9 +63,9 @@ export function HomePage() {
 
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {features.map((feature) => (
-          <Card key={feature.title} className="border-zinc-800 bg-zinc-900/50">
+          <Card key={feature.title} className="border-border bg-surface/50">
             <CardHeader>
-              <feature.icon className="h-10 w-10 text-emerald-500" />
+              <feature.icon className="h-10 w-10 text-primary" />
               <CardTitle className="text-lg">{feature.title}</CardTitle>
             </CardHeader>
             <CardContent>
@@ -76,14 +76,14 @@ export function HomePage() {
       </section>
 
       <section className="mx-auto max-w-3xl">
-        <Card className="overflow-hidden border-zinc-800 bg-zinc-900/50">
+        <Card className="overflow-hidden border-border bg-surface/50">
           <CardHeader>
-            <CardTitle className="font-mono text-emerald-500">Quick Start</CardTitle>
+            <CardTitle className="font-mono text-primary">Quick Start</CardTitle>
             <CardDescription>Get your bot running in minutes</CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm">
-              <code className="text-zinc-300">
+            <pre className="overflow-x-auto rounded-lg bg-background p-4 text-sm">
+              <code className="text-text-primary">
 {`# 1. Create a bot and get your API key
 # 2. Connect to a match
 

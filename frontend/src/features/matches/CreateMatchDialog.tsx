@@ -116,10 +116,10 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium',
                     step === s
-                      ? 'bg-emerald-500 text-white'
+                      ? 'bg-primary text-white'
                       : i < ['game', 'myBot', 'opponent'].indexOf(step)
-                      ? 'bg-emerald-500/20 text-emerald-500'
-                      : 'bg-zinc-800 text-zinc-500'
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-surface-elevated text-text-muted'
                   )}
                 >
                   {i + 1}
@@ -129,8 +129,8 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
                     className={cn(
                       'h-0.5 w-8',
                       i < ['game', 'myBot', 'opponent'].indexOf(step)
-                        ? 'bg-emerald-500'
-                        : 'bg-zinc-800'
+                        ? 'bg-primary'
+                        : 'bg-surface-elevated'
                     )}
                   />
                 )}
@@ -148,12 +148,12 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
                   className={cn(
                     'w-full rounded-lg border p-4 text-left transition-colors',
                     selectedGame === game.id
-                      ? 'border-emerald-500 bg-emerald-500/10'
-                      : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border bg-surface/50 hover:border-border-hover'
                   )}
                 >
                   <div className="font-medium">{game.name}</div>
-                  <div className="text-sm text-zinc-400">{game.description}</div>
+                  <div className="text-sm text-text-secondary">{game.description}</div>
                 </button>
               ))}
             </div>
@@ -164,13 +164,13 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
             <div className="space-y-3">
               {myBotsLoading ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                  <Loader2 className="h-6 w-6 animate-spin text-text-muted" />
                 </div>
               ) : myBots.length === 0 ? (
                 <div className="py-8 text-center">
-                  <Bot className="mx-auto h-12 w-12 text-zinc-600" />
-                  <p className="mt-2 text-zinc-400">No active bots for {selectedGame}</p>
-                  <p className="text-sm text-zinc-500">Create a bot first to start a match</p>
+                  <Bot className="mx-auto h-12 w-12 text-surface-muted" />
+                  <p className="mt-2 text-text-secondary">No active bots for {selectedGame}</p>
+                  <p className="text-sm text-text-muted">Create a bot first to start a match</p>
                 </div>
               ) : (
                 <div className="max-h-64 space-y-2 overflow-y-auto">
@@ -181,16 +181,16 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
                       className={cn(
                         'w-full rounded-lg border p-3 text-left transition-colors',
                         selectedMyBot?.id === bot.id
-                          ? 'border-emerald-500 bg-emerald-500/10'
-                          : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border bg-surface/50 hover:border-border-hover'
                       )}
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-medium">{bot.name}</div>
-                          <div className="text-sm text-zinc-400">{bot.description || 'No description'}</div>
+                          <div className="text-sm text-text-secondary">{bot.description || 'No description'}</div>
                         </div>
-                        <Bot className="h-5 w-5 text-zinc-500" />
+                        <Bot className="h-5 w-5 text-text-muted" />
                       </div>
                     </button>
                   ))}
@@ -203,7 +203,7 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
           {step === 'opponent' && (
             <div className="space-y-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
                 <Input
                   value={searchQuery}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
@@ -213,13 +213,13 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
               </div>
               {allBotsLoading ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                  <Loader2 className="h-6 w-6 animate-spin text-text-muted" />
                 </div>
               ) : opponentBots.length === 0 ? (
                 <div className="py-8 text-center">
-                  <Bot className="mx-auto h-12 w-12 text-zinc-600" />
-                  <p className="mt-2 text-zinc-400">No bots found</p>
-                  <p className="text-sm text-zinc-500">Try a different search</p>
+                  <Bot className="mx-auto h-12 w-12 text-surface-muted" />
+                  <p className="mt-2 text-text-secondary">No bots found</p>
+                  <p className="text-sm text-text-muted">Try a different search</p>
                 </div>
               ) : (
                 <div className="max-h-64 space-y-2 overflow-y-auto">
@@ -230,16 +230,16 @@ export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps
                       className={cn(
                         'w-full rounded-lg border p-3 text-left transition-colors',
                         selectedOpponent?.id === bot.id
-                          ? 'border-emerald-500 bg-emerald-500/10'
-                          : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border bg-surface/50 hover:border-border-hover'
                       )}
                     >
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="font-medium">{bot.name}</div>
-                          <div className="text-sm text-zinc-400">{bot.description || 'No description'}</div>
+                          <div className="text-sm text-text-secondary">{bot.description || 'No description'}</div>
                         </div>
-                        <Bot className="h-5 w-5 text-zinc-500" />
+                        <Bot className="h-5 w-5 text-text-muted" />
                       </div>
                     </button>
                   ))}

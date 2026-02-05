@@ -160,7 +160,7 @@ export function Chessboard({
 
   return (
     <div className={cn('aspect-square', sizeClasses[size], className)}>
-      <div className="grid h-full w-full grid-cols-8 grid-rows-8 overflow-hidden rounded-lg border border-zinc-600 shadow-xl">
+      <div className="grid h-full w-full grid-cols-8 grid-rows-8 overflow-hidden rounded-lg border border-surface-muted shadow-xl">
         {board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const isLight = (rowIndex + colIndex) % 2 === 0;
@@ -177,8 +177,8 @@ export function Chessboard({
                 onClick={() => handleSquareClick(rowIndex, colIndex)}
                 className={cn(
                   'relative flex items-center justify-center transition-colors',
-                  // Dark theme colors - zinc/slate tones that match the site
-                  isLight ? 'bg-zinc-400' : 'bg-zinc-700',
+                  // Dark theme colors - light and dark squares
+                  isLight ? 'bg-surface-muted' : 'bg-surface-hover',
                   // Highlight last move with emerald (site accent color)
                   isFromSquare && 'bg-emerald-600/70',
                   isToSquare && 'bg-emerald-500/80',
@@ -206,11 +206,11 @@ export function Chessboard({
                       pieceSizeClasses[size],
                       'select-none leading-none transition-transform',
                       interactive && 'hover:scale-110',
-                      // White pieces - cream color with dark shadow
+                      // White pieces - bright white with dark shadow
                       piece === piece.toUpperCase()
-                        ? 'text-zinc-100 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]'
+                        ? 'text-text-bright drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]'
                         // Black pieces - dark with subtle light edge
-                        : 'text-zinc-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.2)]'
+                        : 'text-text-inverse drop-shadow-[0_1px_1px_rgba(255,255,255,0.2)]'
                     )}
                     style={{
                       textShadow: piece === piece.toUpperCase()
@@ -226,7 +226,7 @@ export function Chessboard({
                   <span className={cn(
                     'absolute left-0.5 top-0.5 font-bold opacity-60',
                     coordSizeClasses[size],
-                    isLight ? 'text-zinc-600' : 'text-zinc-400'
+                    isLight ? 'text-text-muted' : 'text-text-secondary'
                   )}>
                     {RANKS[rowIndex]}
                   </span>
@@ -235,7 +235,7 @@ export function Chessboard({
                   <span className={cn(
                     'absolute bottom-0.5 right-1 font-bold opacity-60',
                     coordSizeClasses[size],
-                    isLight ? 'text-zinc-600' : 'text-zinc-400'
+                    isLight ? 'text-text-muted' : 'text-text-secondary'
                   )}>
                     {FILES[colIndex]}
                   </span>

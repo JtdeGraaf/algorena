@@ -19,12 +19,12 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-emerald-500">⚔</span>
-            <span className="font-mono text-lg font-bold text-zinc-100">Algorena</span>
+            <span className="text-xl font-bold text-primary">⚔</span>
+            <span className="font-mono text-lg font-bold text-text-primary">Algorena</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -35,8 +35,8 @@ export function Navbar() {
                 className={cn(
                   'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                   location.pathname === link.to
-                    ? 'bg-zinc-800 text-emerald-500'
-                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
+                    ? 'bg-surface-elevated text-primary'
+                    : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
                 )}
               >
                 {link.icon && <link.icon className="h-4 w-4" />}

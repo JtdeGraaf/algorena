@@ -88,22 +88,22 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
 
         {movesLoading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-text-muted" />
           </div>
         ) : !isRegistered ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Swords className="h-16 w-16 text-zinc-600" />
+            <Swords className="h-16 w-16 text-surface-muted" />
             <h3 className="mt-4 text-lg font-semibold">Replay Not Available</h3>
-            <p className="mt-2 text-sm text-zinc-500">
+            <p className="mt-2 text-sm text-text-muted">
               Match replay is not supported for this game type.
             </p>
-            <p className="text-sm text-zinc-500">Game type: {match.game}</p>
+            <p className="text-sm text-text-muted">Game type: {match.game}</p>
           </div>
         ) : !moves || moves.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Swords className="h-16 w-16 text-zinc-600" />
+            <Swords className="h-16 w-16 text-surface-muted" />
             <h3 className="mt-4 text-lg font-semibold">No Moves Yet</h3>
-            <p className="mt-2 text-sm text-zinc-500">
+            <p className="mt-2 text-sm text-text-muted">
               This match has no moves to replay.
             </p>
           </div>
@@ -134,9 +134,9 @@ export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDial
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Swords className="h-16 w-16 text-zinc-600" />
+            <Swords className="h-16 w-16 text-surface-muted" />
             <h3 className="mt-4 text-lg font-semibold">Error Loading Replay</h3>
-            <p className="mt-2 text-sm text-zinc-500">
+            <p className="mt-2 text-sm text-text-muted">
               Failed to load replay component for {match.game}
             </p>
           </div>

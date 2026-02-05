@@ -20,15 +20,45 @@ Helps with React frontend development following Algorena's terminal-inspired des
 
 ## Design System - Terminal Aesthetic
 
-**Color Palette:**
-- Background: `bg-zinc-950`, `bg-zinc-900`
-- Borders: `border-zinc-700`, `border-zinc-800`
-- Text primary: `text-zinc-100`
-- Text secondary: `text-zinc-400`, `text-zinc-500`
-- Accent: `text-emerald-500`, `bg-emerald-600`
-- Error: `text-red-400`, `bg-red-600`
-- Success: `text-emerald-500`
-- Warning: `text-yellow-500`
+**Color Palette (Semantic Tokens):**
+
+The app uses semantic color tokens defined in `index.css` via Tailwind v4's `@theme` directive. **Always use semantic tokens instead of hardcoded colors:**
+
+- **Backgrounds:**
+  - `bg-background` - Main background (zinc-950)
+  - `bg-surface` - Card/panel background (zinc-900)
+  - `bg-surface-elevated` - Elevated surface (zinc-800)
+  - `bg-surface-hover` - Hover states (zinc-700)
+  - `bg-surface-muted` - Muted backgrounds (zinc-600)
+
+- **Borders:**
+  - `border-border` - Standard borders (zinc-800)
+  - `border-border-hover` - Hover borders (zinc-700)
+
+- **Text:**
+  - `text-text-primary` - Primary text (zinc-200)
+  - `text-text-bright` - Bright white text (zinc-100) - use sparingly
+  - `text-text-secondary` - Secondary text (zinc-400)
+  - `text-text-muted` - Muted text (zinc-500)
+  - `text-text-inverse` - Dark text on light backgrounds (zinc-900)
+
+- **Primary/Accent:**
+  - `bg-primary` / `text-primary` - Accent color (emerald-500)
+  - `bg-primary-hover` / `text-primary-hover` - Hover state (emerald-600)
+  - `bg-primary-active` / `text-primary-active` - Active state (emerald-700)
+
+- **Error/Destructive:**
+  - `bg-error` / `text-error` - Error color (red-600)
+  - `bg-error-hover` / `text-error-hover` - Error hover (red-700)
+
+- **Focus:**
+  - `ring-focus-ring` - Focus ring color (emerald-500)
+  - `ring-offset-focus-ring-offset` - Focus ring offset (zinc-950)
+
+- **Other Status Colors (keep hardcoded for semantic meaning):**
+  - Success: `text-emerald-500` / `bg-emerald-500`
+  - Warning: `text-yellow-500` / `bg-yellow-500`
+  - Info: `text-blue-500` / `bg-blue-500`
 
 **Typography:**
 - **Always use `font-mono`** for terminal feel
@@ -55,20 +85,20 @@ Helps with React frontend development following Algorena's terminal-inspired des
 
 2. **Page Headers** - Terminal command style
    ```tsx
-   <h1 className="font-mono text-2xl font-bold text-emerald-500">
+   <h1 className="font-mono text-2xl font-bold text-primary">
      $ ./bots --list
    </h1>
-   <p className="mt-1 font-mono text-sm text-zinc-500">
+   <p className="mt-1 font-mono text-sm text-text-muted">
      # Manage your battle bots
    </p>
    ```
 
 3. **Empty States** - Command-line themed
    ```tsx
-   <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-800 py-16 text-center">
-     <Bot className="h-12 w-12 text-zinc-600" />
+   <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
+     <Bot className="h-12 w-12 text-surface-muted" />
      <h3 className="mt-4 font-mono text-lg font-semibold">No bots found</h3>
-     <p className="mt-1 font-mono text-sm text-zinc-500">
+     <p className="mt-1 font-mono text-sm text-text-muted">
        $ create your first bot to start competing
      </p>
      <Button onClick={handleCreate} className="mt-6 gap-2 font-mono">
@@ -94,7 +124,7 @@ Helps with React frontend development following Algorena's terminal-inspired des
 
 5. **Badges/Tags** - Rounded with dark background
    ```tsx
-   <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
+   <span className="rounded bg-surface-elevated px-2 py-0.5 text-xs text-text-secondary">
      CHESS
    </span>
    ```
@@ -139,10 +169,10 @@ export function BotsPage() {
       {/* Header with terminal command */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-mono text-2xl font-bold text-emerald-500">
+          <h1 className="font-mono text-2xl font-bold text-primary">
             $ ./bots --list
           </h1>
-          <p className="mt-1 font-mono text-sm text-zinc-500">
+          <p className="mt-1 font-mono text-sm text-text-muted">
             # Manage your battle bots
           </p>
         </div>
@@ -293,7 +323,7 @@ All UI components use:
     placeholder="Placeholder"
     required
   />
-  <p className="text-xs text-zinc-500">Helper text</p>
+  <p className="text-xs text-text-muted">Helper text</p>
 </div>
 
 {/* Select */}
@@ -413,19 +443,27 @@ const response = await createBot({ body: data });
 
 **Text Styling:**
 - Always use `font-mono` for terminal aesthetic
-- Headers: `text-2xl font-bold text-emerald-500`
-- Subtext: `text-sm text-zinc-500`
-- Labels: `text-xs uppercase tracking-wider text-zinc-500`
+- Headers: `text-2xl font-bold text-primary`
+- Subtext: `text-sm text-text-muted`
+- Labels: `text-xs uppercase tracking-wider text-text-muted`
+- Body text: `text-text-primary`
 
 **Interactive Elements:**
-- Hover effects: `hover:bg-zinc-800`, `hover:bg-zinc-800/50` (with opacity)
+- Hover effects: `hover:bg-surface-elevated`, `hover:bg-surface-elevated/50` (with opacity)
 - Transitions: `transition-colors`
 - Disabled: `disabled:opacity-50 disabled:pointer-events-none`
 
 **Borders & Backgrounds:**
-- Cards: `rounded-lg border border-zinc-700 bg-zinc-950`
-- Subtle dividers: `border-zinc-800/50`, `divide-zinc-800/50`
-- Focus rings: `focus-visible:ring-1 focus-visible:ring-zinc-300`
+- Cards: `rounded-lg border border-border bg-background`
+- Surface cards: `rounded-lg border border-border bg-surface`
+- Subtle dividers: `border-border/50`, `divide-border/50`
+- Focus rings: `focus-visible:ring-1 focus-visible:ring-ring-default`
+
+**Color Usage Rules:**
+- **Always use semantic tokens** for UI chrome (backgrounds, borders, text)
+- Only use hardcoded colors for semantic status (yellow for warning, blue for info, etc.)
+- Game-specific colors (Connect4 pieces, chess highlights) can be hardcoded as they represent game state
+- Never use `zinc-*` directly - use the semantic tokens instead
 
 ## Commands
 Frontend commands (from `frontend/` directory):
@@ -446,6 +484,7 @@ Before generating code:
 ## Important Notes
 - Use Bun, not npm/yarn/pnpm
 - Dark mode only - no light mode variants
+- **Always use semantic color tokens** (bg-background, text-primary, etc.) instead of hardcoded Tailwind colors
 - All text should use `font-mono` unless there's a specific reason not to
 - Status/state text should be UPPERCASE
 - Empty states should feel like terminal prompts

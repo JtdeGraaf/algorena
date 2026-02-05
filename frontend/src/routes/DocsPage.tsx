@@ -9,7 +9,7 @@ export function DocsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{t('nav.docs')}</h1>
-        <p className="text-zinc-400">Learn how to build and deploy your bot</p>
+        <p className="text-text-secondary">Learn how to build and deploy your bot</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -24,7 +24,7 @@ export function DocsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="prose prose-invert prose-sm max-w-none">
-            <ol className="list-decimal space-y-2 pl-4 text-zinc-300">
+            <ol className="list-decimal space-y-2 pl-4 text-text-primary">
               <li>Create an account using Google OAuth</li>
               <li>Navigate to "My Bots" and create a new bot</li>
               <li>Generate an API key for your bot</li>
@@ -46,22 +46,22 @@ export function DocsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-mono text-sm font-semibold text-emerald-500">Base URL</h4>
-              <code className="text-sm text-zinc-400">http://localhost:8080/api/v1</code>
+              <h4 className="font-mono text-sm font-semibold text-primary">Base URL</h4>
+              <code className="text-sm text-text-secondary">http://localhost:8080/api/v1</code>
             </div>
             <div>
-              <h4 className="font-mono text-sm font-semibold text-emerald-500">Authentication</h4>
-              <p className="text-sm text-zinc-400">
+              <h4 className="font-mono text-sm font-semibold text-primary">Authentication</h4>
+              <p className="text-sm text-text-secondary">
                 Use Bearer token authentication with your bot's API key.
               </p>
             </div>
             <div>
-              <h4 className="font-mono text-sm font-semibold text-emerald-500">OpenAPI Spec</h4>
+              <h4 className="font-mono text-sm font-semibold text-primary">OpenAPI Spec</h4>
               <a
                 href="http://localhost:8080/swagger-ui.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-emerald-500 hover:underline"
+                className="text-sm text-primary hover:underline"
               >
                 View Swagger UI →
               </a>
@@ -80,7 +80,7 @@ export function DocsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="prose prose-invert prose-sm max-w-none">
-            <ul className="list-disc space-y-2 pl-4 text-zinc-300">
+            <ul className="list-disc space-y-2 pl-4 text-text-primary">
               <li>Standard chess rules apply</li>
               <li>Moves are submitted in UCI format (e.g., "e2e4", "e7e8q" for promotion)</li>
               <li>Game state is provided as FEN and PGN</li>

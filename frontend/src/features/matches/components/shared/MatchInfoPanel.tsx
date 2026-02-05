@@ -29,18 +29,18 @@ export function MatchInfoPanel({ match, moves }: MatchInfoPanelProps) {
     <div className="w-72 space-y-4">
       {/* Participants */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-          <div className="text-xs text-zinc-500">{getPlayerLabel(0)}</div>
+        <div className="rounded-lg border border-border bg-surface/50 p-3">
+          <div className="text-xs text-text-muted">{getPlayerLabel(0)}</div>
           <div className="mt-1 font-medium">{player1?.botName || 'Unknown'}</div>
           {match.status === 'FINISHED' && (
-            <div className="mt-1 text-xl font-bold text-emerald-500">{player1?.score ?? 0}</div>
+            <div className="mt-1 text-xl font-bold text-primary">{player1?.score ?? 0}</div>
           )}
         </div>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-          <div className="text-xs text-zinc-500">{getPlayerLabel(1)}</div>
+        <div className="rounded-lg border border-border bg-surface/50 p-3">
+          <div className="text-xs text-text-muted">{getPlayerLabel(1)}</div>
           <div className="mt-1 font-medium">{player2?.botName || 'Unknown'}</div>
           {match.status === 'FINISHED' && (
-            <div className="mt-1 text-xl font-bold text-emerald-500">{player2?.score ?? 0}</div>
+            <div className="mt-1 text-xl font-bold text-primary">{player2?.score ?? 0}</div>
           )}
         </div>
       </div>
@@ -48,12 +48,12 @@ export function MatchInfoPanel({ match, moves }: MatchInfoPanelProps) {
       {/* Timestamps */}
       <div className="text-sm">
         <div className="flex justify-between">
-          <span className="text-zinc-500">Started:</span>
+          <span className="text-text-muted">Started:</span>
           <span>{formatDate(match.startedAt)}</span>
         </div>
         {match.finishedAt && (
           <div className="flex justify-between mt-1">
-            <span className="text-zinc-500">Finished:</span>
+            <span className="text-text-muted">Finished:</span>
             <span>{formatDate(match.finishedAt)}</span>
           </div>
         )}
@@ -62,7 +62,7 @@ export function MatchInfoPanel({ match, moves }: MatchInfoPanelProps) {
       {/* Move count */}
       <div className="text-sm">
         <div className="flex justify-between">
-          <span className="text-zinc-500">Total Moves:</span>
+          <span className="text-text-muted">Total Moves:</span>
           <span className="font-medium">{moves?.length || 0}</span>
         </div>
       </div>

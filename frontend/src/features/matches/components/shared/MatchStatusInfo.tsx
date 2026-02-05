@@ -51,7 +51,7 @@ export function MatchStatusInfo({ match }: MatchStatusInfoProps) {
         {getStatusIcon()}
         {t(`matches.status.${match.status?.toLowerCase() || 'created'}`)}
       </div>
-      <div className="text-sm text-zinc-400">
+      <div className="text-sm text-text-secondary">
         <span className="font-mono text-xs uppercase">{match.game}</span>
       </div>
     </div>

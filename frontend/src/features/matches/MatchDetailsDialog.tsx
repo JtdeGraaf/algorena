@@ -72,8 +72,8 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                   <DetailsComponent match={match} moves={moves} isFullscreen={true} />
                 ) : (
                   <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <Swords className="h-16 w-16 text-zinc-600" />
-                    <p className="mt-4 text-sm text-zinc-500">
+                    <Swords className="h-16 w-16 text-surface-muted" />
+                    <p className="mt-4 text-sm text-text-muted">
                       Game board not available for {match.game}
                     </p>
                   </div>
@@ -102,17 +102,17 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
               </div>
               {movesLoading ? (
                 <div className="flex justify-center py-4">
-                  <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                  <Loader2 className="h-5 w-5 animate-spin text-text-muted" />
                 </div>
               ) : moves && moves.length > 0 ? (
-                <div className="overflow-y-auto rounded-lg bg-zinc-900 p-3 max-h-32">
+                <div className="overflow-y-auto rounded-lg bg-surface p-3 max-h-32">
                   <div className="flex flex-wrap gap-1 text-sm font-mono">
                     {moves.map((move, index) => {
                       const moveNum = Math.floor(index / 2) + 1;
                       const isWhite = move.playerIndex === 0;
                       return (
-                        <span key={move.id || index} className="text-zinc-300">
-                          {isWhite && <span className="text-zinc-500">{moveNum}.</span>}
+                        <span key={move.id || index} className="text-text-primary">
+                          {isWhite && <span className="text-text-muted">{moveNum}.</span>}
                           {move.moveNotation || `Col ${move.toSquare}`}
                         </span>
                       );
@@ -120,7 +120,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-zinc-500">No moves yet</p>
+                <p className="text-sm text-text-muted">No moves yet</p>
               )}
             </div>
 
@@ -132,7 +132,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
               (match.state.pgn as string).length < 200 && (
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">PGN</h4>
-                  <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-zinc-900 p-3 text-xs text-zinc-300 max-h-24">
+                  <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-surface p-3 text-xs text-text-primary max-h-24">
                     {match.state.pgn as string}
                   </pre>
                 </div>

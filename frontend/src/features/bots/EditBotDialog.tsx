@@ -93,7 +93,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
               required
               maxLength={500}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-text-muted">
               The URL where Algorena will send move requests to your bot.
             </p>
           </div>
@@ -107,7 +107,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
               placeholder="Enter new key to change, or leave empty"
               maxLength={255}
             />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-text-muted">
               Sent in X-Algorena-API-Key header. Leave empty to keep the current key.
             </p>
           </div>
@@ -117,7 +117,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
               id="edit-active"
               checked={active}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActive(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-border-hover bg-surface text-primary focus:ring-primary"
             />
             <Label htmlFor="edit-active">{t('bots.active')}</Label>
           </div>

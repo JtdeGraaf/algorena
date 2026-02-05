@@ -141,9 +141,9 @@ export function OAuth2RedirectHandler() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-500">Login Failed</h1>
-          <p className="mt-2 text-zinc-400">{error}</p>
-          <a href="/" className="mt-4 inline-block text-emerald-500 hover:underline">
+          <h1 className="text-2xl font-bold text-error">Login Failed</h1>
+          <p className="mt-2 text-text-secondary">{error}</p>
+          <a href="/" className="mt-4 inline-block text-primary hover:underline">
             Go back home
           </a>
         </div>
@@ -155,8 +155,8 @@ export function OAuth2RedirectHandler() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-emerald-500">Login Successful!</h1>
-          <p className="mt-2 text-zinc-400">Redirecting...</p>
+          <h1 className="text-2xl font-bold text-primary">Login Successful!</h1>
+          <p className="mt-2 text-text-secondary">Redirecting...</p>
         </div>
       </div>
     );
@@ -165,8 +165,8 @@ export function OAuth2RedirectHandler() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
-        <p className="mt-4 text-zinc-400">Logging in...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="mt-4 text-text-secondary">Logging in...</p>
       </div>
     </div>
   );

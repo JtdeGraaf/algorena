@@ -103,9 +103,9 @@ export function MatchesPage() {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <Swords className="h-16 w-16 text-zinc-600" />
+        <Swords className="h-16 w-16 text-surface-muted" />
         <h2 className="mt-4 text-xl font-semibold">{t('errors.unauthorized')}</h2>
-        <p className="mt-2 text-zinc-400">Login to view and create matches</p>
+        <p className="mt-2 text-text-secondary">Login to view and create matches</p>
         <Button onClick={login} className="mt-6">
           {t('nav.login')}
         </Button>
@@ -118,8 +118,8 @@ export function MatchesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-mono text-2xl font-bold text-emerald-500">$ ./matches --history</h1>
-          <p className="mt-1 font-mono text-sm text-zinc-500"># Challenge bots and track results</p>
+          <h1 className="font-mono text-2xl font-bold text-primary">$ ./matches --history</h1>
+          <p className="mt-1 font-mono text-sm text-text-muted"># Challenge bots and track results</p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 font-mono">
           <Plus className="h-4 w-4" />
@@ -130,8 +130,8 @@ export function MatchesPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4 font-mono text-sm">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-zinc-500" />
-          <span className="text-zinc-400">--filter:</span>
+          <Filter className="h-4 w-4 text-text-muted" />
+          <span className="text-text-secondary">--filter:</span>
         </div>
         <Select
           value={statusFilter}
@@ -158,18 +158,18 @@ export function MatchesPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-text-muted" />
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <p className="font-mono text-red-400">ERROR: Failed to load matches</p>
-          <p className="mt-1 font-mono text-sm text-zinc-500">{(error as Error).message}</p>
+          <p className="mt-1 font-mono text-sm text-text-muted">{(error as Error).message}</p>
         </div>
       ) : filteredMatches.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-800 py-16 text-center">
-          <Swords className="h-12 w-12 text-zinc-600" />
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
+          <Swords className="h-12 w-12 text-surface-muted" />
           <h3 className="mt-4 font-mono text-lg font-semibold">No matches found</h3>
-          <p className="mt-1 font-mono text-sm text-zinc-500">
+          <p className="mt-1 font-mono text-sm text-text-muted">
             $ create a match to start competing
           </p>
           <Button onClick={() => setCreateDialogOpen(true)} className="mt-6 gap-2 font-mono">
@@ -206,39 +206,39 @@ export function MatchesPage() {
                 <TerminalTableCell className="font-semibold">
                   <div className="flex items-center gap-2">
                     <span className={cn(
-                      winner?.botId === player1?.botId && 'text-emerald-500'
+                      winner?.botId === player1?.botId && 'text-primary'
                     )}>
                       {player1?.botName || '???'}
                     </span>
-                    <span className="text-zinc-600">vs</span>
+                    <span className="text-surface-muted">vs</span>
                     <span className={cn(
-                      winner?.botId === player2?.botId && 'text-emerald-500'
+                      winner?.botId === player2?.botId && 'text-primary'
                     )}>
                       {player2?.botName || '???'}
                     </span>
                   </div>
                 </TerminalTableCell>
                 <TerminalTableCell>
-                  <span className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
+                  <span className="rounded bg-surface-elevated px-2 py-0.5 text-xs text-text-secondary">
                     {match.game}
                   </span>
                 </TerminalTableCell>
                 <TerminalTableCell>
                   {match.status === 'FINISHED' ? (
                     isDraw ? (
-                      <span className="text-zinc-400">DRAW</span>
+                      <span className="text-text-secondary">DRAW</span>
                     ) : (
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="text-emerald-500">{player1?.score ?? 0}</span>
-                        <span className="text-zinc-600">—</span>
-                        <span className="text-emerald-500">{player2?.score ?? 0}</span>
+                        <span className="text-primary">{player1?.score ?? 0}</span>
+                        <span className="text-surface-muted">—</span>
+                        <span className="text-primary">{player2?.score ?? 0}</span>
                       </div>
                     )
                   ) : (
-                    <span className="text-zinc-600">—</span>
+                    <span className="text-surface-muted">—</span>
                   )}
                 </TerminalTableCell>
-                <TerminalTableCell className="text-zinc-500">
+                <TerminalTableCell className="text-text-muted">
                   {formatDate(match.finishedAt || match.startedAt)}
                 </TerminalTableCell>
                 <TerminalTableCell>

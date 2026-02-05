@@ -43,10 +43,10 @@ export function DeleteBotDialog({ bot, open, onOpenChange }: DeleteBotDialogProp
           </div>
         </DialogHeader>
         <div className="py-4">
-          <p className="text-zinc-300">
-            Are you sure you want to delete <span className="font-semibold text-zinc-100">{bot?.name}</span>?
+          <p className="text-text-primary">
+            Are you sure you want to delete <span className="font-semibold text-text-primary">{bot?.name}</span>?
           </p>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-text-muted">
             This will permanently delete the bot, its API keys, and all associated data.
           </p>
         </div>
