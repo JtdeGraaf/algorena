@@ -42,7 +42,8 @@ public class Bot extends BaseEntity {
     private String endpoint;
 
     @Nullable
-    @Column(name = "api_key", length = 255)
+    @Column(name = "api_key", length = 500)
+    @Convert(converter = ApiKeyConverter.class)
     private String apiKey;
 
     public void activate() {
