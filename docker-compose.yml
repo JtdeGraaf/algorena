@@ -3,10 +3,10 @@ version: '3.8'
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     container_name: algorena-postgres
     environment:
-      POSTGRES_DB: algorena
+      POSTGRES_DB: algorena-db
       POSTGRES_USER: algorena
       POSTGRES_PASSWORD: algorena
     ports:
