@@ -96,7 +96,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
               )}
             >
               {/* Left: Game Board */}
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center">
                 {DetailsComponent ? (
                   <DetailsComponent match={match} moves={moves} isFullscreen={isFullscreen} />
                 ) : (
@@ -107,30 +107,6 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                     </p>
                   </div>
                 )}
-
-                <div className="flex gap-2">
-                  {canReplay && (
-                    <div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setReplayOpen(true)}
-                      >
-                        <Play className="h-4 w-4" />
-                        Replay
-                      </Button>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={toggleFullscreen}
-                      >
-                        {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Right: Match info */}
@@ -145,11 +121,11 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-2 text-xs"
+                    className="gap-2"
                     onClick={() => setReplayOpen(true)}
                   >
-                    <Play className="h-3 w-3" />
-                    Open Replay
+                    <Play className="h-4 w-4" />
+                    Replay
                   </Button>
                 )}
               </div>
