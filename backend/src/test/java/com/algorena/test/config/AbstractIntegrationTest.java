@@ -49,6 +49,9 @@ public abstract class AbstractIntegrationTest {
     protected BotRatingRepository botRatingRepository;
 
     @Autowired
+    protected com.algorena.games.data.MatchRepository matchRepository;
+
+    @Autowired
     Flyway flyway;
 
     private static final SharedPostgresContainer POSTGRES = SharedPostgresContainer.getInstance();

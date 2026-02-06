@@ -2,17 +2,19 @@ package com.algorena.games.application;
 
 import com.algorena.bots.domain.Game;
 import com.algorena.games.data.BotRatingRepository;
+import com.algorena.games.data.MatchRepository;
 import com.algorena.games.data.RatingHistoryRepository;
 import com.algorena.games.data.UserRankingRepository;
 import com.algorena.games.domain.*;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -20,13 +22,30 @@ import java.util.List;
  */
 @Service
 @Slf4j
-@AllArgsConstructor
 public class RatingUpdateServiceImpl implements RatingUpdateService {
 
     private final BotRatingRepository botRatingRepository;
     private final RatingHistoryRepository ratingHistoryRepository;
     private final UserRankingRepository userRankingRepository;
+    private final MatchRepository matchRepository;
     private final EloService eloService;
+
+    @Value("${algorena.elo.rematch-cooldown-hours:1}")
+    private int rematchCooldownHours;
+
+    public RatingUpdateServiceImpl(
+            BotRatingRepository botRatingRepository,
+            RatingHistoryRepository ratingHistoryRepository,
+            UserRankingRepository userRankingRepository,
+            MatchRepository matchRepository,
+            EloService eloService
+    ) {
+        this.botRatingRepository = botRatingRepository;
+        this.ratingHistoryRepository = ratingHistoryRepository;
+        this.userRankingRepository = userRankingRepository;
+        this.matchRepository = matchRepository;
+        this.eloService = eloService;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -39,6 +58,21 @@ public class RatingUpdateServiceImpl implements RatingUpdateService {
         List<MatchParticipant> participants = match.getParticipants();
         if (participants.size() != 2) {
             log.warn("Match {} does not have exactly 2 participants, skipping rating update", match.getId());
+            return;
+        }
+
+        // ELO Protection: Skip rating updates for matches between same user's bots
+        Long owner1 = participants.get(0).getBot().getUserId();
+        Long owner2 = participants.get(1).getBot().getUserId();
+        if (owner1.equals(owner2)) {
+            log.info("Skipping rating update for match {} - both bots owned by same user", match.getId());
+            return;
+        }
+
+        // ELO Protection: Skip rating updates for rematches within cooldown period
+        if (isRematchWithinCooldown(match, participants)) {
+            log.info("Skipping rating update for match {} - rematch within {} hour cooldown period",
+                    match.getId(), rematchCooldownHours);
             return;
         }
 
@@ -63,9 +97,9 @@ public class RatingUpdateServiceImpl implements RatingUpdateService {
 
         // Calculate new ratings
         EloService.EloUpdateResult result = eloService.calculateNewRatings(
-            rating1,
-            rating2,
-            p1.getScore()
+                rating1,
+                rating2,
+                p1.getScore()
         );
 
         // Save rating history before updating
@@ -84,29 +118,29 @@ public class RatingUpdateServiceImpl implements RatingUpdateService {
 
     private BotRating getOrCreateBotRating(com.algorena.bots.domain.Bot bot, Game game, @Nullable Long leaderboardId) {
         return botRatingRepository
-            .findByBotAndGameAndLeaderboard(bot, game, leaderboardId)
-            .orElseGet(() -> {
-                BotRating newRating = new BotRating(bot, game, leaderboardId);
-                return botRatingRepository.save(newRating);
-            });
+                .findByBotAndGameAndLeaderboard(bot, game, leaderboardId)
+                .orElseGet(() -> {
+                    BotRating newRating = new BotRating(bot, game, leaderboardId);
+                    return botRatingRepository.save(newRating);
+                });
     }
 
     private void saveRatingHistory(
-        BotRating botRating,
-        Match match,
-        int newRating,
-        int opponentRating,
-        com.algorena.bots.domain.Bot opponentBot,
-        MatchResult matchResult
+            BotRating botRating,
+            Match match,
+            int newRating,
+            int opponentRating,
+            com.algorena.bots.domain.Bot opponentBot,
+            MatchResult matchResult
     ) {
         RatingHistory history = new RatingHistory(
-            botRating,
-            match,
-            botRating.getEloRating(),
-            newRating,
-            opponentRating,
-            opponentBot,
-            matchResult
+                botRating,
+                match,
+                botRating.getEloRating(),
+                newRating,
+                opponentRating,
+                opponentBot,
+                matchResult
         );
 
         ratingHistoryRepository.save(history);
@@ -120,6 +154,32 @@ public class RatingUpdateServiceImpl implements RatingUpdateService {
         } else {
             return MatchResult.LOSS;
         }
+    }
+
+    /**
+     * Check if this match is a rematch within the cooldown period.
+     * Returns true if the same two bots have finished a match recently.
+     *
+     * @param currentMatch the current match
+     * @param participants the participants in the current match
+     * @return true if there's a recent finished match between these bots
+     */
+    private boolean isRematchWithinCooldown(Match currentMatch, List<MatchParticipant> participants) {
+        Long bot1Id = participants.get(0).getBot().getId();
+        Long bot2Id = participants.get(1).getBot().getId();
+        LocalDateTime cooldownThreshold = LocalDateTime.now().minusHours(rematchCooldownHours);
+
+        // Find any finished matches between these two bots within the cooldown period
+        // Exclude the current match itself
+        boolean hasRecentMatch = matchRepository.existsRecentMatchBetweenBots(
+                bot1Id,
+                bot2Id,
+                currentMatch.getGame(),
+                cooldownThreshold,
+                currentMatch.getId()
+        );
+
+        return hasRecentMatch;
     }
 
     /**
