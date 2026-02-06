@@ -12,6 +12,7 @@ import com.algorena.users.data.UserRepository;
 import com.algorena.users.domain.Language;
 import com.algorena.users.domain.Provider;
 import com.algorena.users.domain.User;
+import com.algorena.users.domain.UserTestFactory;
 import org.flywaydb.core.Flyway;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,14 +82,12 @@ public abstract class AbstractIntegrationTest {
 
     // Helper: create and persist a User for tests
     protected User createTestUser(String username, String email) {
-        User user = User.builder()
-                .username(username)
-                .email(email)
-                .language(Language.EN)
-                .provider(Provider.GOOGLE)
-                .providerId(UUID.randomUUID().toString())
-                .build();
-
+        User user = UserTestFactory.create(
+                username,
+                email,
+                Provider.GOOGLE,
+                UUID.randomUUID().toString()
+        );
         return userRepository.save(user);
     }
 

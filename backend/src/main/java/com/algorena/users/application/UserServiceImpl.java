@@ -31,18 +31,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("User not found with id: " + currentUser.id()));
         
-        if (request.username() != null) {
-            // Check if username is already taken by another user
-            if (userRepository.existsByUsernameAndIdNot(request.username(), currentUser.id())) {
-                throw new BadRequestException("Username already taken");
-            }
-
-            user.setUsername(request.username());
+        // Check if new username is already taken by another user
+        if (request.username() != null
+                && userRepository.existsByUsernameAndIdNot(request.username(), currentUser.id())) {
+            throw new BadRequestException("Username already taken");
         }
 
-        if (request.name() != null) {
-            user.setName(request.name());
-        }
+        user.updateProfile(request.username(), request.name());
 
         user = userRepository.save(user);
         return new UserDTO(user.getId(), user.getUsername(), user.getName());
