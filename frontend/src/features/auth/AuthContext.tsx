@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { setAccessToken, clearAccessToken, getAccessToken } from '@/api/client';
-import { config } from '@/lib/config';
+import { LoginDialog } from './LoginDialog';
 
 interface User {
   id: number;
@@ -30,9 +30,10 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
 
   const login = useCallback(() => {
-    window.location.href = config.oauth2LoginUrl;
+    setLoginDialogOpen(true);
   }, []);
 
   const logout = useCallback(() => {
@@ -95,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      <LoginDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen} />
     </AuthContext.Provider>
   );
 }
