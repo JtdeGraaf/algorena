@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Implementation of leaderboard service.
@@ -80,7 +79,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             bot.getId(),
             bot.getName(),
             owner.getId(),
-            Objects.requireNonNullElse(owner.getName(), owner.getUsername()),
+            owner.getUsername(),
             owner.getImageUrl(),
             rating.getEloRating(),
             rating.getMatchesPlayed(),
@@ -129,7 +128,7 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         return new UserLeaderboardEntryDTO(
             rank,
             user.getId(),
-            Objects.requireNonNullElse(user.getName(), user.getUsername()),
+            user.getUsername(),
             user.getImageUrl(),
             ranking.getBestBotElo(),
             ranking.getAvgBotElo(),
