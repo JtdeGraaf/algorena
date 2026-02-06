@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AbortMatchData, AbortMatchErrors, AbortMatchResponses, CreateBotData, CreateBotErrors, CreateBotResponses, CreateMatchData, CreateMatchErrors, CreateMatchResponses, DeleteBotData, DeleteBotErrors, DeleteBotResponses, GetBotByIdData, GetBotByIdErrors, GetBotByIdResponses, GetBotsData, GetBotsErrors, GetBotsResponses, GetBotStatsData, GetBotStatsErrors, GetBotStatsResponses, GetCurrentUserProfileData, GetCurrentUserProfileErrors, GetCurrentUserProfileResponses, GetLegalMovesData, GetLegalMovesErrors, GetLegalMovesResponses, GetMatchData, GetMatchErrors, GetMatchesData, GetMatchesErrors, GetMatchesResponses, GetMatchMovesData, GetMatchMovesErrors, GetMatchMovesResponses, GetMatchResponses, GetRecentMatchesData, GetRecentMatchesErrors, GetRecentMatchesResponses, UpdateBotData, UpdateBotErrors, UpdateBotResponses, UpdateCurrentUserProfileData, UpdateCurrentUserProfileErrors, UpdateCurrentUserProfileResponses } from './types.gen';
+import type { AbortMatchData, AbortMatchErrors, AbortMatchResponses, CreateBotData, CreateBotErrors, CreateBotResponses, CreateMatchData, CreateMatchErrors, CreateMatchResponses, DeleteBotData, DeleteBotErrors, DeleteBotResponses, GetBotByIdData, GetBotByIdErrors, GetBotByIdResponses, GetBotLeaderboardData, GetBotLeaderboardErrors, GetBotLeaderboardResponses, GetBotRankingData, GetBotRankingErrors, GetBotRankingResponses, GetBotRatingHistoryData, GetBotRatingHistoryErrors, GetBotRatingHistoryResponses, GetBotsData, GetBotsErrors, GetBotsResponses, GetBotStatsData, GetBotStatsErrors, GetBotStatsResponses, GetCurrentUserProfileData, GetCurrentUserProfileErrors, GetCurrentUserProfileResponses, GetLegalMovesData, GetLegalMovesErrors, GetLegalMovesResponses, GetMatchData, GetMatchErrors, GetMatchesData, GetMatchesErrors, GetMatchesResponses, GetMatchMovesData, GetMatchMovesErrors, GetMatchMovesResponses, GetMatchResponses, GetRecentMatchesData, GetRecentMatchesErrors, GetRecentMatchesResponses, GetUserLeaderboardData, GetUserLeaderboardErrors, GetUserLeaderboardResponses, GetUserRankingData, GetUserRankingErrors, GetUserRankingResponses, UpdateBotData, UpdateBotErrors, UpdateBotResponses, UpdateCurrentUserProfileData, UpdateCurrentUserProfileErrors, UpdateCurrentUserProfileResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -130,6 +130,61 @@ export const getLegalMoves = <ThrowOnError extends boolean = false>(options: Opt
 export const getRecentMatches = <ThrowOnError extends boolean = false>(options?: Options<GetRecentMatchesData, ThrowOnError>) => (options?.client ?? client).get<GetRecentMatchesResponses, GetRecentMatchesErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/matches/recent',
+    ...options
+});
+
+/**
+ * Get user leaderboard
+ *
+ * Returns users ranked by their best bot's ELO rating
+ */
+export const getUserLeaderboard = <ThrowOnError extends boolean = false>(options: Options<GetUserLeaderboardData, ThrowOnError>) => (options.client ?? client).get<GetUserLeaderboardResponses, GetUserLeaderboardErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/leaderboard/users',
+    ...options
+});
+
+/**
+ * Get user ranking
+ *
+ * Returns a specific user's rank and aggregate stats
+ */
+export const getUserRanking = <ThrowOnError extends boolean = false>(options: Options<GetUserRankingData, ThrowOnError>) => (options.client ?? client).get<GetUserRankingResponses, GetUserRankingErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/leaderboard/users/{userId}',
+    ...options
+});
+
+/**
+ * Get bot leaderboard
+ *
+ * Returns bots ranked by ELO rating for a specific game
+ */
+export const getBotLeaderboard = <ThrowOnError extends boolean = false>(options: Options<GetBotLeaderboardData, ThrowOnError>) => (options.client ?? client).get<GetBotLeaderboardResponses, GetBotLeaderboardErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/leaderboard/bots',
+    ...options
+});
+
+/**
+ * Get bot ranking
+ *
+ * Returns a specific bot's rank and stats
+ */
+export const getBotRanking = <ThrowOnError extends boolean = false>(options: Options<GetBotRankingData, ThrowOnError>) => (options.client ?? client).get<GetBotRankingResponses, GetBotRankingErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/leaderboard/bots/{botId}',
+    ...options
+});
+
+/**
+ * Get bot rating history
+ *
+ * Returns historical rating changes for a bot
+ */
+export const getBotRatingHistory = <ThrowOnError extends boolean = false>(options: Options<GetBotRatingHistoryData, ThrowOnError>) => (options.client ?? client).get<GetBotRatingHistoryResponses, GetBotRatingHistoryErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/leaderboard/bots/{botId}/history',
     ...options
 });
 

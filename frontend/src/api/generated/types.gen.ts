@@ -138,26 +138,26 @@ export type MatchMoveDto = {
     promotionPiece?: string;
 };
 
-export type PageBotDto = {
-    totalElements?: number;
+export type PageUserLeaderboardEntryDto = {
     totalPages?: number;
+    totalElements?: number;
     size?: number;
-    content?: Array<BotDto>;
+    content?: Array<UserLeaderboardEntryDto>;
     number?: number;
-    pageable?: PageableObject;
-    sort?: SortObject;
     first?: boolean;
     last?: boolean;
+    pageable?: PageableObject;
     numberOfElements?: number;
+    sort?: SortObject;
     empty?: boolean;
 };
 
 export type PageableObject = {
     offset?: number;
-    paged?: boolean;
     pageNumber?: number;
     pageSize?: number;
     sort?: SortObject;
+    paged?: boolean;
     unpaged?: boolean;
 };
 
@@ -165,6 +165,76 @@ export type SortObject = {
     empty?: boolean;
     sorted?: boolean;
     unsorted?: boolean;
+};
+
+export type UserLeaderboardEntryDto = {
+    rank?: number;
+    userId?: number;
+    username?: string;
+    avatarUrl?: string;
+    bestBotElo?: number;
+    avgBotElo?: number;
+    totalBots?: number;
+    totalMatches?: number;
+    totalWins?: number;
+    totalLosses?: number;
+    totalDraws?: number;
+    winRate?: number;
+};
+
+export type BotLeaderboardEntryDto = {
+    rank?: number;
+    botId?: number;
+    botName?: string;
+    ownerId?: number;
+    ownerName?: string;
+    ownerAvatarUrl?: string;
+    eloRating?: number;
+    matchesPlayed?: number;
+    wins?: number;
+    losses?: number;
+    draws?: number;
+    winRate?: number;
+};
+
+export type PageBotLeaderboardEntryDto = {
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    content?: Array<BotLeaderboardEntryDto>;
+    number?: number;
+    first?: boolean;
+    last?: boolean;
+    pageable?: PageableObject;
+    numberOfElements?: number;
+    sort?: SortObject;
+    empty?: boolean;
+};
+
+export type RatingHistoryDto = {
+    matchId?: string;
+    oldRating?: number;
+    newRating?: number;
+    ratingChange?: number;
+    opponentRating?: number;
+    opponentBotId?: number;
+    opponentBotName?: string;
+    result?: 'WIN' | 'LOSS' | 'DRAW';
+    playedAt?: string;
+};
+
+export type PageBotDto = {
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    content?: Array<BotDto>;
+    number?: number;
+    first?: boolean;
+    last?: boolean;
+    pageable?: PageableObject;
+    numberOfElements?: number;
+    sort?: SortObject;
+    empty?: boolean;
 };
 
 export type BotStatsDto = {
@@ -849,6 +919,299 @@ export type GetRecentMatchesResponses = {
 };
 
 export type GetRecentMatchesResponse = GetRecentMatchesResponses[keyof GetRecentMatchesResponses];
+
+export type GetUserLeaderboardData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Game type
+         */
+        game: 'CHESS' | 'CONNECT_FOUR';
+        /**
+         * Zero-based page index (0..N)
+         */
+        page?: number;
+        /**
+         * The size of the page to be returned
+         */
+        size?: number;
+        /**
+         * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         */
+        sort?: Array<string>;
+    };
+    url: '/api/v1/leaderboard/users';
+};
+
+export type GetUserLeaderboardErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetUserLeaderboardError = GetUserLeaderboardErrors[keyof GetUserLeaderboardErrors];
+
+export type GetUserLeaderboardResponses = {
+    /**
+     * OK
+     */
+    200: PageUserLeaderboardEntryDto;
+};
+
+export type GetUserLeaderboardResponse = GetUserLeaderboardResponses[keyof GetUserLeaderboardResponses];
+
+export type GetUserRankingData = {
+    body?: never;
+    path: {
+        /**
+         * User ID
+         */
+        userId: number;
+    };
+    query: {
+        /**
+         * Game type
+         */
+        game: 'CHESS' | 'CONNECT_FOUR';
+    };
+    url: '/api/v1/leaderboard/users/{userId}';
+};
+
+export type GetUserRankingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetUserRankingError = GetUserRankingErrors[keyof GetUserRankingErrors];
+
+export type GetUserRankingResponses = {
+    /**
+     * OK
+     */
+    200: UserLeaderboardEntryDto;
+};
+
+export type GetUserRankingResponse = GetUserRankingResponses[keyof GetUserRankingResponses];
+
+export type GetBotLeaderboardData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Game type
+         */
+        game: 'CHESS' | 'CONNECT_FOUR';
+        /**
+         * Zero-based page index (0..N)
+         */
+        page?: number;
+        /**
+         * The size of the page to be returned
+         */
+        size?: number;
+        /**
+         * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+         */
+        sort?: Array<string>;
+    };
+    url: '/api/v1/leaderboard/bots';
+};
+
+export type GetBotLeaderboardErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetBotLeaderboardError = GetBotLeaderboardErrors[keyof GetBotLeaderboardErrors];
+
+export type GetBotLeaderboardResponses = {
+    /**
+     * OK
+     */
+    200: PageBotLeaderboardEntryDto;
+};
+
+export type GetBotLeaderboardResponse = GetBotLeaderboardResponses[keyof GetBotLeaderboardResponses];
+
+export type GetBotRankingData = {
+    body?: never;
+    path: {
+        /**
+         * Bot ID
+         */
+        botId: number;
+    };
+    query: {
+        /**
+         * Game type
+         */
+        game: 'CHESS' | 'CONNECT_FOUR';
+    };
+    url: '/api/v1/leaderboard/bots/{botId}';
+};
+
+export type GetBotRankingErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetBotRankingError = GetBotRankingErrors[keyof GetBotRankingErrors];
+
+export type GetBotRankingResponses = {
+    /**
+     * OK
+     */
+    200: BotLeaderboardEntryDto;
+};
+
+export type GetBotRankingResponse = GetBotRankingResponses[keyof GetBotRankingResponses];
+
+export type GetBotRatingHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Bot ID
+         */
+        botId: number;
+    };
+    query: {
+        /**
+         * Game type
+         */
+        game: 'CHESS' | 'CONNECT_FOUR';
+        /**
+         * Maximum number of history entries
+         */
+        limit?: number;
+    };
+    url: '/api/v1/leaderboard/bots/{botId}/history';
+};
+
+export type GetBotRatingHistoryErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetBotRatingHistoryError = GetBotRatingHistoryErrors[keyof GetBotRatingHistoryErrors];
+
+export type GetBotRatingHistoryResponses = {
+    /**
+     * OK
+     */
+    200: Array<RatingHistoryDto>;
+};
+
+export type GetBotRatingHistoryResponse = GetBotRatingHistoryResponses[keyof GetBotRatingHistoryResponses];
 
 export type GetBotStatsData = {
     body?: never;

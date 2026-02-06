@@ -1,12 +1,19 @@
 package com.algorena.test.config;
 
 
+import com.algorena.bots.data.BotRepository;
+import com.algorena.bots.domain.Bot;
+import com.algorena.bots.domain.Game;
+import com.algorena.games.data.BotRatingRepository;
+import com.algorena.games.domain.BotRating;
+import com.algorena.games.domain.MatchResult;
 import com.algorena.security.SimpleUserPrincipal;
 import com.algorena.users.data.UserRepository;
 import com.algorena.users.domain.Language;
 import com.algorena.users.domain.Provider;
 import com.algorena.users.domain.User;
 import org.flywaydb.core.Flyway;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +41,12 @@ import java.util.UUID;
 public abstract class AbstractIntegrationTest {
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected BotRepository botRepository;
+
+    @Autowired
+    protected BotRatingRepository botRatingRepository;
 
     @Autowired
     Flyway flyway;
@@ -95,5 +108,73 @@ public abstract class AbstractIntegrationTest {
     // Helper: clear SecurityContext
     protected void clearAuthentication() {
         SecurityContextHolder.clearContext();
+    }
+
+    /**
+     * Helper: create and persist a Bot for tests.
+     */
+    protected Bot createTestBot(User owner, String name, Game game, String endpoint) {
+        Bot bot = Bot.builder()
+                .userId(owner.getId())
+                .name(name)
+                .game(game)
+                .endpoint(endpoint)
+                .active(true)
+                .build();
+        return botRepository.save(bot);
+    }
+
+    /**
+     * Helper: create and persist a BotRating for tests.
+     *
+     * @param bot the bot
+     * @param game the game
+     * @param eloRating initial ELO rating
+     * @param matchesPlayed number of matches played
+     * @param wins number of wins
+     * @param losses number of losses
+     * @param draws number of draws
+     * @return the persisted BotRating
+     */
+    protected BotRating createTestBotRating(
+        Bot bot,
+        Game game,
+        int eloRating,
+        int matchesPlayed,
+        int wins,
+        int losses,
+        int draws
+    ) {
+        return createTestBotRating(bot, game, null, eloRating, matchesPlayed, wins, losses, draws);
+    }
+
+    /**
+     * Helper: create and persist a BotRating with optional leaderboard ID.
+     */
+    protected BotRating createTestBotRating(
+        Bot bot,
+        Game game,
+        @Nullable Long leaderboardId,
+        int eloRating,
+        int matchesPlayed,
+        int wins,
+        int losses,
+        int draws
+    ) {
+        BotRating rating = new BotRating(bot, game, leaderboardId);
+        rating.updateRating(eloRating);
+
+        // Simulate match results to update stats
+        for (int i = 0; i < wins; i++) {
+            rating.recordMatchResult(MatchResult.WIN);
+        }
+        for (int i = 0; i < losses; i++) {
+            rating.recordMatchResult(MatchResult.LOSS);
+        }
+        for (int i = 0; i < draws; i++) {
+            rating.recordMatchResult(MatchResult.DRAW);
+        }
+
+        return botRatingRepository.save(rating);
     }
 }

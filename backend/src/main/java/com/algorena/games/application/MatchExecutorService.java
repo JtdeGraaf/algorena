@@ -37,13 +37,19 @@ import java.util.stream.Collectors;
 public class MatchExecutorService {
 
     private final MatchRepository matchRepository;
+    private final RatingUpdateService ratingUpdateService;
     private final Map<Game, GameMatchExecutor> executorsByGame;
 
     @Value("${algorena.match.max-moves-per-game:500}")
     private int maxMovesPerGame;
 
-    public MatchExecutorService(MatchRepository matchRepository, List<GameMatchExecutor> executors) {
+    public MatchExecutorService(
+        MatchRepository matchRepository,
+        RatingUpdateService ratingUpdateService,
+        List<GameMatchExecutor> executors
+    ) {
         this.matchRepository = matchRepository;
+        this.ratingUpdateService = ratingUpdateService;
         this.executorsByGame = executors.stream()
                 .collect(Collectors.toMap(GameMatchExecutor::getGameType, Function.identity()));
     }
@@ -164,6 +170,9 @@ public class MatchExecutorService {
         }
 
         matchRepository.save(match);
+
+        // Update bot ELO ratings after forfeit
+        ratingUpdateService.updateRatingsAfterMatch(match);
     }
 
     private void finishMatch(Match match, GameResult result) {
@@ -175,6 +184,9 @@ public class MatchExecutorService {
         }
 
         matchRepository.save(match);
+
+        // Update bot ELO ratings after match completes
+        ratingUpdateService.updateRatingsAfterMatch(match);
     }
 
     private void endMatchAsDraw(Match match) {
@@ -185,6 +197,9 @@ public class MatchExecutorService {
         }
 
         matchRepository.save(match);
+
+        // Update bot ELO ratings after draw
+        ratingUpdateService.updateRatingsAfterMatch(match);
     }
 
     @Transactional
