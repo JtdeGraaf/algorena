@@ -44,8 +44,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="font-mono text-center">$ ./login</DialogTitle>
-          <DialogDescription className="font-mono text-center">
+          <DialogTitle className="font-mono text-primary">$ ./login</DialogTitle>
+          <DialogDescription className="font-mono text-text-muted">
             # Select authentication provider
           </DialogDescription>
         </DialogHeader>
@@ -63,8 +63,8 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
           ))}
         </div>
 
-        <p className="mt-6 text-center font-mono text-xs text-text-muted">
-          By continuing, you agree to our terms of service
+        <p className="mt-6 font-mono text-xs text-text-muted">
+          # By continuing, you agree to our terms of service
         </p>
       </DialogContent>
     </Dialog>
