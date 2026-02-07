@@ -119,6 +119,8 @@ export type UserDto = {
     id?: number;
     username?: string;
     name?: string;
+    provider?: 'GOOGLE' | 'GITHUB' | 'DISCORD';
+    providerId?: string;
 };
 
 export type UpdateBotRequest = {

@@ -1,5 +1,7 @@
 package com.algorena.users.domain;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,11 +9,8 @@ import java.util.Set;
  * Factory for creating User entities in tests.
  * Package-private access to User's builder is available since we're in the same package.
  */
+@UtilityClass
 public final class UserTestFactory {
-
-    private UserTestFactory() {
-        // utility class
-    }
 
     /**
      * Creates a test user with the given username and email.
@@ -32,8 +31,7 @@ public final class UserTestFactory {
                 .username(username)
                 .email(email)
                 .language(Language.EN)
-                .provider(provider)
-                .providerId(providerId)
+                .oauthIdentity(new OAuthIdentity(provider, providerId))
                 .roles(new HashSet<>(Set.of(Role.USER)))
                 .build();
     }

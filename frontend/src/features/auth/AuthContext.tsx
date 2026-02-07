@@ -14,6 +14,8 @@ interface User {
   id: number;
   username: string;
   name: string;
+  provider: string;
+  providerId: string | null;
 }
 
 interface AuthContextType {

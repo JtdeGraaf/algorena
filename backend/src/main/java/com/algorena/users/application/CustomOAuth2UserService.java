@@ -102,7 +102,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         if (userInfo.providerId() == null) {
             return Optional.empty();
         }
-        return userRepository.findByProviderAndProviderId(
+        return userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(
                 userInfo.provider(),
                 userInfo.providerId()
         );

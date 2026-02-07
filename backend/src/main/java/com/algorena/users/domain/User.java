@@ -23,13 +23,8 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "provider")
-    @Enumerated(EnumType.STRING)
-    private Provider provider;
-
-    @Nullable
-    @Column(name = "provider_id")
-    private String providerId;
+    @Embedded
+    private OAuthIdentity oauthIdentity;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -65,8 +60,7 @@ public class User extends BaseEntity {
      */
     public static User createFromOAuth2(OAuth2UserInfo userInfo, String username) {
         return User.builder()
-                .provider(userInfo.provider())
-                .providerId(userInfo.providerId())
+                .oauthIdentity(new OAuthIdentity(userInfo.provider(), userInfo.providerId()))
                 .email(userInfo.email())
                 .username(username)
                 .name(userInfo.name())
@@ -91,11 +85,8 @@ public class User extends BaseEntity {
             this.imageUrl = userInfo.imageUrl();
         }
         // Link provider if not already set (for email-matched users)
-        if (this.provider == null) {
-            this.provider = userInfo.provider();
-        }
-        if (this.providerId == null && userInfo.providerId() != null) {
-            this.providerId = userInfo.providerId();
+        if (this.oauthIdentity == null) {
+            this.oauthIdentity = new OAuthIdentity(userInfo.provider(), userInfo.providerId());
         }
     }
 

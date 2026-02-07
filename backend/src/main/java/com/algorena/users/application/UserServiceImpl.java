@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getCurrentUserDetails() {
         User user = userRepository.findById(currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("User not found with id: " + currentUser.id()));
-        return new UserDTO(user.getId(), user.getUsername(), user.getName());
+        return toDTO(user);
     }
 
     @Override
@@ -40,6 +40,16 @@ public class UserServiceImpl implements UserService {
         user.updateProfile(request.username(), request.name());
 
         user = userRepository.save(user);
-        return new UserDTO(user.getId(), user.getUsername(), user.getName());
+        return toDTO(user);
+    }
+
+    private UserDTO toDTO(User user) {
+        return new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getOauthIdentity().getProvider(),
+                user.getOauthIdentity().getProviderId()
+        );
     }
 }

@@ -7,6 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User, LogOut, Shield, Loader2 } from 'lucide-react';
 
+// Map OAuth provider enum to display name
+const getProviderDisplayName = (provider: string): string => {
+  switch (provider) {
+    case 'GOOGLE':
+      return 'Google';
+    case 'GITHUB':
+      return 'GitHub';
+    case 'DISCORD':
+      return 'Discord';
+    default:
+      return provider;
+  }
+};
+
 export function ProfilePage() {
   const { t } = useTranslation();
   const { user, isAuthenticated, login, logout, refetchUser } = useAuth();
@@ -148,10 +162,18 @@ export function ProfilePage() {
         <div className="space-y-2 font-mono text-sm">
           <div className="flex items-center gap-2">
             <span className="text-text-muted">provider:</span>
-            <span className="rounded bg-surface-elevated px-2 py-0.5 text-xs text-primary">Google OAuth2</span>
+            <span className="rounded bg-surface-elevated px-2 py-0.5 text-xs text-primary">
+              {user?.provider ? getProviderDisplayName(user.provider) : 'Unknown'} OAuth2
+            </span>
           </div>
+          {user?.providerId && (
+            <div className="flex flex-col gap-1">
+              <span className="text-text-muted">provider_id:</span>
+              <span className="text-text-secondary text-xs">{user.providerId}</span>
+            </div>
+          )}
           <p className="text-xs text-text-secondary">
-            # Your account is secured via Google authentication
+            # Your account is secured via {user?.provider ? getProviderDisplayName(user.provider) : 'OAuth2'} authentication
           </p>
         </div>
       </div>

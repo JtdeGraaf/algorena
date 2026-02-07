@@ -7,7 +7,6 @@ import com.algorena.users.domain.UserTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -41,7 +40,7 @@ class CustomOAuth2UserServiceTest {
                 "name", "John Doe",
                 "picture", "https://example.com/photo.jpg"
         );
-        when(userRepository.findByProviderAndProviderId(any(), any())).thenReturn(Optional.empty());
+        when(userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(any(), any())).thenReturn(Optional.empty());
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -52,8 +51,8 @@ class CustomOAuth2UserServiceTest {
         // Then
         assertThat(result.getEmail()).isEqualTo("john@example.com");
         assertThat(result.getName()).isEqualTo("John Doe");
-        assertThat(result.getProvider()).isEqualTo(Provider.GOOGLE);
-        assertThat(result.getProviderId()).isEqualTo("google-123");
+        assertThat(result.getOauthIdentity().getProvider()).isEqualTo(Provider.GOOGLE);
+        assertThat(result.getOauthIdentity().getProviderId()).isEqualTo("google-123");
         assertThat(result.getUsername()).isEqualTo("john");
     }
 
@@ -67,7 +66,7 @@ class CustomOAuth2UserServiceTest {
         );
         User existingUser = UserTestFactory.create("john", "john@example.com", Provider.GOOGLE, "google-123");
 
-        when(userRepository.findByProviderAndProviderId(Provider.GOOGLE, "google-123"))
+        when(userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(Provider.GOOGLE, "google-123"))
                 .thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -89,7 +88,7 @@ class CustomOAuth2UserServiceTest {
         );
         User existingUser = UserTestFactory.create("john", "john@example.com", Provider.GOOGLE, "google-123");
 
-        when(userRepository.findByProviderAndProviderId(Provider.GITHUB, "12345"))
+        when(userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(Provider.GITHUB, "12345"))
                 .thenReturn(Optional.empty());
         when(userRepository.findByEmail("john@example.com"))
                 .thenReturn(Optional.of(existingUser));
@@ -100,7 +99,7 @@ class CustomOAuth2UserServiceTest {
 
         // Then - existing user is returned and updated
         assertThat(result.getUsername()).isEqualTo("john");
-        assertThat(result.getProvider()).isEqualTo(Provider.GOOGLE); // Original provider preserved
+        assertThat(result.getOauthIdentity().getProvider()).isEqualTo(Provider.GOOGLE); // Original provider preserved
     }
 
     @Test
@@ -112,7 +111,7 @@ class CustomOAuth2UserServiceTest {
         );
         User existingJohn = UserTestFactory.create("john", "other@example.com", Provider.GOOGLE, "google-123");
 
-        when(userRepository.findByProviderAndProviderId(any(), any())).thenReturn(Optional.empty());
+        when(userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(any(), any())).thenReturn(Optional.empty());
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
         when(userRepository.findByUsername("john")).thenReturn(Optional.of(existingJohn));
         when(userRepository.findByUsername("john1")).thenReturn(Optional.empty());
@@ -132,7 +131,7 @@ class CustomOAuth2UserServiceTest {
                 "sub", "google-123",
                 "email", "John.Doe+test@example.com"
         );
-        when(userRepository.findByProviderAndProviderId(any(), any())).thenReturn(Optional.empty());
+        when(userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(any(), any())).thenReturn(Optional.empty());
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -151,7 +150,7 @@ class CustomOAuth2UserServiceTest {
                 "sub", "google-123",
                 "email", "verylongemailaddressname@example.com"
         );
-        when(userRepository.findByProviderAndProviderId(any(), any())).thenReturn(Optional.empty());
+        when(userRepository.findByOauthIdentity_ProviderAndOauthIdentity_ProviderId(any(), any())).thenReturn(Optional.empty());
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
