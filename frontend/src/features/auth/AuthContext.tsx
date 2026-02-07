@@ -23,6 +23,7 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
   getToken: () => string | null;
+  refetchUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -93,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         getToken,
+        refetchUser: fetchUser,
       }}
     >
       {children}

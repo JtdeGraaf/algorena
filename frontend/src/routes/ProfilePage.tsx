@@ -9,8 +9,12 @@ import { User, LogOut, Shield, Loader2 } from 'lucide-react';
 
 export function ProfilePage() {
   const { t } = useTranslation();
-  const { user, isAuthenticated, login, logout } = useAuth();
-  const updateUser = useUpdateUser();
+  const { user, isAuthenticated, login, logout, refetchUser } = useAuth();
+  const updateUser = useUpdateUser({
+    onSuccess: () => {
+      refetchUser();
+    },
+  });
 
   const [username, setUsername] = useState(user?.username || '');
   const [name, setName] = useState(user?.name || '');
