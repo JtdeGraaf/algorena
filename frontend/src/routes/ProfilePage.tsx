@@ -124,7 +124,7 @@ export function ProfilePage() {
             <p className="text-xs text-text-muted font-mono">Optional. Max 100 characters</p>
           </div>
 
-          <div className="flex flex-col gap-1 font-mono text-sm">
+          <div className="flex items-center gap-2 font-mono text-sm">
             <span className="text-text-muted">user_id:</span>
             <span className="text-text-secondary text-xs">{user?.id}</span>
           </div>
@@ -167,7 +167,7 @@ export function ProfilePage() {
             </span>
           </div>
           {user?.providerId && (
-            <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
               <span className="text-text-muted">provider_id:</span>
               <span className="text-text-secondary text-xs">{user.providerId}</span>
             </div>
