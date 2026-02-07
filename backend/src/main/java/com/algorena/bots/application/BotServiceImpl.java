@@ -58,7 +58,7 @@ public class BotServiceImpl implements BotService {
     @Override
     @Transactional(readOnly = true)
     public BotDTO getBotById(Long botId) {
-        Bot bot = botRepository.findByIdAndUserId(botId, currentUser.id())
+        Bot bot = botRepository.findByIdAndUserIdAndDeletedFalse(botId, currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("Bot not found"));
         return toPrivateDTO(bot);
     }
@@ -66,7 +66,7 @@ public class BotServiceImpl implements BotService {
     @Override
     @Transactional
     public BotDTO updateBot(Long botId, UpdateBotRequest request) {
-        Bot bot = botRepository.findByIdAndUserId(botId, currentUser.id())
+        Bot bot = botRepository.findByIdAndUserIdAndDeletedFalse(botId, currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("Bot not found"));
 
         bot.updateDetails(request.name(), request.description());
@@ -84,12 +84,18 @@ public class BotServiceImpl implements BotService {
         return toPrivateDTO(bot);
     }
 
+    /**
+     * Soft-deletes a bot by marking it as deleted.
+     * Preserves the bot record to maintain referential integrity with match history.
+     * Deleted bots are automatically deactivated and excluded from queries.
+     */
     @Override
     @Transactional
     public void deleteBot(Long botId) {
-        Bot bot = botRepository.findByIdAndUserId(botId, currentUser.id())
+        Bot bot = botRepository.findByIdAndUserIdAndDeletedFalse(botId, currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("Bot not found"));
-        botRepository.delete(bot);
+        bot.markAsDeleted();
+        botRepository.save(bot);
     }
 
     @Override

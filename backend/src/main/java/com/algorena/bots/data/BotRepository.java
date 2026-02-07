@@ -14,11 +14,12 @@ import java.util.Optional;
 
 @Repository
 public interface BotRepository extends JpaRepository<Bot, Long> {
-    List<Bot> findByUserId(Long userId);
+    List<Bot> findByUserIdAndDeletedFalse(Long userId);
 
-    Optional<Bot> findByIdAndUserId(Long id, Long userId);
+    Optional<Bot> findByIdAndUserIdAndDeletedFalse(Long id, Long userId);
 
     @Query("SELECT b FROM Bot b WHERE " +
+            "b.deleted = false AND " +
             "(:userId IS NULL OR b.userId = :userId) AND " +
             "(COALESCE(:name, '') = '' OR LOWER(b.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
             "(:game IS NULL OR b.game = :game) AND " +

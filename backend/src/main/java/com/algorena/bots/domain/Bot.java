@@ -38,6 +38,10 @@ public class Bot extends BaseEntity {
     @Builder.Default
     private boolean active = true;
 
+    @Column(name = "deleted", nullable = false)
+    @Builder.Default
+    private boolean deleted = false;
+
     @Column(name = "endpoint", nullable = false, length = 500)
     private String endpoint;
 
@@ -52,6 +56,12 @@ public class Bot extends BaseEntity {
 
     public void deactivate() {
         this.active = false;
+    }
+
+    public void markAsDeleted() {
+        this.deleted = true;
+        this.apiKey = null;
+        this.deactivate();
     }
 
     public void updateDetails(String name, @Nullable String description) {
