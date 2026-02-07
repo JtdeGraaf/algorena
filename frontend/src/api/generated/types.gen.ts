@@ -48,26 +48,6 @@ export type ValidationError = {
     message?: string;
 };
 
-export type UpdateBotRequest = {
-    name: string;
-    description?: string;
-    active?: boolean;
-    endpoint: string;
-    apiKey?: string;
-};
-
-export type BotDto = {
-    id?: number;
-    name?: string;
-    description?: string;
-    game?: 'CHESS' | 'CONNECT_FOUR';
-    active?: boolean;
-    endpoint?: string;
-    apiKey?: string;
-    created?: string;
-    lastUpdated?: string;
-};
-
 export type CreateMatchRequest = {
     bot1Id?: number;
     bot2Id?: number;
@@ -118,6 +98,18 @@ export type CreateBotRequest = {
     apiKey?: string;
 };
 
+export type BotDto = {
+    id?: number;
+    name?: string;
+    description?: string;
+    game?: 'CHESS' | 'CONNECT_FOUR';
+    active?: boolean;
+    endpoint?: string;
+    apiKey?: string;
+    created?: string;
+    lastUpdated?: string;
+};
+
 export type UpdateUserRequest = {
     username?: string;
     name?: string;
@@ -127,6 +119,14 @@ export type UserDto = {
     id?: number;
     username?: string;
     name?: string;
+};
+
+export type UpdateBotRequest = {
+    name: string;
+    description?: string;
+    active?: boolean;
+    endpoint: string;
+    apiKey?: string;
 };
 
 export type MatchMoveDto = {
@@ -247,145 +247,6 @@ export type BotStatsDto = {
     draws?: number;
     winRate?: number;
 };
-
-export type DeleteBotData = {
-    body?: never;
-    path: {
-        botId: number;
-    };
-    query?: never;
-    url: '/api/v1/bots/{botId}';
-};
-
-export type DeleteBotErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type DeleteBotError = DeleteBotErrors[keyof DeleteBotErrors];
-
-export type DeleteBotResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type GetBotByIdData = {
-    body?: never;
-    path: {
-        botId: number;
-    };
-    query?: never;
-    url: '/api/v1/bots/{botId}';
-};
-
-export type GetBotByIdErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type GetBotByIdError = GetBotByIdErrors[keyof GetBotByIdErrors];
-
-export type GetBotByIdResponses = {
-    /**
-     * OK
-     */
-    200: BotDto;
-};
-
-export type GetBotByIdResponse = GetBotByIdResponses[keyof GetBotByIdResponses];
-
-export type UpdateBotData = {
-    body: UpdateBotRequest;
-    path: {
-        botId: number;
-    };
-    query?: never;
-    url: '/api/v1/bots/{botId}';
-};
-
-export type UpdateBotErrors = {
-    /**
-     * Bad Request
-     */
-    400: ErrorResponse;
-    /**
-     * Unauthorized
-     */
-    401: ErrorResponse;
-    /**
-     * Forbidden
-     */
-    403: ErrorResponse;
-    /**
-     * Resource Not Found
-     */
-    404: ErrorResponse;
-    /**
-     * Conflict
-     */
-    409: ErrorResponse;
-    /**
-     * Internal Server Error
-     */
-    500: ErrorResponse;
-};
-
-export type UpdateBotError = UpdateBotErrors[keyof UpdateBotErrors];
-
-export type UpdateBotResponses = {
-    /**
-     * OK
-     */
-    200: BotDto;
-};
-
-export type UpdateBotResponse = UpdateBotResponses[keyof UpdateBotResponses];
 
 export type GetMatchesData = {
     body?: never;
@@ -732,6 +593,145 @@ export type UpdateCurrentUserProfileResponses = {
 };
 
 export type UpdateCurrentUserProfileResponse = UpdateCurrentUserProfileResponses[keyof UpdateCurrentUserProfileResponses];
+
+export type DeleteBotData = {
+    body?: never;
+    path: {
+        botId: number;
+    };
+    query?: never;
+    url: '/api/v1/bots/{botId}';
+};
+
+export type DeleteBotErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type DeleteBotError = DeleteBotErrors[keyof DeleteBotErrors];
+
+export type DeleteBotResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetBotByIdData = {
+    body?: never;
+    path: {
+        botId: number;
+    };
+    query?: never;
+    url: '/api/v1/bots/{botId}';
+};
+
+export type GetBotByIdErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type GetBotByIdError = GetBotByIdErrors[keyof GetBotByIdErrors];
+
+export type GetBotByIdResponses = {
+    /**
+     * OK
+     */
+    200: BotDto;
+};
+
+export type GetBotByIdResponse = GetBotByIdResponses[keyof GetBotByIdResponses];
+
+export type UpdateBotData = {
+    body: UpdateBotRequest;
+    path: {
+        botId: number;
+    };
+    query?: never;
+    url: '/api/v1/bots/{botId}';
+};
+
+export type UpdateBotErrors = {
+    /**
+     * Bad Request
+     */
+    400: ErrorResponse;
+    /**
+     * Unauthorized
+     */
+    401: ErrorResponse;
+    /**
+     * Forbidden
+     */
+    403: ErrorResponse;
+    /**
+     * Resource Not Found
+     */
+    404: ErrorResponse;
+    /**
+     * Conflict
+     */
+    409: ErrorResponse;
+    /**
+     * Internal Server Error
+     */
+    500: ErrorResponse;
+};
+
+export type UpdateBotError = UpdateBotErrors[keyof UpdateBotErrors];
+
+export type UpdateBotResponses = {
+    /**
+     * OK
+     */
+    200: BotDto;
+};
+
+export type UpdateBotResponse = UpdateBotResponses[keyof UpdateBotResponses];
 
 export type GetMatchData = {
     body?: never;

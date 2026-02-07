@@ -52,7 +52,7 @@ public class BotController {
         return ResponseEntity.ok(bot);
     }
 
-    @PutMapping("/{botId}")
+    @PatchMapping("/{botId}")
     @Operation(summary = "Update a bot")
     public ResponseEntity<BotDTO> updateBot(@PathVariable Long botId, @Valid @RequestBody UpdateBotRequest request) {
         BotDTO bot = botService.updateBot(botId, request);

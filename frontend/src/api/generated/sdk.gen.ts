@@ -18,37 +18,6 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
-/**
- * Delete a bot
- */
-export const deleteBot = <ThrowOnError extends boolean = false>(options: Options<DeleteBotData, ThrowOnError>) => (options.client ?? client).delete<DeleteBotResponses, DeleteBotErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/bots/{botId}',
-    ...options
-});
-
-/**
- * Get a specific bot by ID
- */
-export const getBotById = <ThrowOnError extends boolean = false>(options: Options<GetBotByIdData, ThrowOnError>) => (options.client ?? client).get<GetBotByIdResponses, GetBotByIdErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/bots/{botId}',
-    ...options
-});
-
-/**
- * Update a bot
- */
-export const updateBot = <ThrowOnError extends boolean = false>(options: Options<UpdateBotData, ThrowOnError>) => (options.client ?? client).put<UpdateBotResponses, UpdateBotErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/v1/bots/{botId}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
 export const getMatches = <ThrowOnError extends boolean = false>(options?: Options<GetMatchesData, ThrowOnError>) => (options?.client ?? client).get<GetMatchesResponses, GetMatchesErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/matches',
@@ -102,6 +71,37 @@ export const getCurrentUserProfile = <ThrowOnError extends boolean = false>(opti
 export const updateCurrentUserProfile = <ThrowOnError extends boolean = false>(options: Options<UpdateCurrentUserProfileData, ThrowOnError>) => (options.client ?? client).patch<UpdateCurrentUserProfileResponses, UpdateCurrentUserProfileErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/v1/users/me',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a bot
+ */
+export const deleteBot = <ThrowOnError extends boolean = false>(options: Options<DeleteBotData, ThrowOnError>) => (options.client ?? client).delete<DeleteBotResponses, DeleteBotErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/bots/{botId}',
+    ...options
+});
+
+/**
+ * Get a specific bot by ID
+ */
+export const getBotById = <ThrowOnError extends boolean = false>(options: Options<GetBotByIdData, ThrowOnError>) => (options.client ?? client).get<GetBotByIdResponses, GetBotByIdErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/bots/{botId}',
+    ...options
+});
+
+/**
+ * Update a bot
+ */
+export const updateBot = <ThrowOnError extends boolean = false>(options: Options<UpdateBotData, ThrowOnError>) => (options.client ?? client).patch<UpdateBotResponses, UpdateBotErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/v1/bots/{botId}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
