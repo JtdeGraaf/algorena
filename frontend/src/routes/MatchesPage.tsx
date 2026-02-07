@@ -16,7 +16,7 @@ type StatusFilter = 'all' | 'active' | 'finished';
 
 export function MatchesPage() {
   const { t } = useTranslation();
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, user } = useAuth();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<MatchDto | null>(null);
@@ -24,7 +24,7 @@ export function MatchesPage() {
   const [botFilter, setBotFilter] = useState<string>('all');
 
   const { data: matches, isLoading, error } = useMatches();
-  const { data: botsPage } = useBots();
+  const { data: botsPage } = useBots({ userId: user?.id });
 
   const myBots = botsPage?.content || [];
 

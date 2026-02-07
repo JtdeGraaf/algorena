@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,12 +17,25 @@ interface EditBotDialogProps {
 
 export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
   const { t } = useTranslation();
-  const [name, setName] = useState(bot?.name || '');
-  const [description, setDescription] = useState(bot?.description || '');
-  const [active, setActive] = useState(bot?.active ?? true);
-  const [endpoint, setEndpoint] = useState(bot?.endpoint || '');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [active, setActive] = useState(true);
+  const [endpoint, setEndpoint] = useState('');
   const [apiKey, setApiKey] = useState('');
   const updateBot = useUpdateBot();
+
+  // Sync form state with bot data whenever bot changes
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (bot) {
+      setName(bot.name || '');
+      setDescription(bot.description || '');
+      setActive(bot.active ?? true);
+      setEndpoint(bot.endpoint || '');
+      setApiKey(bot.apiKey || ''); // Show current API key
+    }
+  }, [bot]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +59,14 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
   };
 
   const handleClose = () => {
+    // Reset form to current bot data when closing without saving
+    if (bot) {
+      setName(bot.name || '');
+      setDescription(bot.description || '');
+      setActive(bot.active ?? true);
+      setEndpoint(bot.endpoint || '');
+      setApiKey(bot.apiKey || '');
+    }
     onOpenChange(false);
   };
 
@@ -58,7 +79,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
             Update your bot's details.
           </DialogDescription>
         </DialogHeader>
-        <form key={bot?.id} onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="edit-name">{t('bots.name')} *</Label>
             <Input
@@ -104,11 +125,11 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
               type="password"
               value={apiKey}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
-              placeholder="Enter new key to change, or leave empty"
+              placeholder="Enter API key or leave empty to remove"
               maxLength={255}
             />
             <p className="text-xs text-text-muted">
-              Sent in X-Algorena-API-Key header. Leave empty to keep the current key.
+              Sent in X-Algorena-API-Key header. Clear this field to remove the API key.
             </p>
           </div>
           <div className="flex items-center gap-2">

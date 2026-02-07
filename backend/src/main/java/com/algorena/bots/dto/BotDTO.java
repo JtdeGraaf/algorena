@@ -12,6 +12,7 @@ public record BotDTO(
         Game game,
         boolean active,
         String endpoint,
+        @Nullable String apiKey,
         LocalDateTime created,
         LocalDateTime lastUpdated
 ) {

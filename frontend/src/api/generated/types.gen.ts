@@ -63,6 +63,7 @@ export type BotDto = {
     game?: 'CHESS' | 'CONNECT_FOUR';
     active?: boolean;
     endpoint?: string;
+    apiKey?: string;
     created?: string;
     lastUpdated?: string;
 };
@@ -139,25 +140,25 @@ export type MatchMoveDto = {
 };
 
 export type PageUserLeaderboardEntryDto = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<UserLeaderboardEntryDto>;
     number?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
     first?: boolean;
     last?: boolean;
-    pageable?: PageableObject;
     numberOfElements?: number;
-    sort?: SortObject;
     empty?: boolean;
 };
 
 export type PageableObject = {
     offset?: number;
+    paged?: boolean;
     pageNumber?: number;
     pageSize?: number;
     sort?: SortObject;
-    paged?: boolean;
     unpaged?: boolean;
 };
 
@@ -198,16 +199,16 @@ export type BotLeaderboardEntryDto = {
 };
 
 export type PageBotLeaderboardEntryDto = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<BotLeaderboardEntryDto>;
     number?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
     first?: boolean;
     last?: boolean;
-    pageable?: PageableObject;
     numberOfElements?: number;
-    sort?: SortObject;
     empty?: boolean;
 };
 
@@ -224,16 +225,16 @@ export type RatingHistoryDto = {
 };
 
 export type PageBotDto = {
-    totalPages?: number;
     totalElements?: number;
+    totalPages?: number;
     size?: number;
     content?: Array<BotDto>;
     number?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
     first?: boolean;
     last?: boolean;
-    pageable?: PageableObject;
     numberOfElements?: number;
-    sort?: SortObject;
     empty?: boolean;
 };
 

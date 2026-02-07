@@ -41,15 +41,18 @@ public class BotServiceImpl implements BotService {
                 .build();
 
         bot = botRepository.save(bot);
-        return toDTO(bot);
+        return toPrivateDTO(bot);
     }
 
 
     @Override
     @Transactional(readOnly = true)
     public Page<BotDTO> getBots(Pageable pageable, @Nullable Long userId, @Nullable String name, @Nullable Game game, @Nullable Boolean active) {
+        // If filtering by current user's ID, include API keys (private view)
+        boolean isOwnBots = userId != null && userId.equals(currentUser.id());
+
         return botRepository.findByFilters(userId, name, game, active, pageable)
-                .map(this::toDTO);
+                .map(bot -> isOwnBots ? toPrivateDTO(bot) : toPublicDTO(bot));
     }
 
     @Override
@@ -57,7 +60,7 @@ public class BotServiceImpl implements BotService {
     public BotDTO getBotById(Long botId) {
         Bot bot = botRepository.findByIdAndUserId(botId, currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("Bot not found"));
-        return toDTO(bot);
+        return toPrivateDTO(bot);
     }
 
     @Override
@@ -78,7 +81,7 @@ public class BotServiceImpl implements BotService {
         }
 
         bot = botRepository.save(bot);
-        return toDTO(bot);
+        return toPrivateDTO(bot);
     }
 
     @Override
@@ -109,15 +112,17 @@ public class BotServiceImpl implements BotService {
                     .findFirst()
                     .orElse(null);
 
-            if (participant != null && participant.getScore() != null) {
-                double score = participant.getScore();
-                if (score == 1.0) {
-                    wins++;
-                } else if (score == 0.5) {
-                    draws++;
-                } else if (score == 0.0) {
-                    losses++;
-                }
+            if (participant == null || participant.getScore() == null) {
+                continue;
+            }
+
+            double score = participant.getScore();
+            if (score == 1.0) {
+                wins++;
+            } else if (score == 0.5) {
+                draws++;
+            } else if (score == 0.0) {
+                losses++;
             }
         }
 
@@ -134,7 +139,10 @@ public class BotServiceImpl implements BotService {
         );
     }
 
-    private BotDTO toDTO(Bot bot) {
+    /**
+     * Converts a Bot to DTO with API key (for owner viewing their own bot)
+     */
+    private BotDTO toPrivateDTO(Bot bot) {
         return new BotDTO(
                 bot.getId(),
                 bot.getName(),
@@ -142,6 +150,24 @@ public class BotServiceImpl implements BotService {
                 bot.getGame(),
                 bot.isActive(),
                 bot.getEndpoint(),
+                bot.getApiKey(),
+                bot.getCreated(),
+                bot.getLastUpdated()
+        );
+    }
+
+    /**
+     * Converts a Bot to DTO without API key (for public bot lists)
+     */
+    private BotDTO toPublicDTO(Bot bot) {
+        return new BotDTO(
+                bot.getId(),
+                bot.getName(),
+                bot.getDescription(),
+                bot.getGame(),
+                bot.isActive(),
+                bot.getEndpoint(),
+                null, // Don't expose API key in public lists
                 bot.getCreated(),
                 bot.getLastUpdated()
         );

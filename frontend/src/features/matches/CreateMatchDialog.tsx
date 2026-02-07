@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCreateMatch, useAllBots } from './useMatches';
 import { useBots } from '@/features/bots/useBots';
+import { useAuth } from '@/features/auth/AuthContext';
 import { Loader2, Search, Swords, Bot } from 'lucide-react';
 import type { BotDto } from '@/api/generated';
 import { cn } from '@/lib/utils';
@@ -23,13 +24,14 @@ const GAMES: { id: GameType; name: string; description: string }[] = [
 
 export function CreateMatchDialog({ open, onOpenChange }: CreateMatchDialogProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [step, setStep] = useState<'game' | 'myBot' | 'opponent'>('game');
   const [selectedGame, setSelectedGame] = useState<GameType>('CHESS');
   const [selectedMyBot, setSelectedMyBot] = useState<BotDto | null>(null);
   const [selectedOpponent, setSelectedOpponent] = useState<BotDto | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: myBotsPage, isLoading: myBotsLoading } = useBots();
+  const { data: myBotsPage, isLoading: myBotsLoading } = useBots({ userId: user?.id });
   const { data: allBotsPage, isLoading: allBotsLoading } = useAllBots({ game: selectedGame });
   const createMatch = useCreateMatch();
 

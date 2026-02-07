@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBots, createBot, updateBot, deleteBot, getBotStats } from '@/api/generated';
-import type { CreateBotRequest, UpdateBotRequest } from '@/api/generated';
+import type { CreateBotRequest, UpdateBotRequest, Game } from '@/api/generated';
 
 export const botKeys = {
   all: ['bots'] as const,
@@ -11,11 +11,20 @@ export const botKeys = {
   stats: (id: number) => [...botKeys.all, 'stats', id] as const,
 };
 
-export function useBots() {
+interface BotFilters {
+  userId?: number;
+  name?: string;
+  game?: Game;
+  active?: boolean;
+}
+
+export function useBots(filters?: BotFilters) {
   return useQuery({
-    queryKey: botKeys.lists(),
+    queryKey: botKeys.list(filters || {}),
     queryFn: async () => {
-      const response = await getBots();
+      const response = await getBots({
+        query: filters,
+      });
       if (response.error) {
         throw new Error(response.error.message || 'Failed to fetch bots');
       }

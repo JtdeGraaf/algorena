@@ -38,8 +38,8 @@ function BotStatsCell({ botId }: { botId: number }) {
 
 export function BotsPage() {
   const { t } = useTranslation();
-  const { isAuthenticated, login } = useAuth();
-  const { data: botsPage, isLoading, error } = useBots();
+  const { isAuthenticated, login, user } = useAuth();
+  const { data: botsPage, isLoading, error } = useBots({ userId: user?.id });
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editBot, setEditBot] = useState<BotDto | null>(null);
