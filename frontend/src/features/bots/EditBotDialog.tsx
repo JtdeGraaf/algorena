@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useUpdateBot } from './useBots';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import type { BotDto } from '@/api/generated';
 
 interface EditBotDialogProps {
@@ -22,6 +22,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
   const [active, setActive] = useState(true);
   const [endpoint, setEndpoint] = useState('');
   const [apiKey, setApiKey] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
   const updateBot = useUpdateBot();
 
   // Sync form state with bot data whenever bot changes
@@ -33,6 +34,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
       setActive(bot.active ?? true);
       setEndpoint(bot.endpoint || '');
       setApiKey(bot.apiKey || ''); // Show current API key
+      setShowApiKey(false); // Reset visibility
     }
   }, [bot]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -66,6 +68,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
       setActive(bot.active ?? true);
       setEndpoint(bot.endpoint || '');
       setApiKey(bot.apiKey || '');
+      setShowApiKey(false);
     }
     onOpenChange(false);
   };
@@ -120,14 +123,25 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-apiKey">API Key (optional)</Label>
-            <Input
-              id="edit-apiKey"
-              type="password"
-              value={apiKey}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
-              placeholder="Enter API key or leave empty to remove"
-              maxLength={255}
-            />
+            <div className="relative">
+              <Input
+                id="edit-apiKey"
+                type={showApiKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
+                placeholder="Enter API key or leave empty to remove"
+                maxLength={255}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-0 top-0 flex h-full items-center px-3 text-text-muted hover:text-text-primary"
+                title={showApiKey ? 'Hide API key' : 'Show API key'}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
             <p className="text-xs text-text-muted">
               Sent in X-Algorena-API-Key header. Clear this field to remove the API key.
             </p>
