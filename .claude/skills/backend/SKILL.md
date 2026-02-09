@@ -81,7 +81,7 @@ The only exception is `BaseEntity`, which uses `@Setter` because Spring Data JPA
 - For sensitive data, create separate DTO variants: `toPrivateDTO()` includes sensitive fields (API keys), `toPublicDTO()` excludes them
 
 **Repositories:**
-- Extends `JpaRepository<Entity, Long>`
+- Extends `JpaRepository<Entity, Long>` - always use `Long` for ID type, never `UUID`
 - Uses method naming conventions: `findByField`, `findByIdAndUserId`
 - Uses `@Query` with JPQL for complex queries with `@Nullable` parameters
 - Parameters do NOT need `@Param` annotation (Spring Data JPA infers them)
@@ -140,7 +140,10 @@ The only exception is `BaseEntity`, which uses `@Setter` because Spring Data JPA
   - Foreign keys: `user_id`, `bot_id`, `match_id`
   - Booleans: `active`, `deleted` - **never** `is_active`, `is_deleted`
 - All tables with entities extending `BaseEntity` must have `created TIMESTAMP NOT NULL` and `last_updated TIMESTAMP NOT NULL`
-- Use `BIGSERIAL` for auto-increment IDs, `UUID` for UUIDs
+- **ID Convention**: Use `BIGSERIAL` (Long) for all primary keys - **do not use UUID**
+  - In Java entities: `@Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;`
+  - In SQL: `id BIGSERIAL PRIMARY KEY`
+  - For child tables (joined inheritance): `id BIGINT PRIMARY KEY REFERENCES parent_table(id)`
 - Always include proper foreign key constraints with `ON DELETE CASCADE` where appropriate
 
 **Documentation:**
@@ -276,7 +279,7 @@ public class {Game}GameState extends AbstractGameState {
 @Table(name = "{game}_match_moves")
 public class {Game}MatchMove {
     @Id
-    private UUID id;  // References match_moves(id)
+    private Long id;  // References match_moves(id)
     // Add game-specific move fields
 }
 ```
@@ -284,8 +287,8 @@ public class {Game}MatchMove {
 ### 7. Create Repositories
 ```java
 @Repository
-public interface {Game}GameStateRepository extends JpaRepository<{Game}GameState, UUID> {
-    Optional<{Game}GameState> findByMatchId(UUID matchId);
+public interface {Game}GameStateRepository extends JpaRepository<{Game}GameState, Long> {
+    Optional<{Game}GameState> findByMatchId(Long matchId);
 }
 ```
 

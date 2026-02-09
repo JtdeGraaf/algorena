@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -60,11 +59,11 @@ public class MatchExecutorService {
      * This method returns immediately and the match runs in the "matchExecutor" thread pool.
      * The match progresses through turns until completion, timeout, or error.
      *
-     * @param matchId the UUID of the match to execute
+     * @param matchId the ID of the match to execute
      * @return a CompletableFuture that completes when the match finishes
      */
     @Async("matchExecutor")
-    public CompletableFuture<Void> executeMatch(UUID matchId) {
+    public CompletableFuture<Void> executeMatch(Long matchId) {
         log.info("Starting execution of match {}", matchId);
 
         try {
@@ -82,7 +81,7 @@ public class MatchExecutorService {
      * Runs within a transaction and delegates to game-specific executors.
      */
     @Transactional
-    protected void runMatchLoop(UUID matchId) {
+    protected void runMatchLoop(Long matchId) {
         Match match = fetchMatch(matchId);
 
         if (match.getStatus() != MatchStatus.IN_PROGRESS) {
@@ -125,7 +124,7 @@ public class MatchExecutorService {
         log.info("Match {} execution completed with status {}", matchId, match.getStatus());
     }
 
-    private Match fetchMatch(UUID matchId) {
+    private Match fetchMatch(Long matchId) {
         return matchRepository.findByIdWithParticipants(matchId)
                 .orElseThrow(() -> new IllegalStateException("Match not found: " + matchId));
     }
@@ -203,7 +202,7 @@ public class MatchExecutorService {
     }
 
     @Transactional
-    protected void abortMatchOnError(UUID matchId) {
+    protected void abortMatchOnError(Long matchId) {
         matchRepository.findById(matchId).ifPresent(match -> {
             if (match.getStatus() == MatchStatus.IN_PROGRESS) {
                 log.warn("Aborting match {} due to unexpected error", matchId);

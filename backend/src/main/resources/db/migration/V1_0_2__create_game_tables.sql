@@ -1,8 +1,9 @@
 CREATE TABLE matches
 (
-    id           UUID PRIMARY KEY,
+    id           BIGSERIAL PRIMARY KEY,
     game         VARCHAR(50) NOT NULL,
     status       VARCHAR(50) NOT NULL,
+    forfeit_reason VARCHAR(50),
     started_at   TIMESTAMP,
     finished_at  TIMESTAMP,
     created      TIMESTAMP   NOT NULL,
@@ -11,8 +12,8 @@ CREATE TABLE matches
 
 CREATE TABLE match_participants
 (
-    id           UUID PRIMARY KEY,
-    match_id     UUID      NOT NULL REFERENCES matches (id),
+    id           BIGSERIAL PRIMARY KEY,
+    match_id     BIGINT    NOT NULL REFERENCES matches (id),
     bot_id       BIGINT    NOT NULL REFERENCES bots (id),
     player_index INTEGER   NOT NULL,
     score        DOUBLE PRECISION,
@@ -22,8 +23,8 @@ CREATE TABLE match_participants
 
 CREATE TABLE match_moves
 (
-    id            UUID PRIMARY KEY,
-    match_id      UUID      NOT NULL REFERENCES matches (id),
+    id            BIGSERIAL PRIMARY KEY,
+    match_id      BIGINT    NOT NULL REFERENCES matches (id),
     player_index  INTEGER   NOT NULL,
     move_notation TEXT      NOT NULL,
     created       TIMESTAMP NOT NULL,
@@ -32,7 +33,7 @@ CREATE TABLE match_moves
 
 CREATE TABLE chess_match_moves
 (
-    id              UUID PRIMARY KEY REFERENCES match_moves (id),
+    id              BIGINT PRIMARY KEY REFERENCES match_moves (id),
     from_square     VARCHAR(2),
     to_square       VARCHAR(2),
     promotion_piece VARCHAR(10)
@@ -40,15 +41,15 @@ CREATE TABLE chess_match_moves
 
 CREATE TABLE game_states
 (
-    id           UUID PRIMARY KEY,
-    match_id     UUID      NOT NULL REFERENCES matches (id),
+    id           BIGSERIAL PRIMARY KEY,
+    match_id     BIGINT    NOT NULL REFERENCES matches (id),
     created      TIMESTAMP NOT NULL,
     last_updated TIMESTAMP NOT NULL
 );
 
 CREATE TABLE chess_game_states
 (
-    id               UUID PRIMARY KEY REFERENCES game_states (id),
+    id               BIGINT PRIMARY KEY REFERENCES game_states (id),
     fen              VARCHAR(255) NOT NULL,
     pgn              TEXT,
     half_move_clock  INTEGER,

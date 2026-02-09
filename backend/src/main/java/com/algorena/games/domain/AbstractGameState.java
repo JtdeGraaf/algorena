@@ -4,8 +4,6 @@ import com.algorena.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "game_states")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -13,8 +11,8 @@ import java.util.UUID;
 public abstract class AbstractGameState extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)

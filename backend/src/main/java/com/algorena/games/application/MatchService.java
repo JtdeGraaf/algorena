@@ -5,7 +5,6 @@ import com.algorena.games.dto.MatchDTO;
 import com.algorena.games.dto.MatchMoveDTO;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface MatchService {
     /**
@@ -20,18 +19,18 @@ public interface MatchService {
     /**
      * Retrieves a match by its ID.
      *
-     * @param matchId The UUID of the match.
+     * @param matchId The ID of the match.
      * @return The Match DTO.
      */
-    MatchDTO getMatch(UUID matchId);
+    MatchDTO getMatch(Long matchId);
 
     /**
      * Retrieves the history of moves for a match.
      *
-     * @param matchId The UUID of the match.
+     * @param matchId The ID of the match.
      * @return List of MatchMoveDTO.
      */
-    List<MatchMoveDTO> getMatchMoves(UUID matchId);
+    List<MatchMoveDTO> getMatchMoves(Long matchId);
 
     /**
      * Retrieves matches played by a specific bot.
@@ -59,15 +58,15 @@ public interface MatchService {
     /**
      * Aborts an in-progress match.
      *
-     * @param matchId The UUID of the match to abort.
+     * @param matchId The ID of the match to abort.
      */
-    void abortMatch(UUID matchId);
+    void abortMatch(Long matchId);
 
     /**
      * Retrieves all legal moves for the current state of the match.
      *
-     * @param matchId The UUID of the match.
+     * @param matchId The ID of the match.
      * @return List of legal moves in UCI notation (e.g., "e2e4").
      */
-    List<String> getLegalMoves(UUID matchId);
+    List<String> getLegalMoves(Long matchId);
 }

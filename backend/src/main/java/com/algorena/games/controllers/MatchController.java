@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/matches")
@@ -43,22 +42,22 @@ public class MatchController {
     }
 
     @GetMapping("/{matchId}")
-    public ResponseEntity<MatchDTO> getMatch(@PathVariable UUID matchId) {
+    public ResponseEntity<MatchDTO> getMatch(@PathVariable Long matchId) {
         return ResponseEntity.ok(matchService.getMatch(matchId));
     }
 
     @GetMapping("/{matchId}/moves")
-    public ResponseEntity<List<MatchMoveDTO>> getMatchMoves(@PathVariable UUID matchId) {
+    public ResponseEntity<List<MatchMoveDTO>> getMatchMoves(@PathVariable Long matchId) {
         return ResponseEntity.ok(matchService.getMatchMoves(matchId));
     }
 
     @GetMapping("/{matchId}/legal-moves")
-    public ResponseEntity<List<String>> getLegalMoves(@PathVariable UUID matchId) {
+    public ResponseEntity<List<String>> getLegalMoves(@PathVariable Long matchId) {
         return ResponseEntity.ok(matchService.getLegalMoves(matchId));
     }
 
     @PostMapping("/{matchId}/abort")
-    public ResponseEntity<Void> abortMatch(@PathVariable UUID matchId) {
+    public ResponseEntity<Void> abortMatch(@PathVariable Long matchId) {
         matchService.abortMatch(matchId);
         return ResponseEntity.noContent().build();
     }

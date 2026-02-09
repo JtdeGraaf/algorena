@@ -11,10 +11,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface MatchRepository extends JpaRepository<Match, UUID> {
+public interface MatchRepository extends JpaRepository<Match, Long> {
     List<Match> findByParticipants_Bot_Id(Long botId);
 
     List<Match> findByParticipants_Bot_IdAndStatus(Long botId, MatchStatus status);
@@ -24,7 +23,7 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             "LEFT JOIN FETCH m.participants p " +
             "LEFT JOIN FETCH p.bot " +
             "WHERE m.id = :id")
-    Optional<Match> findByIdWithParticipants(UUID id);
+    Optional<Match> findByIdWithParticipants(Long id);
 
     // Find matches where any bot owned by the user is participating
     @Query("SELECT DISTINCT m FROM Match m " +
@@ -73,6 +72,6 @@ public interface MatchRepository extends JpaRepository<Match, UUID> {
             Long bot2Id,
             Game game,
             LocalDateTime since,
-            UUID excludeMatchId
+            Long excludeMatchId
     );
 }

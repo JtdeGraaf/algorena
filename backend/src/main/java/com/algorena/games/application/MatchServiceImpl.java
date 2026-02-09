@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +114,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     @Transactional(readOnly = true)
-    public MatchDTO getMatch(UUID matchId) {
+    public MatchDTO getMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
         return toMatchDTO(match);
@@ -170,7 +169,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MatchMoveDTO> getMatchMoves(UUID matchId) {
+    public List<MatchMoveDTO> getMatchMoves(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
 
@@ -205,7 +204,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     @Transactional
-    public void abortMatch(UUID matchId) {
+    public void abortMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
 
@@ -227,7 +226,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<String> getLegalMoves(UUID matchId) {
+    public List<String> getLegalMoves(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
 

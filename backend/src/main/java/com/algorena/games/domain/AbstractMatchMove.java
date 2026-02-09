@@ -2,15 +2,10 @@ package com.algorena.games.domain;
 
 import com.algorena.common.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import org.jspecify.annotations.Nullable;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static com.algorena.common.config.SuppressedWarnings.NULL_AWAY_INIT;
 
@@ -22,9 +17,9 @@ import static com.algorena.common.config.SuppressedWarnings.NULL_AWAY_INIT;
 public abstract class AbstractMatchMove extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Nullable
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)
@@ -38,7 +33,7 @@ public abstract class AbstractMatchMove extends BaseEntity {
     @SuppressWarnings(NULL_AWAY_INIT)
     private String moveNotation;
 
-    protected AbstractMatchMove(@Nullable UUID id, Match match, int playerIndex, String moveNotation) {
+    protected AbstractMatchMove(@Nullable Long id, Match match, int playerIndex, String moveNotation) {
         this.id = id;
         this.match = match;
         this.playerIndex = playerIndex;

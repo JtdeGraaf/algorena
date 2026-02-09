@@ -73,7 +73,7 @@ export type GameStateDto = {
 };
 
 export type MatchDto = {
-    id?: string;
+    id?: number;
     game?: 'CHESS' | 'CONNECT_FOUR';
     status?: 'CREATED' | 'IN_PROGRESS' | 'FINISHED' | 'FORFEITED' | 'ABORTED';
     startedAt?: string;
@@ -83,7 +83,7 @@ export type MatchDto = {
 };
 
 export type MatchParticipantDto = {
-    id?: string;
+    id?: number;
     botId?: number;
     botName?: string;
     playerIndex?: number;
@@ -132,7 +132,7 @@ export type UpdateBotRequest = {
 };
 
 export type MatchMoveDto = {
-    id?: string;
+    id?: number;
     playerIndex?: number;
     moveNotation?: string;
     created?: string;
@@ -147,19 +147,19 @@ export type PageUserLeaderboardEntryDto = {
     size?: number;
     content?: Array<UserLeaderboardEntryDto>;
     number?: number;
-    pageable?: PageableObject;
-    sort?: SortObject;
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
     empty?: boolean;
 };
 
 export type PageableObject = {
     offset?: number;
     paged?: boolean;
-    pageNumber?: number;
     pageSize?: number;
+    pageNumber?: number;
     sort?: SortObject;
     unpaged?: boolean;
 };
@@ -206,16 +206,16 @@ export type PageBotLeaderboardEntryDto = {
     size?: number;
     content?: Array<BotLeaderboardEntryDto>;
     number?: number;
-    pageable?: PageableObject;
-    sort?: SortObject;
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
     empty?: boolean;
 };
 
 export type RatingHistoryDto = {
-    matchId?: string;
+    matchId?: number;
     oldRating?: number;
     newRating?: number;
     ratingChange?: number;
@@ -232,11 +232,11 @@ export type PageBotDto = {
     size?: number;
     content?: Array<BotDto>;
     number?: number;
-    pageable?: PageableObject;
-    sort?: SortObject;
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
     empty?: boolean;
 };
 
@@ -345,7 +345,7 @@ export type CreateMatchResponse = CreateMatchResponses[keyof CreateMatchResponse
 export type AbortMatchData = {
     body?: never;
     path: {
-        matchId: string;
+        matchId: number;
     };
     query?: never;
     url: '/api/v1/matches/{matchId}/abort';
@@ -738,7 +738,7 @@ export type UpdateBotResponse = UpdateBotResponses[keyof UpdateBotResponses];
 export type GetMatchData = {
     body?: never;
     path: {
-        matchId: string;
+        matchId: number;
     };
     query?: never;
     url: '/api/v1/matches/{matchId}';
@@ -785,7 +785,7 @@ export type GetMatchResponse = GetMatchResponses[keyof GetMatchResponses];
 export type GetMatchMovesData = {
     body?: never;
     path: {
-        matchId: string;
+        matchId: number;
     };
     query?: never;
     url: '/api/v1/matches/{matchId}/moves';
@@ -832,7 +832,7 @@ export type GetMatchMovesResponse = GetMatchMovesResponses[keyof GetMatchMovesRe
 export type GetLegalMovesData = {
     body?: never;
     path: {
-        matchId: string;
+        matchId: number;
     };
     query?: never;
     url: '/api/v1/matches/{matchId}/legal-moves';

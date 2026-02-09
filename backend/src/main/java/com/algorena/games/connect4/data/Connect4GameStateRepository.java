@@ -5,9 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface Connect4GameStateRepository extends JpaRepository<Connect4GameState, UUID> {
-    Optional<Connect4GameState> findByMatchId(UUID matchId);
+public interface Connect4GameStateRepository extends JpaRepository<Connect4GameState, Long> {
+    Optional<Connect4GameState> findByMatchId(Long matchId);
 }

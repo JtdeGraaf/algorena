@@ -5,7 +5,6 @@ import com.algorena.games.domain.MatchStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
@@ -13,7 +12,7 @@ import static com.algorena.common.config.SuppressedWarnings.NULL_AWAY_INIT;
 
 @SuppressWarnings(NULL_AWAY_INIT)
 public record MatchDTO(
-        UUID id,
+        Long id,
         Game game,
         MatchStatus status,
         LocalDateTime startedAt,

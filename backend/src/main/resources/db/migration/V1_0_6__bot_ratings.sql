@@ -24,7 +24,7 @@ CREATE INDEX idx_bot_ratings_bot_game ON bot_ratings(bot_id, game) WHERE leaderb
 CREATE TABLE rating_history (
     id BIGSERIAL PRIMARY KEY,
     bot_rating_id BIGINT NOT NULL REFERENCES bot_ratings(id) ON DELETE CASCADE,
-    match_id UUID NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+    match_id BIGINT NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     old_rating INTEGER NOT NULL,
     new_rating INTEGER NOT NULL,
     rating_change INTEGER NOT NULL,
