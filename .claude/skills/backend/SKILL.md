@@ -15,21 +15,70 @@ Helps with Spring Boot backend development following Algorena's domain-driven ar
 - Understands the three main domains: `bots/`, `games/`, `users/`
 - Follows shared patterns from `common/` (exceptions, base entities, config)
 
+## Encapsulation Philosophy
+
+**CRITICAL: Never use `@Setter` on domain entities or value objects.**
+
+Entities should protect their invariants through explicit business methods:
+
+```java
+// WRONG - exposes internal state
+@Setter
+private boolean active;
+
+// RIGHT - encapsulated business operation
+public void activate() {
+    this.active = true;
+}
+
+public void deactivate() {
+    this.active = false;
+}
+```
+
+Business methods should:
+- Have meaningful names that describe the business operation (`markAsDeleted()` not `setDeleted(true)`)
+- Validate inputs and enforce invariants
+- Throw `IllegalArgumentException` for invalid operations
+- Combine related state changes (e.g., `markAsDeleted()` deactivates AND clears sensitive data)
+
+The only exception is `BaseEntity`, which uses `@Setter` because Spring Data JPA auditing requires it for timestamp fields.
+
 ## Code Generation Patterns
 
 **Entities:**
 - Extends `BaseEntity` for automatic `created` and `lastUpdated` timestamps
 - Uses Lombok: `@Getter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
+- **NEVER use `@Setter`** - entities are encapsulated; state changes happen through explicit business methods (e.g., `activate()`, `updateDetails()`, `markAsDeleted()`)
 - Uses `@Entity` and `@Table` with explicit table names
 - Uses JSpecify `@Nullable` for nullable fields
 - Implements business logic methods (activate/deactivate, update operations)
 - Uses NullAway null-safety annotations
+- For DDD aggregates, restrict constructor access: `@NoArgsConstructor(access = AccessLevel.PROTECTED)`, `@AllArgsConstructor(access = AccessLevel.PRIVATE)`, `@Builder(access = AccessLevel.PACKAGE)`
+- Use static factory methods for complex creation (e.g., `User.createFromOAuth2(userInfo, username)`)
+
+**BaseEntity:**
+- Located at `com.algorena.common.domain.BaseEntity`
+- Provides `created` and `lastUpdated` fields (Java `LocalDateTime`)
+- Database columns are named `created` and `last_updated` (snake_case) - **never** use `created_at`, `created_timestamp`, or other variations
+- Uses Spring Data JPA auditing: `@CreatedDate`, `@LastModifiedDate`, `@EntityListeners(AuditingEntityListener.class)`
+- Fields are auto-populated by JPA - no manual setting needed
+
+**Value Objects:**
+- Use `@Embeddable` for value objects embedded in entities
+- Mark with `@Immutable` (Hibernate annotation) for true immutability
+- Use `@Getter` only, **never `@Setter`**
+- Use `@NoArgsConstructor(access = AccessLevel.PROTECTED)` for JPA, `@AllArgsConstructor` for construction
+- Suppress NullAway warnings with `@SuppressWarnings(NULL_AWAY_INIT)` (constant from `com.algorena.common.config.SuppressedWarnings`)
+- Example: `OAuthIdentity` embeds provider + providerId in User entity
 
 **DTOs:**
 - Uses Java records for immutability
-- Response DTOs contain all public fields (id, timestamps, etc.)
+- Response DTOs contain all public fields (id, `created`, `lastUpdated`, etc.)
 - Request DTOs use Jakarta validation: `@NotBlank`, `@NotNull`, `@Size`
 - Uses `@Nullable` for optional fields
+- Validation messages should be user-friendly: `@NotBlank(message = "Bot name is required")`
+- For sensitive data, create separate DTO variants: `toPrivateDTO()` includes sensitive fields (API keys), `toPublicDTO()` excludes them
 
 **Repositories:**
 - Extends `JpaRepository<Entity, Long>`
@@ -42,19 +91,24 @@ Helps with Spring Boot backend development following Algorena's domain-driven ar
 - Interface + Implementation pattern (`FooService` + `FooServiceImpl`)
 - Implementation uses `@Service`, `@AllArgsConstructor`
 - Uses `@Transactional` (defaults to read-write, `readOnly = true` for queries)
-- Injects `CurrentUser` for user context
+- Injects `CurrentUser` for user context via `currentUser.id()`
 - Throws `DataNotFoundException` when entities not found
 - Implements private `toDTO` methods for entity → DTO conversion
+- Use business methods on entities, not direct field manipulation: `bot.updateDetails(name, description)` not `bot.setName(name)`
+- For public/private views, implement separate toDTO methods: `toPrivateDTO()` and `toPublicDTO()`
+- Service interfaces are minimal - just method signatures, no JavaDoc needed for obvious CRUD methods
 
 **Controllers:**
 - Uses `@RestController`, `@RequestMapping("/api/v1/{resource}")`
-- Uses `@PreAuthorize("hasRole('USER')")` for authentication
+- Uses `@PreAuthorize("hasRole('USER')")` at class level for authentication
+- Uses `@AllArgsConstructor` for dependency injection
 - Uses OpenAPI annotations: `@Tag`, `@Operation`, `@Parameter`
-- Follows REST conventions: POST (201), GET (200), PUT (200), DELETE (204)
+- Follows REST conventions: POST (201), GET (200), PATCH (200), DELETE (204)
+- Use `@PatchMapping` for partial updates (not PUT) - aligns with how entities use business methods for targeted updates
 - Uses `@Valid` for request body validation
 - Returns `ResponseEntity<T>` for type safety
 - Uses `@PathVariable` for IDs, `@RequestParam` for filters
-- Uses `@PageableDefault` and `@ParameterObject` for pagination
+- Uses `@PageableDefault(size = 20, sort = "created")` and `@ParameterObject` for pagination
 
 **Testing:**
 - Unit tests: `*Test.java` - Pure logic tests with AssertJ
@@ -64,11 +118,30 @@ Helps with Spring Boot backend development following Algorena's domain-driven ar
 - Integration tests use real database via Testcontainers
 
 **Common Patterns:**
-- Use `CurrentUser` service for getting authenticated user ID
+- Use `CurrentUser` service for getting authenticated user ID: `currentUser.id()`
 - Security: Verify user owns resource via `findByIdAndUserId`
-- Error handling: Throw domain exceptions (`DataNotFoundException`, `BadRequestException`, etc.)
-- Validation: Jakarta Bean Validation in DTOs, business logic in entities
+- Error handling: Throw domain exceptions from `com.algorena.common.exception` package (singular, not "exceptions"):
+  - `DataNotFoundException` - 404 when entity not found
+  - `BadRequestException` - 400 for invalid input
+  - `ConflictException` - 409 for conflicts
+  - `ForbiddenException` - 403 for access denied
+  - `UnauthorizedException` - 401 for authentication failures
+  - `InternalServerException` - 500 for unexpected errors
+  - `BotCommunicationException` - for bot endpoint failures
+- Validation: Jakarta Bean Validation in DTOs, business logic in entities (entities throw `IllegalArgumentException`)
 - API keys: Use `ApiKeyConverter` for encryption (see `bots` domain)
+- NullAway: Use `@SuppressWarnings(NULL_AWAY_INIT)` with constant from `com.algorena.common.config.SuppressedWarnings` when fields are initialized by JPA/framework
+
+**Database Migrations:**
+- Located at `backend/src/main/resources/db/migration/`
+- Naming: `V{major}_{minor}_{patch}__{description}.sql` (e.g., `V1_0_7__add_bot_soft_delete.sql`)
+- Column naming conventions (snake_case):
+  - Timestamps: `created`, `last_updated` - **never** `created_at`, `created_timestamp`, `updated_at`
+  - Foreign keys: `user_id`, `bot_id`, `match_id`
+  - Booleans: `active`, `deleted` - **never** `is_active`, `is_deleted`
+- All tables with entities extending `BaseEntity` must have `created TIMESTAMP NOT NULL` and `last_updated TIMESTAMP NOT NULL`
+- Use `BIGSERIAL` for auto-increment IDs, `UUID` for UUIDs
+- Always include proper foreign key constraints with `ON DELETE CASCADE` where appropriate
 
 **Documentation:**
 - Large methods or methods that do complex operations MUST have JavaDoc comments
