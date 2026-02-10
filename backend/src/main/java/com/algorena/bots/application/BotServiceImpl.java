@@ -4,13 +4,14 @@ import com.algorena.bots.data.BotRepository;
 import com.algorena.bots.domain.Bot;
 import com.algorena.bots.domain.Game;
 import com.algorena.bots.dto.*;
+import com.algorena.bots.mapper.BotMapper;
 import com.algorena.common.exception.DataNotFoundException;
 import com.algorena.games.data.MatchRepository;
 import com.algorena.games.domain.Match;
 import com.algorena.games.domain.MatchParticipant;
 import com.algorena.games.domain.MatchStatus;
 import com.algorena.security.CurrentUser;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BotServiceImpl implements BotService {
 
     private final BotRepository botRepository;
     private final MatchRepository matchRepository;
     private final CurrentUser currentUser;
+    private final BotMapper botMapper;
 
     @Override
     @Transactional
@@ -41,7 +43,7 @@ public class BotServiceImpl implements BotService {
                 .build();
 
         bot = botRepository.save(bot);
-        return toPrivateDTO(bot);
+        return botMapper.toPrivateDTO(bot);
     }
 
 
@@ -52,7 +54,7 @@ public class BotServiceImpl implements BotService {
         boolean isOwnBots = userId != null && userId.equals(currentUser.id());
 
         return botRepository.findByFilters(userId, name, game, active, pageable)
-                .map(bot -> isOwnBots ? toPrivateDTO(bot) : toPublicDTO(bot));
+                .map(bot -> botMapper.toDTO(bot, isOwnBots));
     }
 
     @Override
@@ -60,7 +62,7 @@ public class BotServiceImpl implements BotService {
     public BotDTO getBotById(Long botId) {
         Bot bot = botRepository.findByIdAndUserIdAndDeletedFalse(botId, currentUser.id())
                 .orElseThrow(() -> new DataNotFoundException("Bot not found"));
-        return toPrivateDTO(bot);
+        return botMapper.toPrivateDTO(bot);
     }
 
     @Override
@@ -81,7 +83,7 @@ public class BotServiceImpl implements BotService {
         }
 
         bot = botRepository.save(bot);
-        return toPrivateDTO(bot);
+        return botMapper.toPrivateDTO(bot);
     }
 
     /**
@@ -142,40 +144,6 @@ public class BotServiceImpl implements BotService {
                 losses,
                 draws,
                 winRate
-        );
-    }
-
-    /**
-     * Converts a Bot to DTO with API key (for owner viewing their own bot)
-     */
-    private BotDTO toPrivateDTO(Bot bot) {
-        return new BotDTO(
-                bot.getId(),
-                bot.getName(),
-                bot.getDescription(),
-                bot.getGame(),
-                bot.isActive(),
-                bot.getEndpoint(),
-                bot.getApiKey(),
-                bot.getCreated(),
-                bot.getLastUpdated()
-        );
-    }
-
-    /**
-     * Converts a Bot to DTO without API key (for public bot lists)
-     */
-    private BotDTO toPublicDTO(Bot bot) {
-        return new BotDTO(
-                bot.getId(),
-                bot.getName(),
-                bot.getDescription(),
-                bot.getGame(),
-                bot.isActive(),
-                bot.getEndpoint(),
-                null, // Don't expose API key in public lists
-                bot.getCreated(),
-                bot.getLastUpdated()
         );
     }
 }

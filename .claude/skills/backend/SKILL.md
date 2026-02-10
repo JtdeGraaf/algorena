@@ -89,14 +89,23 @@ The only exception is `BaseEntity`, which uses `@Setter` because Spring Data JPA
 
 **Services:**
 - Interface + Implementation pattern (`FooService` + `FooServiceImpl`)
-- Implementation uses `@Service`, `@AllArgsConstructor`
+- Implementation uses `@Service`, `@RequiredArgsConstructor`
 - Uses `@Transactional` (defaults to read-write, `readOnly = true` for queries)
 - Injects `CurrentUser` for user context via `currentUser.id()`
 - Throws `DataNotFoundException` when entities not found
-- Implements private `toDTO` methods for entity → DTO conversion
+- **Delegates DTO conversion to Mapper classes** - do not implement toDTO methods in services
 - Use business methods on entities, not direct field manipulation: `bot.updateDetails(name, description)` not `bot.setName(name)`
-- For public/private views, implement separate toDTO methods: `toPrivateDTO()` and `toPublicDTO()`
 - Service interfaces are minimal - just method signatures, no JavaDoc needed for obvious CRUD methods
+
+**Mappers:**
+- Located in `{domain}/mapper/` package (e.g., `com.algorena.bots.mapper.BotMapper`)
+- Use `@Component` annotation for Spring DI
+- **Pure mapping only** - mappers do ONE thing: convert data from one format to another
+- **NEVER inject repositories** - if mapping requires loading related entities, the service should fetch them first and pass them to the mapper
+- Naming convention: `{Entity}Mapper` or `{Domain}Mapper`
+- For public/private views, implement separate methods: `toPrivateDTO()` and `toPublicDTO()`
+- Use `@Nullable` annotation on methods that can return null
+- Keep methods simple and stateless - input → output, nothing more
 
 **Controllers:**
 - Uses `@RestController`, `@RequestMapping("/api/v1/{resource}")`

@@ -5,23 +5,22 @@ import com.algorena.bots.domain.Bot;
 import com.algorena.bots.domain.Game;
 import com.algorena.common.exception.BotCommunicationException;
 import com.algorena.games.chess.data.ChessGameStateRepository;
+import com.algorena.games.chess.domain.ChessGameState;
 import com.algorena.games.connect4.data.Connect4GameStateRepository;
+import com.algorena.games.connect4.domain.Connect4GameState;
 import com.algorena.games.data.MatchMoveRepository;
 import com.algorena.games.data.MatchRepository;
 import com.algorena.games.domain.Match;
 import com.algorena.games.domain.MatchParticipant;
 import com.algorena.games.domain.MatchStatus;
 import com.algorena.games.dto.BotMoveResponse;
-import com.algorena.games.dto.CreateMatchRequest;
 import com.algorena.games.dto.MatchDTO;
+import com.algorena.games.engine.GameEngineFactory;
 import com.algorena.test.config.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +31,8 @@ import static org.mockito.Mockito.when;
  * Tests the complete end-to-end flow of creating a match and having bots play via mocked HTTP endpoints.
  * <p>
  * Note: These tests mock the BotClientService and call the executor synchronously to avoid
- * transaction isolation issues with async execution.
+ * transaction isolation issues with async execution. Matches are created directly via repositories
+ * to avoid triggering async execution from the service layer.
  */
 class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
 
@@ -56,6 +56,9 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MatchMoveRepository matchMoveRepository;
+
+    @Autowired
+    private GameEngineFactory gameEngineFactory;
 
     @MockitoBean
     private BotClientService botClientService;
@@ -103,12 +106,47 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
     }
 
     /**
-     * Helper to create a match without triggering async execution.
-     * We'll manually call the executor afterwards.
+     * Creates a match directly via repositories without triggering async execution.
+     * This allows tests to set up mocks before running the match synchronously.
      */
-    private MatchDTO createMatchWithoutExecution(Long bot1Id, Long bot2Id, Game game) {
-        CreateMatchRequest request = new CreateMatchRequest(bot1Id, bot2Id, game);
-        return matchService.createMatch(request);
+    private Long createMatchDirectly(Bot bot1, Bot bot2, Game game) {
+        Match match = Match.builder()
+                .game(game)
+                .status(MatchStatus.IN_PROGRESS)
+                .build();
+        match.start();
+
+        MatchParticipant p1 = MatchParticipant.builder()
+                .match(match)
+                .bot(bot1)
+                .playerIndex(0)
+                .build();
+
+        MatchParticipant p2 = MatchParticipant.builder()
+                .match(match)
+                .bot(bot2)
+                .playerIndex(1)
+                .build();
+
+        match.addParticipant(p1);
+        match.addParticipant(p2);
+
+        match = matchRepository.save(match);
+
+        // Initialize game state
+        if (game == Game.CHESS) {
+            var engine = gameEngineFactory.<ChessGameState, String>getEngine(Game.CHESS);
+            ChessGameState state = engine.startNewGame();
+            state.assignMatch(match);
+            chessGameStateRepository.save(state);
+        } else if (game == Game.CONNECT_FOUR) {
+            var engine = gameEngineFactory.<Connect4GameState, Integer>getEngine(Game.CONNECT_FOUR);
+            Connect4GameState state = engine.startNewGame();
+            state.assignMatch(match);
+            connect4GameStateRepository.save(state);
+        }
+
+        return match.getId();
     }
 
     @Test
@@ -121,9 +159,8 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
                 .thenReturn(new BotMoveResponse("g2g4"))  // White: g4
                 .thenReturn(new BotMoveResponse("d8h4")); // Black: Qh4#
 
-        // Create match
-        MatchDTO match = createMatchWithoutExecution(chessBot1.getId(), chessBot2.getId(), Game.CHESS);
-        UUID matchId = match.id();
+        // Create match directly
+        Long matchId = createMatchDirectly(chessBot1, chessBot2, Game.CHESS);
 
         // Execute match synchronously
         matchExecutorService.runMatchLoop(matchId);
@@ -159,8 +196,7 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
                 .thenReturn(new BotMoveResponse("g8f6"))  // Black: Nf6
                 .thenReturn(new BotMoveResponse("h5f7")); // White: Qxf7#
 
-        MatchDTO match = createMatchWithoutExecution(chessBot1.getId(), chessBot2.getId(), Game.CHESS);
-        UUID matchId = match.id();
+        Long matchId = createMatchDirectly(chessBot1, chessBot2, Game.CHESS);
 
         matchExecutorService.runMatchLoop(matchId);
 
@@ -189,8 +225,7 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
                 .thenReturn(new BotMoveResponse("1"))  // P2: col 1
                 .thenReturn(new BotMoveResponse("0")); // P1: col 0 - WIN
 
-        MatchDTO match = createMatchWithoutExecution(connect4Bot1.getId(), connect4Bot2.getId(), Game.CONNECT_FOUR);
-        UUID matchId = match.id();
+        Long matchId = createMatchDirectly(connect4Bot1, connect4Bot2, Game.CONNECT_FOUR);
 
         matchExecutorService.runMatchLoop(matchId);
 
@@ -223,8 +258,7 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
                 .thenReturn(new BotMoveResponse("6"))  // P1: col 6
                 .thenReturn(new BotMoveResponse("4")); // P2: col 4 - WIN
 
-        MatchDTO match = createMatchWithoutExecution(connect4Bot1.getId(), connect4Bot2.getId(), Game.CONNECT_FOUR);
-        UUID matchId = match.id();
+        Long matchId = createMatchDirectly(connect4Bot1, connect4Bot2, Game.CONNECT_FOUR);
 
         matchExecutorService.runMatchLoop(matchId);
 
@@ -241,19 +275,17 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Transactional
     void match_BotReturnsInvalidMove_ShouldForfeitToOpponent() {
         // Setup: First bot returns an invalid move
         when(botClientService.requestMove(any(), any()))
                 .thenReturn(new BotMoveResponse("invalid_move"));
 
-        MatchDTO match = createMatchWithoutExecution(chessBot1.getId(), chessBot2.getId(), Game.CHESS);
-        UUID matchId = match.id();
+        Long matchId = createMatchDirectly(chessBot1, chessBot2, Game.CHESS);
 
         matchExecutorService.runMatchLoop(matchId);
 
-        Match finishedMatch = matchRepository.findById(matchId).orElseThrow();
-        assertThat(finishedMatch.getStatus()).isEqualTo(MatchStatus.FINISHED);
+        Match finishedMatch = matchRepository.findByIdWithParticipants(matchId).orElseThrow();
+        assertThat(finishedMatch.getStatus()).isEqualTo(MatchStatus.FORFEITED);
         assertThat(finishedMatch.getForfeitReason()).isEqualTo("INVALID_MOVE");
 
         // Player 0 (white) made invalid move, so player 1 (black) wins
@@ -267,19 +299,17 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Transactional
     void match_BotTimeout_ShouldForfeitToOpponent() {
         // Setup: Bot throws timeout exception
         when(botClientService.requestMove(any(), any()))
                 .thenThrow(new BotCommunicationException("Bot timed out", "TIMEOUT"));
 
-        MatchDTO match = createMatchWithoutExecution(chessBot1.getId(), chessBot2.getId(), Game.CHESS);
-        UUID matchId = match.id();
+        Long matchId = createMatchDirectly(chessBot1, chessBot2, Game.CHESS);
 
         matchExecutorService.runMatchLoop(matchId);
 
-        Match finishedMatch = matchRepository.findById(matchId).orElseThrow();
-        assertThat(finishedMatch.getStatus()).isEqualTo(MatchStatus.FINISHED);
+        Match finishedMatch = matchRepository.findByIdWithParticipants(matchId).orElseThrow();
+        assertThat(finishedMatch.getStatus()).isEqualTo(MatchStatus.FORFEITED);
         assertThat(finishedMatch.getForfeitReason()).isEqualTo("TIMEOUT");
 
         MatchParticipant white = finishedMatch.getParticipants().stream()
@@ -292,19 +322,17 @@ class MatchExecutorIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @Transactional
     void match_BotConnectionError_ShouldForfeitToOpponent() {
         // Setup: Bot throws connection error
         when(botClientService.requestMove(any(), any()))
                 .thenThrow(new BotCommunicationException("Connection refused", "CONNECTION_ERROR"));
 
-        MatchDTO match = createMatchWithoutExecution(connect4Bot1.getId(), connect4Bot2.getId(), Game.CONNECT_FOUR);
-        UUID matchId = match.id();
+        Long matchId = createMatchDirectly(connect4Bot1, connect4Bot2, Game.CONNECT_FOUR);
 
         matchExecutorService.runMatchLoop(matchId);
 
-        Match finishedMatch = matchRepository.findById(matchId).orElseThrow();
-        assertThat(finishedMatch.getStatus()).isEqualTo(MatchStatus.FINISHED);
+        Match finishedMatch = matchRepository.findByIdWithParticipants(matchId).orElseThrow();
+        assertThat(finishedMatch.getStatus()).isEqualTo(MatchStatus.FORFEITED);
         assertThat(finishedMatch.getForfeitReason()).isEqualTo("CONNECTION_ERROR");
 
         MatchParticipant player1 = finishedMatch.getParticipants().stream()

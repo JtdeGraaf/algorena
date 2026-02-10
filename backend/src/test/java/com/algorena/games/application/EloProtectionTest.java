@@ -230,9 +230,9 @@ class EloProtectionTest extends AbstractIntegrationTest {
         // Manually set finishedAt in the past using JdbcTemplate
         java.time.LocalDateTime finishedAt = java.time.LocalDateTime.now().minusHours(hoursAgo);
         jdbcTemplate.update(
-            "UPDATE matches SET finished_at = ? WHERE id = ?::uuid",
+            "UPDATE matches SET finished_at = ? WHERE id = ?",
             finishedAt,
-            match.getId().toString()
+            match.getId()
         );
 
         // Clear and reload to get fresh data with updated timestamp, eagerly fetching participants

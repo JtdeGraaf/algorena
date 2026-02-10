@@ -1,19 +1,19 @@
 package com.algorena.games.application;
 
-import com.algorena.bots.data.BotRepository;
 import com.algorena.bots.domain.Game;
 import com.algorena.common.exception.DataNotFoundException;
 import com.algorena.games.data.BotRatingRepository;
 import com.algorena.games.data.RatingHistoryRepository;
 import com.algorena.games.data.UserRankingRepository;
 import com.algorena.games.domain.BotRating;
-import com.algorena.games.domain.RatingHistory;
 import com.algorena.games.domain.UserRanking;
 import com.algorena.games.dto.BotLeaderboardEntryDTO;
 import com.algorena.games.dto.RatingHistoryDTO;
 import com.algorena.games.dto.UserLeaderboardEntryDTO;
+import com.algorena.games.mapper.LeaderboardMapper;
 import com.algorena.users.data.UserRepository;
-import lombok.AllArgsConstructor;
+import com.algorena.users.domain.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,20 +21,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of leaderboard service.
  */
 @Service
 @Transactional(readOnly = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LeaderboardServiceImpl implements LeaderboardService {
 
     private final BotRatingRepository botRatingRepository;
     private final UserRankingRepository userRankingRepository;
     private final RatingHistoryRepository ratingHistoryRepository;
-    private final BotRepository botRepository;
     private final UserRepository userRepository;
+    private final LeaderboardMapper leaderboardMapper;
 
     // ===== Bot Leaderboard =====
 
@@ -43,7 +47,27 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         Page<BotRating> ratings = botRatingRepository
             .findByGameAndLeaderboardOrderByEloRatingDesc(game, null, pageable);
 
-        return ratings.map(this::toBotLeaderboardEntry);
+        // Collect all user IDs from the ratings
+        Set<Long> userIds = ratings.getContent().stream()
+            .map(r -> r.getBot().getUserId())
+            .collect(Collectors.toSet());
+
+        // Batch fetch all users
+        Map<Long, User> usersById = userRepository.findAllById(userIds).stream()
+            .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        // Calculate rank based on page position
+        long startRank = pageable.getOffset() + 1;
+
+        return ratings.map(rating -> {
+            User owner = usersById.get(rating.getBot().getUserId());
+            if (owner == null) {
+                throw new DataNotFoundException("User not found: " + rating.getBot().getUserId());
+            }
+            // Calculate rank based on position in page
+            long rank = startRank + ratings.getContent().indexOf(rating);
+            return leaderboardMapper.toBotLeaderboardEntryDTO(rating, owner, rank);
+        });
     }
 
     @Override
@@ -52,42 +76,13 @@ public class LeaderboardServiceImpl implements LeaderboardService {
             .findByBotIdAndGameAndLeaderboard(botId, game, null)
             .orElseThrow(() -> new DataNotFoundException("Bot rating not found for bot " + botId + " in game " + game));
 
+        User owner = userRepository.findById(rating.getBot().getUserId())
+            .orElseThrow(() -> new DataNotFoundException("User not found: " + rating.getBot().getUserId()));
+
         long rank = botRatingRepository
             .countByGameAndLeaderboardAndEloRatingGreaterThan(game, null, rating.getEloRating()) + 1;
 
-        return toBotLeaderboardEntry(rating, rank);
-    }
-
-    private BotLeaderboardEntryDTO toBotLeaderboardEntry(BotRating rating) {
-        long rank = botRatingRepository
-            .countByGameAndLeaderboardAndEloRatingGreaterThan(
-                rating.getGame(),
-                null,
-                rating.getEloRating()
-            ) + 1;
-
-        return toBotLeaderboardEntry(rating, rank);
-    }
-
-    private BotLeaderboardEntryDTO toBotLeaderboardEntry(BotRating rating, long rank) {
-        var bot = rating.getBot();
-        var owner = userRepository.findById(bot.getUserId())
-            .orElseThrow(() -> new DataNotFoundException("User not found: " + bot.getUserId()));
-
-        return new BotLeaderboardEntryDTO(
-            rank,
-            bot.getId(),
-            bot.getName(),
-            owner.getId(),
-            owner.getUsername(),
-            owner.getImageUrl(),
-            rating.getEloRating(),
-            rating.getMatchesPlayed(),
-            rating.getWins(),
-            rating.getLosses(),
-            rating.getDraws(),
-            rating.getWinRate()
-        );
+        return leaderboardMapper.toBotLeaderboardEntryDTO(rating, owner, rank);
     }
 
     // ===== User Leaderboard =====
@@ -97,7 +92,13 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         Page<UserRanking> rankings = userRankingRepository
             .findByGameOrderByBestBotEloDesc(game, pageable);
 
-        return rankings.map(this::toUserLeaderboardEntry);
+        // Calculate rank based on page position
+        long startRank = pageable.getOffset() + 1;
+
+        return rankings.map(ranking -> {
+            long rank = startRank + rankings.getContent().indexOf(ranking);
+            return leaderboardMapper.toUserLeaderboardEntryDTO(ranking, rank);
+        });
     }
 
     @Override
@@ -109,61 +110,17 @@ public class LeaderboardServiceImpl implements LeaderboardService {
         long rank = userRankingRepository
             .countByGameAndBestBotEloGreaterThan(game, ranking.getBestBotElo()) + 1;
 
-        return toUserLeaderboardEntry(ranking, rank);
-    }
-
-    private UserLeaderboardEntryDTO toUserLeaderboardEntry(UserRanking ranking) {
-        long rank = userRankingRepository
-            .countByGameAndBestBotEloGreaterThan(ranking.getGame(), ranking.getBestBotElo()) + 1;
-
-        return toUserLeaderboardEntry(ranking, rank);
-    }
-
-    private UserLeaderboardEntryDTO toUserLeaderboardEntry(UserRanking ranking, long rank) {
-        var user = ranking.getUser();
-        if (user == null) {
-            throw new DataNotFoundException("User not found in ranking");
-        }
-
-        return new UserLeaderboardEntryDTO(
-            rank,
-            user.getId(),
-            user.getUsername(),
-            user.getImageUrl(),
-            ranking.getBestBotElo(),
-            ranking.getAvgBotElo(),
-            ranking.getTotalBots(),
-            ranking.getTotalMatches(),
-            ranking.getTotalWins(),
-            ranking.getTotalLosses(),
-            ranking.getTotalDraws(),
-            ranking.getWinRate()
-        );
+        return leaderboardMapper.toUserLeaderboardEntryDTO(ranking, rank);
     }
 
     // ===== Rating History =====
 
     @Override
     public List<RatingHistoryDTO> getBotRatingHistory(Long botId, Game game, int limit) {
-        List<RatingHistory> history = ratingHistoryRepository
-            .findRecentByBotAndGame(botId, game, PageRequest.of(0, limit));
-
-        return history.stream()
-            .map(this::toRatingHistoryDTO)
+        return ratingHistoryRepository
+            .findRecentByBotAndGame(botId, game, PageRequest.of(0, limit))
+            .stream()
+            .map(leaderboardMapper::toRatingHistoryDTO)
             .toList();
-    }
-
-    private RatingHistoryDTO toRatingHistoryDTO(RatingHistory history) {
-        return new RatingHistoryDTO(
-            history.getMatch().getId(),
-            history.getOldRating(),
-            history.getNewRating(),
-            history.getRatingChange(),
-            history.getOpponentRating(),
-            history.getOpponentBot().getId(),
-            history.getOpponentBot().getName(),
-            history.getMatchResult(),
-            history.getCreated()
-        );
     }
 }

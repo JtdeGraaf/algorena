@@ -8,22 +8,25 @@ import com.algorena.common.exception.DataNotFoundException;
 import com.algorena.common.exception.ForbiddenException;
 import com.algorena.games.chess.data.ChessGameStateRepository;
 import com.algorena.games.chess.domain.ChessGameState;
-import com.algorena.games.chess.domain.ChessMatchMove;
 import com.algorena.games.chess.engine.ChessGameEngine;
+import com.algorena.games.connect4.data.Connect4GameStateRepository;
 import com.algorena.games.connect4.domain.Connect4GameState;
-import com.algorena.games.connect4.domain.Connect4MatchMove;
 import com.algorena.games.connect4.engine.Connect4GameEngine;
 import com.algorena.games.data.MatchMoveRepository;
 import com.algorena.games.data.MatchRepository;
-import com.algorena.games.domain.AbstractMatchMove;
+import com.algorena.games.domain.AbstractGameState;
 import com.algorena.games.domain.Match;
 import com.algorena.games.domain.MatchParticipant;
 import com.algorena.games.domain.MatchStatus;
-import com.algorena.games.dto.*;
+import com.algorena.games.dto.CreateMatchRequest;
+import com.algorena.games.dto.MatchDTO;
+import com.algorena.games.dto.MatchMoveDTO;
 import com.algorena.games.engine.GameEngine;
 import com.algorena.games.engine.GameEngineFactory;
+import com.algorena.games.mapper.MatchMapper;
 import com.algorena.security.CurrentUser;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,11 +40,12 @@ public class MatchServiceImpl implements MatchService {
     private final MatchRepository matchRepository;
     private final MatchMoveRepository matchMoveRepository;
     private final ChessGameStateRepository chessGameStateRepository;
-    private final com.algorena.games.connect4.data.Connect4GameStateRepository connect4GameStateRepository;
+    private final Connect4GameStateRepository connect4GameStateRepository;
     private final GameEngineFactory gameEngineFactory;
     private final BotRepository botRepository;
     private final CurrentUser currentUser;
     private final MatchExecutorService matchExecutorService;
+    private final MatchMapper matchMapper;
 
     @Override
     public MatchDTO createMatch(CreateMatchRequest request) {
@@ -88,28 +92,30 @@ public class MatchServiceImpl implements MatchService {
         matchRepository.save(match);
 
         // Initialize Game State
-        initializeGameState(match);
+        AbstractGameState gameState = initializeGameState(match);
 
         // Build DTO while still in transaction (to access lazy-loaded collections)
-        return toMatchDTO(match);
+        return matchMapper.toDTO(match, gameState);
     }
 
-    private void initializeGameState(Match match) {
-        switch (match.getGame()) {
+    /**
+     * Initializes the game state for a match and returns it.
+     */
+    private AbstractGameState initializeGameState(Match match) {
+        return switch (match.getGame()) {
             case CHESS -> {
                 GameEngine<ChessGameState, String> engine = gameEngineFactory.getEngine(Game.CHESS);
                 ChessGameState initialState = engine.startNewGame();
                 initialState.assignMatch(match);
-                chessGameStateRepository.save(initialState);
+                yield chessGameStateRepository.save(initialState);
             }
             case CONNECT_FOUR -> {
                 GameEngine<Connect4GameState, Integer> engine = gameEngineFactory.getEngine(Game.CONNECT_FOUR);
                 Connect4GameState initialState = engine.startNewGame();
                 initialState.assignMatch(match);
-                connect4GameStateRepository.save(initialState);
+                yield connect4GameStateRepository.save(initialState);
             }
-            default -> throw new UnsupportedOperationException("Game not supported: " + match.getGame());
-        }
+        };
     }
 
     @Override
@@ -117,54 +123,8 @@ public class MatchServiceImpl implements MatchService {
     public MatchDTO getMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
-        return toMatchDTO(match);
-    }
-
-    private MatchDTO toMatchDTO(Match match) {
-        GameStateDTO stateDTO = null;
-        if (match.getGame() == Game.CHESS) {
-            ChessGameState state = chessGameStateRepository.findByMatchId(match.getId())
-                    .orElse(null);
-            if (state != null) {
-                stateDTO = new ChessGameStateDTO(
-                        state.getFen(),
-                        state.getPgn(),
-                        state.getHalfMoveClock(),
-                        state.getFullMoveNumber()
-                );
-            }
-        } else if (match.getGame() == Game.CONNECT_FOUR) {
-            Connect4GameState state = connect4GameStateRepository.findByMatchId(match.getId())
-                    .orElse(null);
-            if (state != null) {
-                stateDTO = new Connect4GameStateDTO(
-                        state.getBoard(),
-                        state.getLastMoveColumn()
-                );
-            }
-        }
-
-        return new MatchDTO(
-                match.getId(),
-                match.getGame(),
-                match.getStatus(),
-                match.getStartedAt(),
-                match.getFinishedAt(),
-                match.getParticipants().stream()
-                        .map(this::toMatchParticipantDTO)
-                        .toList(),
-                stateDTO
-        );
-    }
-
-    private MatchParticipantDTO toMatchParticipantDTO(MatchParticipant participant) {
-        return new MatchParticipantDTO(
-                participant.getId(),
-                participant.getBot().getId(),
-                participant.getBot().getName(),
-                participant.getPlayerIndex(),
-                participant.getScore()
-        );
+        AbstractGameState gameState = getGameState(match);
+        return matchMapper.toDTO(match, gameState);
     }
 
     @Override
@@ -174,7 +134,7 @@ public class MatchServiceImpl implements MatchService {
                 .orElseThrow(() -> new DataNotFoundException("Match not found"));
 
         return matchMoveRepository.findByMatchIdOrderByCreatedAsc(matchId).stream()
-                .map(this::toMatchMoveDTO)
+                .map(matchMapper::toMoveDTO)
                 .toList();
     }
 
@@ -257,27 +217,21 @@ public class MatchServiceImpl implements MatchService {
         return List.of();
     }
 
-    private MatchMoveDTO toMatchMoveDTO(AbstractMatchMove move) {
-        String from = null;
-        String to = null;
-        String promotion = null;
+    /**
+     * Helper method to convert Match to DTO with game state lookup.
+     */
+    private MatchDTO toMatchDTO(Match match) {
+        AbstractGameState gameState = getGameState(match);
+        return matchMapper.toDTO(match, gameState);
+    }
 
-        if (move instanceof ChessMatchMove chessMove) {
-            from = chessMove.getFromSquare();
-            to = chessMove.getToSquare();
-            promotion = chessMove.getPromotionPiece();
-        } else if (move instanceof Connect4MatchMove connect4Move) {
-             to = String.valueOf(connect4Move.getColumnIndex());
-        }
-
-        return new MatchMoveDTO(
-                move.getId(),
-                move.getPlayerIndex(),
-                move.getMoveNotation(),
-                move.getCreated(),
-                from,
-                to,
-                promotion
-        );
+    /**
+     * Fetches the game state for a match based on game type.
+     */
+    private @Nullable AbstractGameState getGameState(Match match) {
+        return switch (match.getGame()) {
+            case CHESS -> chessGameStateRepository.findByMatchId(match.getId()).orElse(null);
+            case CONNECT_FOUR -> connect4GameStateRepository.findByMatchId(match.getId()).orElse(null);
+        };
     }
 }

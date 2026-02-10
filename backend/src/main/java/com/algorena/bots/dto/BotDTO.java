@@ -11,7 +11,7 @@ public record BotDTO(
         @Nullable String description,
         Game game,
         boolean active,
-        String endpoint,
+        @Nullable String endpoint,
         @Nullable String apiKey,
         LocalDateTime created,
         LocalDateTime lastUpdated

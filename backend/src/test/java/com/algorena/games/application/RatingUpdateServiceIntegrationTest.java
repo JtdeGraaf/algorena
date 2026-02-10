@@ -6,6 +6,7 @@ import com.algorena.games.data.MatchRepository;
 import com.algorena.games.data.RatingHistoryRepository;
 import com.algorena.games.domain.*;
 import com.algorena.test.config.AbstractIntegrationTest;
+import com.algorena.users.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,19 @@ class RatingUpdateServiceIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MatchRepository matchRepository;
 
+    private User user1;
+    private User user2;
     private Bot bot1;
     private Bot bot2;
 
     @BeforeEach
     void setUp() {
-        bot1 = createTestBot(testUser, "Bot1", Game.CHESS, "http://localhost:8000/bot1");
-        bot2 = createTestBot(testUser, "Bot2", Game.CHESS, "http://localhost:8000/bot2");
+        // Use different users for bots to trigger rating updates
+        // (same-user bot matches skip rating updates as anti-cheat protection)
+        user1 = testUser;
+        user2 = createTestUser("user2", "user2@test.com");
+        bot1 = createTestBot(user1, "Bot1", Game.CHESS, "http://localhost:8000/bot1");
+        bot2 = createTestBot(user2, "Bot2", Game.CHESS, "http://localhost:8000/bot2");
     }
 
     @Test

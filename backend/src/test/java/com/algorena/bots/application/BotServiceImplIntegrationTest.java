@@ -128,7 +128,7 @@ class BotServiceImplIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void deleteBot_shouldDeleteBotForCurrentUser() {
+    void deleteBot_shouldSoftDeleteBotForCurrentUser() {
         // Given
         CreateBotRequest request = new CreateBotRequest("Test Bot", null, Game.CHESS, "http://localhost:8080/bot-endpoint", "secret-api");
         BotDTO createdBot = botService.createBot(request);
@@ -136,8 +136,13 @@ class BotServiceImplIntegrationTest extends AbstractIntegrationTest {
         // When
         botService.deleteBot(createdBot.id());
 
-        // Then
-        assertThat(botRepository.findById(createdBot.id())).isEmpty();
+        // Then - bot is soft deleted (marked as deleted but still in DB)
+        Bot deletedBot = botRepository.findById(createdBot.id()).orElseThrow();
+        assertThat(deletedBot.isDeleted()).isTrue();
+        assertThat(deletedBot.isActive()).isFalse();
+
+        // And - bot is not returned by normal queries
+        assertThat(botRepository.findByIdAndUserIdAndDeletedFalse(createdBot.id(), testUser.getId())).isEmpty();
     }
 
     @Test
