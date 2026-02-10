@@ -23,19 +23,13 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     needs: test
+    if: "!contains(github.event.head_commit.message, 'chore: bump version')"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # needed for tags
-
-      - name: Stop if this is a version bump commit
-        run: |
-          if git log -1 --pretty=%B | grep -q "chore: bump version"; then
-            echo "Detected version bump commit — stopping workflow."
-            exit 0
-          fi
 
       - name: Compute lowercase image name
         id: image
