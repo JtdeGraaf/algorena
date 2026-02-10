@@ -1,0 +1,16 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    uses: ./.github/workflows/backend-test.yml
+    with:
+      skip-integration-tests: false
+
+  frontend-checks:
+    name: Frontend Lint & Build
+    uses: ./.github/workflows/frontend-ci.yml
