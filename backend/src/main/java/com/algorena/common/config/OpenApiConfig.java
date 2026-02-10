@@ -2,6 +2,7 @@ package com.algorena.common.config;
 
 import com.algorena.common.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -13,17 +14,21 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.*;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springdoc.core.customizers.PropertyCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.algorena.common.config.SuppressedWarnings.NULL_AWAY_INIT;
+
 @Configuration
-@SuppressWarnings("NullAway.Init")
+@SuppressWarnings(NULL_AWAY_INIT)
 public class OpenApiConfig {
 
     @Value("${BACKEND_URL:http://localhost:8080}")
@@ -43,9 +48,9 @@ public class OpenApiConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Swyle Backend API")
+                        .title("Algorena Backend API")
                         .version("0.1.0")
-                        .description("REST API for Swyle application with OAuth2 and JWT authentication. " +
+                        .description("REST API for Algorena with OAuth2 and JWT authentication. " +
                                 "Use the 'Bearer JWT' scheme to authorize with a JWT token obtained after OAuth2 login.")
                 )
                 .servers(List.of(
@@ -245,6 +250,84 @@ public class OpenApiConfig {
                                                             );
                                                         }
                                                 ));
+    }
+
+    /**
+     * PropertyCustomizer to make Springdoc recognize NullAway's non-null-by-default convention.
+     * All fields are treated as required (non-nullable) unless explicitly marked with @Nullable.
+     * This aligns with NullAway's static analysis defaults and avoids having to annotate
+     * every field with @NotNull.
+     */
+    @Bean
+    public PropertyCustomizer nullabilityPropertyCustomizer() {
+        return (schema, type) -> {
+            // Check if the property is marked with @Nullable
+            boolean isNullable = isPropertyNullable(type);
+
+            // Set the nullable flag in the schema
+            if (!isNullable) {
+                schema.setNullable(false);
+            }
+
+            return schema;
+        };
+    }
+
+    /**
+     * OpenApiCustomizer to add all non-nullable properties to the 'required' array.
+     * This works in conjunction with the PropertyCustomizer above to fully specify
+     * which fields are required in the OpenAPI spec.
+     */
+    @Bean
+    public OpenApiCustomizer schemaRequiredFieldsCustomizer() {
+        return openApi -> {
+            if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
+                return;
+            }
+
+            Map<String, Schema> schemas = openApi.getComponents().getSchemas();
+            schemas.forEach((schemaName, schema) -> {
+                Map<String, Schema> properties = schema.getProperties();
+                if (properties == null || properties.isEmpty()) {
+                    return;
+                }
+
+                List<String> required = properties.entrySet().stream()
+                        .filter(entry -> {
+                            Schema propertySchema = entry.getValue();
+                            Boolean nullable = propertySchema.getNullable();
+                            // Include in required if nullable is explicitly false or not set
+                            // (null means not specified, which we treat as non-nullable by default)
+                            return nullable == null || !nullable;
+                        })
+                        .map(Map.Entry::getKey)
+                        .toList();
+
+                if (!required.isEmpty()) {
+                    schema.setRequired(required);
+                }
+            });
+        };
+    }
+
+    /**
+     * Checks if a property is marked with @Nullable annotation.
+     * Handles both regular classes (fields) and records (record components).
+     */
+    private boolean isPropertyNullable(AnnotatedType type) {
+        // Check if the annotated type itself has @Nullable
+
+        if (type.getCtxAnnotations() == null) {
+            return false;
+        }
+
+        // Checks if any annotation in the array is @Nullable (from jspecify or other common packages).
+        return Arrays.stream(type.getCtxAnnotations())
+                .anyMatch(ann -> {
+                    String name = ann.annotationType().getSimpleName();
+                    // Support @Nullable from jspecify, javax.annotation, org.jetbrains, etc.
+                    return "Nullable".equals(name);
+                });
     }
 
 }

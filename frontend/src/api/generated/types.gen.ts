@@ -11,27 +11,27 @@ export type ErrorResponse = {
     /**
      * Timestamp when the error occurred
      */
-    timestamp?: string;
+    timestamp: string;
     /**
      * HTTP status code
      */
-    status?: number;
+    status: number;
     /**
      * HTTP status reason phrase
      */
-    error?: string;
+    error: string;
     /**
      * Detailed error message
      */
-    message?: string;
+    message: string;
     /**
      * Request path that caused the error
      */
-    path?: string;
+    path: string;
     /**
      * List of validation errors (only present for validation failures)
      */
-    validationErrors?: Array<ValidationError>;
+    validationErrors: Array<ValidationError>;
 };
 
 /**
@@ -41,17 +41,17 @@ export type ValidationError = {
     /**
      * Name of the field that failed validation
      */
-    field?: string;
+    field: string;
     /**
      * Validation error message
      */
-    message?: string;
+    message: string;
 };
 
 export type CreateMatchRequest = {
-    bot1Id?: number;
-    bot2Id?: number;
-    game?: 'CHESS' | 'CONNECT_FOUR';
+    bot1Id: number;
+    bot2Id: number;
+    game: 'CHESS' | 'CONNECT_FOUR';
 };
 
 export type ChessGameStateDto = Omit<GameStateDto, 'type'> & {
@@ -73,181 +73,181 @@ export type GameStateDto = {
 };
 
 export type MatchDto = {
-    id?: number;
-    game?: 'CHESS' | 'CONNECT_FOUR';
-    status?: 'CREATED' | 'IN_PROGRESS' | 'FINISHED' | 'FORFEITED' | 'ABORTED';
-    startedAt?: string;
-    finishedAt?: string;
-    participants?: Array<MatchParticipantDto>;
-    state?: ChessGameStateDto | Connect4GameStateDto;
+    id: number;
+    game: 'CHESS' | 'CONNECT_FOUR';
+    status: 'CREATED' | 'IN_PROGRESS' | 'FINISHED' | 'FORFEITED' | 'ABORTED';
+    startedAt: string;
+    finishedAt: string;
+    participants: Array<MatchParticipantDto>;
+    state: ChessGameStateDto | Connect4GameStateDto;
 };
 
 export type MatchParticipantDto = {
-    id?: number;
-    botId?: number;
-    botName?: string;
-    playerIndex?: number;
-    score?: number;
+    id: number;
+    botId: number;
+    botName: string;
+    playerIndex: number;
+    score: number;
 };
 
 export type CreateBotRequest = {
     name: string;
-    description?: string;
+    description: string;
     game: 'CHESS' | 'CONNECT_FOUR';
     endpoint: string;
-    apiKey?: string;
+    apiKey: string;
 };
 
 export type BotDto = {
-    id?: number;
-    name?: string;
-    description?: string;
-    game?: 'CHESS' | 'CONNECT_FOUR';
-    active?: boolean;
-    endpoint?: string;
-    apiKey?: string;
-    created?: string;
-    lastUpdated?: string;
+    id: number;
+    name: string;
+    description: string;
+    game: 'CHESS' | 'CONNECT_FOUR';
+    active: boolean;
+    endpoint: string;
+    apiKey: string;
+    created: string;
+    lastUpdated: string;
 };
 
 export type UpdateUserRequest = {
-    username?: string;
-    name?: string;
+    username: string;
+    name: string;
 };
 
 export type UserDto = {
-    id?: number;
-    username?: string;
-    name?: string;
-    provider?: 'GOOGLE' | 'GITHUB' | 'DISCORD';
-    providerId?: string;
+    id: number;
+    username: string;
+    name: string;
+    provider: 'GOOGLE' | 'GITHUB' | 'DISCORD';
+    providerId: string;
 };
 
 export type UpdateBotRequest = {
     name: string;
-    description?: string;
-    active?: boolean;
+    description: string;
+    active: boolean;
     endpoint: string;
-    apiKey?: string;
+    apiKey: string;
 };
 
 export type MatchMoveDto = {
-    id?: number;
-    playerIndex?: number;
-    moveNotation?: string;
-    created?: string;
-    fromSquare?: string;
-    toSquare?: string;
-    promotionPiece?: string;
+    id: number;
+    playerIndex: number;
+    moveNotation: string;
+    created: string;
+    fromSquare: string;
+    toSquare: string;
+    promotionPiece: string;
 };
 
 export type PageUserLeaderboardEntryDto = {
-    totalElements?: number;
-    totalPages?: number;
-    size?: number;
-    content?: Array<UserLeaderboardEntryDto>;
-    number?: number;
-    first?: boolean;
-    last?: boolean;
-    numberOfElements?: number;
-    sort?: SortObject;
-    pageable?: PageableObject;
-    empty?: boolean;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    content: Array<UserLeaderboardEntryDto>;
+    number: number;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+    pageable: PageableObject;
+    sort: SortObject;
+    empty: boolean;
 };
 
 export type PageableObject = {
-    offset?: number;
-    pageSize?: number;
-    sort?: SortObject;
-    paged?: boolean;
-    pageNumber?: number;
-    unpaged?: boolean;
+    offset: number;
+    paged: boolean;
+    pageNumber: number;
+    pageSize: number;
+    sort: SortObject;
+    unpaged: boolean;
 };
 
 export type SortObject = {
-    empty?: boolean;
-    sorted?: boolean;
-    unsorted?: boolean;
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
 };
 
 export type UserLeaderboardEntryDto = {
-    rank?: number;
-    userId?: number;
-    username?: string;
-    avatarUrl?: string;
-    bestBotElo?: number;
-    avgBotElo?: number;
-    totalBots?: number;
-    totalMatches?: number;
-    totalWins?: number;
-    totalLosses?: number;
-    totalDraws?: number;
-    winRate?: number;
+    rank: number;
+    userId: number;
+    username: string;
+    avatarUrl: string;
+    bestBotElo: number;
+    avgBotElo: number;
+    totalBots: number;
+    totalMatches: number;
+    totalWins: number;
+    totalLosses: number;
+    totalDraws: number;
+    winRate: number;
 };
 
 export type BotLeaderboardEntryDto = {
-    rank?: number;
-    botId?: number;
-    botName?: string;
-    ownerId?: number;
-    ownerName?: string;
-    ownerAvatarUrl?: string;
-    eloRating?: number;
-    matchesPlayed?: number;
-    wins?: number;
-    losses?: number;
-    draws?: number;
-    winRate?: number;
+    rank: number;
+    botId: number;
+    botName: string;
+    ownerId: number;
+    ownerName: string;
+    ownerAvatarUrl: string;
+    eloRating: number;
+    matchesPlayed: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    winRate: number;
 };
 
 export type PageBotLeaderboardEntryDto = {
-    totalElements?: number;
-    totalPages?: number;
-    size?: number;
-    content?: Array<BotLeaderboardEntryDto>;
-    number?: number;
-    first?: boolean;
-    last?: boolean;
-    numberOfElements?: number;
-    sort?: SortObject;
-    pageable?: PageableObject;
-    empty?: boolean;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    content: Array<BotLeaderboardEntryDto>;
+    number: number;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+    pageable: PageableObject;
+    sort: SortObject;
+    empty: boolean;
 };
 
 export type RatingHistoryDto = {
-    matchId?: number;
-    oldRating?: number;
-    newRating?: number;
-    ratingChange?: number;
-    opponentRating?: number;
-    opponentBotId?: number;
-    opponentBotName?: string;
-    result?: 'WIN' | 'LOSS' | 'DRAW';
-    playedAt?: string;
+    matchId: number;
+    oldRating: number;
+    newRating: number;
+    ratingChange: number;
+    opponentRating: number;
+    opponentBotId: number;
+    opponentBotName: string;
+    result: 'WIN' | 'LOSS' | 'DRAW';
+    playedAt: string;
 };
 
 export type PageBotDto = {
-    totalElements?: number;
-    totalPages?: number;
-    size?: number;
-    content?: Array<BotDto>;
-    number?: number;
-    first?: boolean;
-    last?: boolean;
-    numberOfElements?: number;
-    sort?: SortObject;
-    pageable?: PageableObject;
-    empty?: boolean;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    content: Array<BotDto>;
+    number: number;
+    first: boolean;
+    last: boolean;
+    numberOfElements: number;
+    pageable: PageableObject;
+    sort: SortObject;
+    empty: boolean;
 };
 
 export type BotStatsDto = {
-    botId?: number;
-    botName?: string;
-    totalMatches?: number;
-    wins?: number;
-    losses?: number;
-    draws?: number;
-    winRate?: number;
+    botId: number;
+    botName: string;
+    totalMatches: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    winRate: number;
 };
 
 export type GetMatchesData = {
