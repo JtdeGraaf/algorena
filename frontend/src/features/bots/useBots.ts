@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBots, createBot, updateBot, deleteBot, getBotStats } from '@/api/generated';
-import type { CreateBotRequest, UpdateBotRequest, Game } from '@/api/generated';
+import type { CreateBotRequest, UpdateBotRequest, BotDto } from '@/api/generated';
 
 export const botKeys = {
   all: ['bots'] as const,
@@ -11,7 +11,9 @@ export const botKeys = {
   stats: (id: number) => [...botKeys.all, 'stats', id] as const,
 };
 
-interface BotFilters {
+type Game = NonNullable<BotDto['game']>;
+
+interface BotFilters extends Record<string, unknown> {
   userId?: number;
   name?: string;
   game?: Game;

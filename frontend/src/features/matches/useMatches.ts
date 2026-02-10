@@ -9,9 +9,9 @@ export const matchKeys = {
     list: (filters: Record<string, unknown>) => [...matchKeys.lists(), filters] as const,
     recent: () => [...matchKeys.all, 'recent'] as const,
     details: () => [...matchKeys.all, 'detail'] as const,
-    detail: (id: string) => [...matchKeys.details(), id] as const,
-    moves: (id: string) => [...matchKeys.all, 'moves', id] as const,
-    legalMoves: (id: string) => [...matchKeys.all, 'legal-moves', id] as const,
+    detail: (id: number) => [...matchKeys.details(), id] as const,
+    moves: (id: number) => [...matchKeys.all, 'moves', id] as const,
+    legalMoves: (id: number) => [...matchKeys.all, 'legal-moves', id] as const,
 };
 
 export const botKeys = {
@@ -46,7 +46,7 @@ export function useRecentMatches() {
     });
 }
 
-export function useMatch(matchId: string) {
+export function useMatch(matchId: number) {
     return useQuery({
         queryKey: matchKeys.detail(matchId),
         queryFn: async () => {
@@ -60,7 +60,7 @@ export function useMatch(matchId: string) {
     });
 }
 
-export function useMatchMoves(matchId: string) {
+export function useMatchMoves(matchId: number) {
     return useQuery({
         queryKey: matchKeys.moves(matchId),
         queryFn: async () => {
@@ -74,7 +74,7 @@ export function useMatchMoves(matchId: string) {
     });
 }
 
-export function useLegalMoves(matchId: string) {
+export function useLegalMoves(matchId: number) {
     return useQuery({
         queryKey: matchKeys.legalMoves(matchId),
         queryFn: async () => {
@@ -119,7 +119,7 @@ export function useAbortMatch() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (matchId: string) => {
+        mutationFn: async (matchId: number) => {
             const response = await abortMatch({path: {matchId}});
             if (response.error) {
                 throw new Error(response.error.message || 'Failed to abort match');

@@ -12,7 +12,7 @@ import { connect4ReplayEngine } from './connect4/connect4ReplayEngine';
  */
 interface GameComponents {
   DetailsComponent: React.ComponentType<GameDetailsProps>;
-  ReplayComponent: React.ComponentType<GameReplayProps>;
+  ReplayComponent: React.ComponentType<GameReplayProps<GamePosition>>;
 }
 
 /**
@@ -21,18 +21,18 @@ interface GameComponents {
 const gameRegistry: Record<string, GameComponents> = {
   CHESS: {
     DetailsComponent: ChessMatchDetails,
-    ReplayComponent: ChessMatchReplay
+    ReplayComponent: ChessMatchReplay as React.ComponentType<GameReplayProps<GamePosition>>
   },
   CONNECT_FOUR: {
     DetailsComponent: Connect4MatchDetails,
-    ReplayComponent: Connect4MatchReplay
+    ReplayComponent: Connect4MatchReplay as React.ComponentType<GameReplayProps<GamePosition>>
   }
 };
 
 /**
  * Engine registry mapping game type names to their replay engines.
  */
-const engineRegistry: Record<string, GameReplayEngine> = {
+const engineRegistry: Record<string, GameReplayEngine<GamePosition>> = {
   CHESS: chessReplayEngine,
   CONNECT_FOUR: connect4ReplayEngine
 };
@@ -60,7 +60,7 @@ export function getReplayEngine<TPosition extends GamePosition = GamePosition>(
   if (!engine) {
     throw new Error(`No replay engine registered for game type: ${gameType}`);
   }
-  return engine;
+  return engine as GameReplayEngine<TPosition>;
 }
 
 /**

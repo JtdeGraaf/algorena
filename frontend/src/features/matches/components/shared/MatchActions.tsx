@@ -17,7 +17,7 @@ export function MatchActions({ match, onClose }: MatchActionsProps) {
   const canAbort = match.status === 'CREATED' || match.status === 'IN_PROGRESS';
 
   const handleAbort = async () => {
-    if (!match.id) return;
+    if (match.id === undefined) return;
     try {
       await abortMatch.mutateAsync(match.id);
       onClose();

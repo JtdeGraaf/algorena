@@ -150,17 +150,17 @@ export type PageUserLeaderboardEntryDto = {
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
-    pageable?: PageableObject;
     sort?: SortObject;
+    pageable?: PageableObject;
     empty?: boolean;
 };
 
 export type PageableObject = {
     offset?: number;
-    paged?: boolean;
     pageSize?: number;
-    pageNumber?: number;
     sort?: SortObject;
+    paged?: boolean;
+    pageNumber?: number;
     unpaged?: boolean;
 };
 
@@ -209,8 +209,8 @@ export type PageBotLeaderboardEntryDto = {
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
-    pageable?: PageableObject;
     sort?: SortObject;
+    pageable?: PageableObject;
     empty?: boolean;
 };
 
@@ -235,8 +235,8 @@ export type PageBotDto = {
     first?: boolean;
     last?: boolean;
     numberOfElements?: number;
-    pageable?: PageableObject;
     sort?: SortObject;
+    pageable?: PageableObject;
     empty?: boolean;
 };
 

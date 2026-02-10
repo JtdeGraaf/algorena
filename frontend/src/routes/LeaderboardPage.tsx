@@ -3,7 +3,7 @@ import { Trophy, Users, Bot, ChevronLeft, ChevronRight, TrendingUp, TrendingDown
 import { useBotLeaderboard, useUserLeaderboard } from '@/features/leaderboard/useLeaderboard';
 import { TerminalTable, TerminalTableRow, TerminalTableCell } from '@/components/ui/terminal-table';
 import { cn } from '@/lib/utils';
-import type { BotDto, BotLeaderboardEntryDTO, UserLeaderboardEntryDTO } from '@/api/generated';
+import type { BotDto, BotLeaderboardEntryDto, UserLeaderboardEntryDto } from '@/api/generated';
 
 type Game = NonNullable<BotDto['game']>;
 type LeaderboardTab = 'bots' | 'users';
@@ -194,7 +194,7 @@ export function LeaderboardPage() {
 }
 
 // Bot Leaderboard Table Component
-function BotLeaderboardTable({ data }: { data: BotLeaderboardEntryDTO[] }) {
+function BotLeaderboardTable({ data }: { data: BotLeaderboardEntryDto[] }) {
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
@@ -219,7 +219,7 @@ function BotLeaderboardTable({ data }: { data: BotLeaderboardEntryDTO[] }) {
               {entry.rank === 3 && <Trophy className="h-4 w-4 text-amber-600" />}
               <span className={cn(
                 'font-semibold',
-                entry.rank <= 3 ? 'text-primary' : 'text-text-muted'
+                (entry.rank ?? 0) <= 3 ? 'text-primary' : 'text-text-muted'
               )}>
                 #{entry.rank}
               </span>
@@ -253,14 +253,14 @@ function BotLeaderboardTable({ data }: { data: BotLeaderboardEntryDTO[] }) {
             <div className="flex items-center gap-1.5">
               <span className={cn(
                 'font-medium',
-                entry.winRate >= 0.6 ? 'text-primary' :
-                entry.winRate >= 0.4 ? 'text-text-primary' :
+                (entry.winRate ?? 0) >= 0.6 ? 'text-primary' :
+                (entry.winRate ?? 0) >= 0.4 ? 'text-text-primary' :
                 'text-text-muted'
               )}>
-                {(entry.winRate * 100).toFixed(1)}%
+                {((entry.winRate ?? 0) * 100).toFixed(1)}%
               </span>
-              {entry.winRate >= 0.6 && <TrendingUp className="h-3 w-3 text-primary" />}
-              {entry.winRate < 0.4 && <TrendingDown className="h-3 w-3 text-error" />}
+              {(entry.winRate ?? 0) >= 0.6 && <TrendingUp className="h-3 w-3 text-primary" />}
+              {(entry.winRate ?? 0) < 0.4 && <TrendingDown className="h-3 w-3 text-error" />}
             </div>
           </TerminalTableCell>
         </TerminalTableRow>
@@ -270,7 +270,7 @@ function BotLeaderboardTable({ data }: { data: BotLeaderboardEntryDTO[] }) {
 }
 
 // User Leaderboard Table Component
-function UserLeaderboardTable({ data }: { data: UserLeaderboardEntryDTO[] }) {
+function UserLeaderboardTable({ data }: { data: UserLeaderboardEntryDto[] }) {
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
@@ -295,7 +295,7 @@ function UserLeaderboardTable({ data }: { data: UserLeaderboardEntryDTO[] }) {
               {entry.rank === 3 && <Trophy className="h-4 w-4 text-amber-600" />}
               <span className={cn(
                 'font-semibold',
-                entry.rank <= 3 ? 'text-primary' : 'text-text-muted'
+                (entry.rank ?? 0) <= 3 ? 'text-primary' : 'text-text-muted'
               )}>
                 #{entry.rank}
               </span>
@@ -335,14 +335,14 @@ function UserLeaderboardTable({ data }: { data: UserLeaderboardEntryDTO[] }) {
             <div className="flex items-center gap-1.5">
               <span className={cn(
                 'font-medium',
-                entry.winRate >= 0.6 ? 'text-primary' :
-                entry.winRate >= 0.4 ? 'text-text-primary' :
+                (entry.winRate ?? 0) >= 0.6 ? 'text-primary' :
+                (entry.winRate ?? 0) >= 0.4 ? 'text-text-primary' :
                 'text-text-muted'
               )}>
-                {(entry.winRate * 100).toFixed(1)}%
+                {((entry.winRate ?? 0) * 100).toFixed(1)}%
               </span>
-              {entry.winRate >= 0.6 && <TrendingUp className="h-3 w-3 text-primary" />}
-              {entry.winRate < 0.4 && <TrendingDown className="h-3 w-3 text-error" />}
+              {(entry.winRate ?? 0) >= 0.6 && <TrendingUp className="h-3 w-3 text-primary" />}
+              {(entry.winRate ?? 0) < 0.4 && <TrendingDown className="h-3 w-3 text-error" />}
             </div>
           </TerminalTableCell>
         </TerminalTableRow>

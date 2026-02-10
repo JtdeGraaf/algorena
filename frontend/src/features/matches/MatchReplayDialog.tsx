@@ -16,23 +16,23 @@ interface MatchReplayDialogProps {
 }
 
 export function MatchReplayDialog({ match, open, onOpenChange }: MatchReplayDialogProps) {
-  const { data: moves, isLoading: movesLoading } = useMatchMoves(match?.id || '');
+  const { data: moves, isLoading: movesLoading } = useMatchMoves(match?.id ?? 0);
 
   // Check if game type is registered
-  const isRegistered = match ? isGameRegistered(match.game) : false;
+  const isRegistered = match?.game ? isGameRegistered(match.game) : false;
 
   // Get game-specific components and engine
   const gameComponents = useMemo(() => {
-    if (!match || !isRegistered) return null;
+    if (!match?.game || !isRegistered) return null;
     try {
       const components = getGameComponents(match.game);
       const engine = getReplayEngine(match.game);
       return { components, engine };
     } catch {
-      console.error('Failed to initialize replay for game:', match?.game);
+      console.error('Failed to initialize replay for game:', match.game);
       return null;
     }
-  }, [match, isRegistered]);
+  }, [match?.game, isRegistered]);
 
   // Calculate positions using useMemo
   const positions = useMemo(() => {

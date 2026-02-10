@@ -18,8 +18,8 @@ interface MatchDetailsDialogProps {
 }
 
 export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: MatchDetailsDialogProps) {
-  const { data: freshMatch } = useMatch(initialMatch?.id || '');
-  const { data: moves, isLoading: movesLoading } = useMatchMoves(initialMatch?.id || '');
+  const { data: freshMatch } = useMatch(initialMatch?.id ?? 0);
+  const { data: moves, isLoading: movesLoading } = useMatchMoves(initialMatch?.id ?? 0);
 
   const [replayOpen, setReplayOpen] = useState(false);
 
@@ -33,13 +33,15 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
   const player2 = participants.find(p => p.playerIndex === 1);
 
   // Check if game type is registered for replay
-  const canReplay = isGameRegistered(match.game) && moves && moves.length > 0;
+  const canReplay = match.game && isGameRegistered(match.game) && moves && moves.length > 0;
 
   // Get game-specific component
   let DetailsComponent: React.ComponentType<GameDetailsProps> | null = null;
   try {
-    const components = getGameComponents(match.game);
-    DetailsComponent = components.DetailsComponent;
+    if (match.game) {
+      const components = getGameComponents(match.game);
+      DetailsComponent = components.DetailsComponent;
+    }
   } catch {
     console.error('Game type not registered:', match.game);
   }
