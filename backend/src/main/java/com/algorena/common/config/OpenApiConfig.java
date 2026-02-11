@@ -2,7 +2,6 @@ package com.algorena.common.config;
 
 import com.algorena.common.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -14,16 +13,14 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.*;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
-import org.springdoc.core.customizers.PropertyCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.RecordComponent;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.algorena.common.config.SuppressedWarnings.NULL_AWAY_INIT;
 
@@ -178,156 +175,149 @@ public class OpenApiConfig {
     }
 
 
-    // Customizer to automatically add global error response codes to OpenAPI documentation
+    // Customizer to add global error responses and handle @Nullable annotations
     // Source - https://stackoverflow.com/questions/77702787/openapi-springboot-3-how-to-add-global-error-response-codes
     // Posted by Toni
     // Retrieved 2025-11-07, License - CC BY-SA 4.0
     @Bean
     public OpenApiCustomizer openApiCustomizer() {
-        return openApi ->
-                openApi
-                        .getPaths()
-                        .values()
-                        .forEach(
-                                pathItem ->
-                                        pathItem
-                                                .readOperations()
-                                                .forEach(
-                                                        operation -> {
-                                                            operation.getResponses().addApiResponse(
-                                                                    "400",
-                                                                    createErrorResponse(
-                                                                            "Bad Request",
-                                                                            400,
-                                                                            "Bad Request",
-                                                                            "Invalid request parameters or validation failed"
-                                                                    )
-                                                            );
-                                                            operation.getResponses().addApiResponse(
-                                                                    "401",
-                                                                    createErrorResponse(
-                                                                            "Unauthorized",
-                                                                            401,
-                                                                            "Unauthorized",
-                                                                            "Authentication required or invalid credentials"
-                                                                    )
-                                                            );
-                                                            operation.getResponses().addApiResponse(
-                                                                    "403",
-                                                                    createErrorResponse(
-                                                                            "Forbidden",
-                                                                            403,
-                                                                            "Forbidden",
-                                                                            "Access denied - insufficient permissions"
-                                                                    )
-                                                            );
-                                                            operation.getResponses().addApiResponse(
-                                                                    "404",
-                                                                    createErrorResponse(
-                                                                            "Resource Not Found",
-                                                                            404,
-                                                                            "Not Found",
-                                                                            "The requested resource was not found"
-                                                                    )
-                                                            );
-                                                            operation.getResponses().addApiResponse(
-                                                                    "409",
-                                                                    createErrorResponse(
-                                                                            "Conflict",
-                                                                            409,
-                                                                            "Conflict",
-                                                                            "Resource conflict - duplicate or concurrent modification"
-                                                                    )
-                                                            );
-                                                            operation.getResponses().addApiResponse(
-                                                                    "500",
-                                                                    createErrorResponse(
-                                                                            "Internal Server Error",
-                                                                            500,
-                                                                            "Internal Server Error",
-                                                                            "An unexpected error occurred"
-                                                                    )
-                                                            );
-                                                        }
-                                                ));
-    }
+        // Build class map once at bean creation time
+        Map<String, Class<?>> classMap = buildClassMap();
 
-    /**
-     * PropertyCustomizer to make Springdoc recognize NullAway's non-null-by-default convention.
-     * All fields are treated as required (non-nullable) unless explicitly marked with @Nullable.
-     * This aligns with NullAway's static analysis defaults and avoids having to annotate
-     * every field with @NotNull.
-     */
-    @Bean
-    public PropertyCustomizer nullabilityPropertyCustomizer() {
-        return (schema, type) -> {
-            // Check if the property is marked with @Nullable
-            boolean isNullable = isPropertyNullable(type);
-
-            // Set the nullable flag in the schema
-            if (!isNullable) {
-                schema.setNullable(false);
-            }
-
-            return schema;
-        };
-    }
-
-    /**
-     * OpenApiCustomizer to add all non-nullable properties to the 'required' array.
-     * This works in conjunction with the PropertyCustomizer above to fully specify
-     * which fields are required in the OpenAPI spec.
-     */
-    @Bean
-    public OpenApiCustomizer schemaRequiredFieldsCustomizer() {
         return openApi -> {
-            if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
-                return;
+            // Add error responses to all operations
+            openApi.getPaths().values().forEach(pathItem ->
+                    pathItem.readOperations().forEach(operation -> {
+                        operation.getResponses().addApiResponse("400", createErrorResponse("Bad Request", 400, "Bad Request", "Invalid request parameters or validation failed"));
+                        operation.getResponses().addApiResponse("401", createErrorResponse("Unauthorized", 401, "Unauthorized", "Authentication required or invalid credentials"));
+                        operation.getResponses().addApiResponse("403", createErrorResponse("Forbidden", 403, "Forbidden", "Access denied - insufficient permissions"));
+                        operation.getResponses().addApiResponse("404", createErrorResponse("Resource Not Found", 404, "Not Found", "The requested resource was not found"));
+                        operation.getResponses().addApiResponse("409", createErrorResponse("Conflict", 409, "Conflict", "Resource conflict - duplicate or concurrent modification"));
+                        operation.getResponses().addApiResponse("500", createErrorResponse("Internal Server Error", 500, "Internal Server Error", "An unexpected error occurred"));
+                    })
+            );
+
+            // Process schemas for nullability based on @Nullable annotations
+            if (openApi.getComponents() != null && openApi.getComponents().getSchemas() != null) {
+                openApi.getComponents().getSchemas().forEach((schemaName, schema) -> {
+                    processSchemaForNullability(schemaName, schema, classMap);
+                });
             }
-
-            Map<String, Schema> schemas = openApi.getComponents().getSchemas();
-            schemas.forEach((schemaName, schema) -> {
-                Map<String, Schema> properties = schema.getProperties();
-                if (properties == null || properties.isEmpty()) {
-                    return;
-                }
-
-                List<String> required = properties.entrySet().stream()
-                        .filter(entry -> {
-                            Schema propertySchema = entry.getValue();
-                            Boolean nullable = propertySchema.getNullable();
-                            // Include in required if nullable is explicitly false or not set
-                            // (null means not specified, which we treat as non-nullable by default)
-                            return nullable == null || !nullable;
-                        })
-                        .map(Map.Entry::getKey)
-                        .toList();
-
-                if (!required.isEmpty()) {
-                    schema.setRequired(required);
-                }
-            });
         };
     }
 
-    /**
-     * Checks if a property is marked with @Nullable annotation.
-     * Handles both regular classes (fields) and records (record components).
-     */
-    private boolean isPropertyNullable(AnnotatedType type) {
-        // Check if the annotated type itself has @Nullable
+    private Map<String, Class<?>> buildClassMap() {
+        Map<String, Class<?>> map = new HashMap<>();
 
-        if (type.getCtxAnnotations() == null) {
-            return false;
+        // Register all known DTO/model classes
+        List<Class<?>> classes = List.of(
+                com.algorena.bots.dto.BotDTO.class,
+                com.algorena.bots.dto.BotStatsDTO.class,
+                com.algorena.bots.dto.CreateBotRequest.class,
+                com.algorena.bots.dto.UpdateBotRequest.class,
+                com.algorena.games.dto.MatchDTO.class,
+                com.algorena.games.dto.MatchMoveDTO.class,
+                com.algorena.games.dto.MatchParticipantDTO.class,
+                com.algorena.games.dto.CreateMatchRequest.class,
+                com.algorena.games.dto.GameStateDTO.class,
+                com.algorena.games.dto.ChessGameStateDTO.class,
+                com.algorena.games.dto.Connect4GameStateDTO.class,
+                com.algorena.games.dto.BotMoveRequest.class,
+                com.algorena.games.dto.BotMoveResponse.class,
+                com.algorena.games.dto.BotLeaderboardEntryDTO.class,
+                com.algorena.games.dto.UserLeaderboardEntryDTO.class,
+                com.algorena.games.dto.RatingHistoryDTO.class,
+                com.algorena.users.dto.UserDTO.class,
+                com.algorena.users.dto.UpdateUserRequest.class,
+                com.algorena.common.exception.ErrorResponse.class,
+                com.algorena.common.exception.ErrorResponse.ValidationError.class
+        );
+
+        for (Class<?> clazz : classes) {
+            map.put(clazz.getSimpleName(), clazz);
         }
 
-        // Checks if any annotation in the array is @Nullable (from jspecify or other common packages).
-        return Arrays.stream(type.getCtxAnnotations())
-                .anyMatch(ann -> {
-                    String name = ann.annotationType().getSimpleName();
-                    // Support @Nullable from jspecify, javax.annotation, org.jetbrains, etc.
-                    return "Nullable".equals(name);
-                });
+        return map;
+    }
+
+    private void processSchemaForNullability(String schemaName, Schema<?> schema, Map<String, Class<?>> classMap) {
+        Map<String, Schema> properties = schema.getProperties();
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+
+        Class<?> clazz = classMap.get(schemaName);
+        if (clazz == null) {
+            return;
+        }
+
+        Set<String> nullableFields = getNullableFields(clazz);
+        List<String> required = new ArrayList<>();
+
+        properties.forEach((propertyName, propertySchema) -> {
+            if (nullableFields.contains(propertyName)) {
+                propertySchema.setNullable(true);
+            } else {
+                propertySchema.setNullable(false);
+                required.add(propertyName);
+            }
+        });
+
+        if (!required.isEmpty()) {
+            schema.setRequired(required);
+        }
+    }
+
+    private Set<String> getNullableFields(Class<?> clazz) {
+        Set<String> nullableFields = new HashSet<>();
+
+        if (clazz.isRecord()) {
+            for (RecordComponent component : clazz.getRecordComponents()) {
+                if (hasNullableAnnotation(component)) {
+                    nullableFields.add(component.getName());
+                }
+            }
+        } else {
+            for (java.lang.reflect.Field field : clazz.getDeclaredFields()) {
+                if (hasNullableAnnotation(field)) {
+                    nullableFields.add(field.getName());
+                }
+            }
+        }
+
+        return nullableFields;
+    }
+
+    private boolean hasNullableAnnotation(RecordComponent component) {
+        // Check TYPE_USE annotations on the type
+        for (Annotation ann : component.getAnnotatedType().getAnnotations()) {
+            if ("Nullable".equals(ann.annotationType().getSimpleName())) {
+                return true;
+            }
+        }
+        // Also check element annotations
+        for (Annotation ann : component.getAnnotations()) {
+            if ("Nullable".equals(ann.annotationType().getSimpleName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasNullableAnnotation(java.lang.reflect.Field field) {
+        // Check TYPE_USE annotations on the type
+        for (Annotation ann : field.getAnnotatedType().getAnnotations()) {
+            if ("Nullable".equals(ann.annotationType().getSimpleName())) {
+                return true;
+            }
+        }
+        // Also check element annotations
+        for (Annotation ann : field.getAnnotations()) {
+            if ("Nullable".equals(ann.annotationType().getSimpleName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
