@@ -12,9 +12,12 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.*;
 import io.swagger.v3.oas.models.servers.Server;
+import org.jspecify.annotations.Nullable;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 
 import java.lang.annotation.Annotation;
@@ -181,9 +184,6 @@ public class OpenApiConfig {
     // Retrieved 2025-11-07, License - CC BY-SA 4.0
     @Bean
     public OpenApiCustomizer openApiCustomizer() {
-        // Build class map once at bean creation time
-        Map<String, Class<?>> classMap = buildClassMap();
-
         return openApi -> {
             // Add error responses to all operations
             openApi.getPaths().values().forEach(pathItem ->
@@ -199,54 +199,18 @@ public class OpenApiConfig {
 
             // Process schemas for nullability based on @Nullable annotations
             if (openApi.getComponents() != null && openApi.getComponents().getSchemas() != null) {
-                openApi.getComponents().getSchemas().forEach((schemaName, schema) -> {
-                    processSchemaForNullability(schemaName, schema, classMap);
-                });
+                openApi.getComponents().getSchemas().forEach(this::processSchemaForNullability);
             }
         };
     }
 
-    private Map<String, Class<?>> buildClassMap() {
-        Map<String, Class<?>> map = new HashMap<>();
-
-        // Register all known DTO/model classes
-        List<Class<?>> classes = List.of(
-                com.algorena.bots.dto.BotDTO.class,
-                com.algorena.bots.dto.BotStatsDTO.class,
-                com.algorena.bots.dto.CreateBotRequest.class,
-                com.algorena.bots.dto.UpdateBotRequest.class,
-                com.algorena.games.dto.MatchDTO.class,
-                com.algorena.games.dto.MatchMoveDTO.class,
-                com.algorena.games.dto.MatchParticipantDTO.class,
-                com.algorena.games.dto.CreateMatchRequest.class,
-                com.algorena.games.dto.GameStateDTO.class,
-                com.algorena.games.dto.ChessGameStateDTO.class,
-                com.algorena.games.dto.Connect4GameStateDTO.class,
-                com.algorena.games.dto.BotMoveRequest.class,
-                com.algorena.games.dto.BotMoveResponse.class,
-                com.algorena.games.dto.BotLeaderboardEntryDTO.class,
-                com.algorena.games.dto.UserLeaderboardEntryDTO.class,
-                com.algorena.games.dto.RatingHistoryDTO.class,
-                com.algorena.users.dto.UserDTO.class,
-                com.algorena.users.dto.UpdateUserRequest.class,
-                com.algorena.common.exception.ErrorResponse.class,
-                com.algorena.common.exception.ErrorResponse.ValidationError.class
-        );
-
-        for (Class<?> clazz : classes) {
-            map.put(clazz.getSimpleName(), clazz);
-        }
-
-        return map;
-    }
-
-    private void processSchemaForNullability(String schemaName, Schema<?> schema, Map<String, Class<?>> classMap) {
+    private void processSchemaForNullability(String schemaName, Schema<?> schema) {
         Map<String, Schema> properties = schema.getProperties();
         if (properties == null || properties.isEmpty()) {
             return;
         }
 
-        Class<?> clazz = classMap.get(schemaName);
+        Class<?> clazz = findClassBySchemaName(schemaName);
         if (clazz == null) {
             return;
         }
@@ -266,6 +230,42 @@ public class OpenApiConfig {
         if (!required.isEmpty()) {
             schema.setRequired(required);
         }
+    }
+
+    // Lazily initialized cache of schema name -> class mappings
+    private @Nullable Map<String, Class<?>> classCache;
+
+    private @Nullable Class<?> findClassBySchemaName(String schemaName) {
+        if (classCache == null) {
+            classCache = buildClassCache();
+        }
+        return classCache.get(schemaName);
+    }
+
+    private Map<String, Class<?>> buildClassCache() {
+        Map<String, Class<?>> cache = new HashMap<>();
+
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
+
+        for (BeanDefinition bd : scanner.findCandidateComponents("com.algorena")) {
+            String className = bd.getBeanClassName();
+            if (className != null) {
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    cache.put(clazz.getSimpleName(), clazz);
+
+                    // Also register inner classes
+                    for (Class<?> inner : clazz.getDeclaredClasses()) {
+                        cache.put(inner.getSimpleName(), inner);
+                    }
+                } catch (ClassNotFoundException e) {
+                    // Ignore
+                }
+            }
+        }
+
+        return cache;
     }
 
     private Set<String> getNullableFields(Class<?> clazz) {
