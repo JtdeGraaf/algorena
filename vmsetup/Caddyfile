@@ -1,0 +1,5 @@
+backend.algorena.dev {
+    tls /etc/ssl/cert.pem /etc/ssl/key.pem
+
+    reverse_proxy backend:8080
+}
