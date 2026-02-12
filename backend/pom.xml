@@ -10,7 +10,7 @@
     </parent>
     <groupId>com</groupId>
     <artifactId>algorena</artifactId>
-    <version>0.0.15</version>
+    <version>0.0.16</version>
     <name>algorena</name>
     <description>algorena</description>
     <url/>
