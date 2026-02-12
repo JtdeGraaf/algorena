@@ -37,7 +37,7 @@ export function ProfilePage() {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (user) {
-      setUsername(user.username || '');
+      setUsername(user.username);
       setName(user.name || '');
     }
   }, [user]);

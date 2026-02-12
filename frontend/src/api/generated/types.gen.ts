@@ -23,7 +23,7 @@ export type ErrorResponse = {
     /**
      * Detailed error message
      */
-    message: string;
+    message?: string;
     /**
      * Request path that caused the error
      */
@@ -45,7 +45,7 @@ export type ValidationError = {
     /**
      * Validation error message
      */
-    message: string;
+    message?: string;
 };
 
 export type CreateMatchRequest = {
@@ -79,7 +79,7 @@ export type MatchDto = {
     startedAt: string;
     finishedAt: string;
     participants: Array<MatchParticipantDto>;
-    state: ChessGameStateDto | Connect4GameStateDto;
+    state?: ChessGameStateDto | Connect4GameStateDto;
 };
 
 export type MatchParticipantDto = {
@@ -92,89 +92,89 @@ export type MatchParticipantDto = {
 
 export type CreateBotRequest = {
     name: string;
-    description: string;
+    description?: string;
     game: 'CHESS' | 'CONNECT_FOUR';
     endpoint: string;
-    apiKey: string;
+    apiKey?: string;
 };
 
 export type BotDto = {
     id: number;
     name: string;
-    description: string;
+    description?: string;
     game: 'CHESS' | 'CONNECT_FOUR';
     active: boolean;
-    endpoint: string;
-    apiKey: string;
+    endpoint?: string;
+    apiKey?: string;
     created: string;
     lastUpdated: string;
 };
 
 export type UpdateUserRequest = {
-    username: string;
-    name: string;
+    username?: string;
+    name?: string;
 };
 
 export type UserDto = {
     id: number;
     username: string;
-    name: string;
+    name?: string;
     provider: 'GOOGLE' | 'GITHUB' | 'DISCORD';
-    providerId: string;
+    providerId?: string;
 };
 
 export type UpdateBotRequest = {
     name: string;
-    description: string;
-    active: boolean;
+    description?: string;
+    active?: boolean;
     endpoint: string;
-    apiKey: string;
+    apiKey?: string;
 };
 
 export type MatchMoveDto = {
-    id: number;
+    id?: number;
     playerIndex: number;
     moveNotation: string;
     created: string;
-    fromSquare: string;
-    toSquare: string;
-    promotionPiece: string;
+    fromSquare?: string;
+    toSquare?: string;
+    promotionPiece?: string;
 };
 
 export type PageUserLeaderboardEntryDto = {
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    content: Array<UserLeaderboardEntryDto>;
-    number: number;
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: PageableObject;
-    sort: SortObject;
-    empty: boolean;
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    content?: Array<UserLeaderboardEntryDto>;
+    number?: number;
+    first?: boolean;
+    last?: boolean;
+    numberOfElements?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
+    empty?: boolean;
 };
 
 export type PageableObject = {
-    offset: number;
-    paged: boolean;
-    pageNumber: number;
-    pageSize: number;
-    sort: SortObject;
-    unpaged: boolean;
+    offset?: number;
+    pageNumber?: number;
+    pageSize?: number;
+    sort?: SortObject;
+    paged?: boolean;
+    unpaged?: boolean;
 };
 
 export type SortObject = {
-    empty: boolean;
-    sorted: boolean;
-    unsorted: boolean;
+    empty?: boolean;
+    sorted?: boolean;
+    unsorted?: boolean;
 };
 
 export type UserLeaderboardEntryDto = {
     rank: number;
     userId: number;
     username: string;
-    avatarUrl: string;
+    avatarUrl?: string;
     bestBotElo: number;
     avgBotElo: number;
     totalBots: number;
@@ -191,7 +191,7 @@ export type BotLeaderboardEntryDto = {
     botName: string;
     ownerId: number;
     ownerName: string;
-    ownerAvatarUrl: string;
+    ownerAvatarUrl?: string;
     eloRating: number;
     matchesPlayed: number;
     wins: number;
@@ -201,17 +201,17 @@ export type BotLeaderboardEntryDto = {
 };
 
 export type PageBotLeaderboardEntryDto = {
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    content: Array<BotLeaderboardEntryDto>;
-    number: number;
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: PageableObject;
-    sort: SortObject;
-    empty: boolean;
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    content?: Array<BotLeaderboardEntryDto>;
+    number?: number;
+    first?: boolean;
+    last?: boolean;
+    numberOfElements?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
+    empty?: boolean;
 };
 
 export type RatingHistoryDto = {
@@ -227,17 +227,17 @@ export type RatingHistoryDto = {
 };
 
 export type PageBotDto = {
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    content: Array<BotDto>;
-    number: number;
-    first: boolean;
-    last: boolean;
-    numberOfElements: number;
-    pageable: PageableObject;
-    sort: SortObject;
-    empty: boolean;
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    content?: Array<BotDto>;
+    number?: number;
+    first?: boolean;
+    last?: boolean;
+    numberOfElements?: number;
+    pageable?: PageableObject;
+    sort?: SortObject;
+    empty?: boolean;
 };
 
 export type BotStatsDto = {

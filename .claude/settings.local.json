@@ -3,7 +3,8 @@
     "allow": [
       "Bash(./mvnw compile:*)",
       "Bash(./mvnw test:*)",
-      "Bash(./mvnw verify:*)"
+      "Bash(./mvnw verify:*)",
+      "WebSearch"
     ]
   }
 }

@@ -28,7 +28,7 @@ export function MatchDetailsDialog({ match: initialMatch, open, onOpenChange }: 
 
   if (!match) return null;
 
-  const participants = match.participants || [];
+  const participants = match.participants;
   const player1 = participants.find(p => p.playerIndex === 0);
   const player2 = participants.find(p => p.playerIndex === 1);
 

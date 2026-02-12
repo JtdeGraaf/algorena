@@ -42,7 +42,7 @@ export function MatchesPage() {
       // Bot filter
       if (botFilter !== 'all') {
         const botId = parseInt(botFilter);
-        const hasBot = match.participants?.some(p => p.botId === botId);
+        const hasBot = match.participants.some(p => p.botId === botId);
         if (!hasBot) return false;
       }
 
@@ -149,7 +149,7 @@ export function MatchesPage() {
         >
           <option value="all">all bots</option>
           {myBots.map(bot => (
-            <option key={bot.id} value={bot.id?.toString()}>
+            <option key={bot.id} value={bot.id.toString()}>
               {bot.name}
             </option>
           ))}
@@ -183,12 +183,12 @@ export function MatchesPage() {
           headers={['status', 'matchup', 'game', 'result', 'time', 'actions']}
         >
           {filteredMatches.map(match => {
-            const participants = match.participants || [];
+            const participants = match.participants;
             const player1 = participants.find(p => p.playerIndex === 0);
             const player2 = participants.find(p => p.playerIndex === 1);
 
             const winner = match.status === 'FINISHED'
-              ? participants.find(p => (p.score ?? 0) > 0.5)
+              ? participants.find(p => p.score > 0.5)
               : null;
 
             const isDraw = match.status === 'FINISHED' && !winner;

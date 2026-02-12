@@ -19,13 +19,13 @@ function BotStatsCell({ botId }: { botId: number }) {
     return <span className="text-surface-muted">—</span>;
   }
 
-  const winRate = stats.winRate != null ? Math.round(stats.winRate * 100) : 0;
+  const winRate = Math.round(stats.winRate * 100);
 
   return (
     <div className="flex items-center gap-3 text-xs">
-      <span className="text-primary">{stats.wins || 0}W</span>
-      <span className="text-red-400">{stats.losses || 0}L</span>
-      <span className="text-text-secondary">{stats.draws || 0}D</span>
+      <span className="text-primary">{stats.wins}W</span>
+      <span className="text-red-400">{stats.losses}L</span>
+      <span className="text-text-secondary">{stats.draws}D</span>
       <span className={cn(
         'font-semibold',
         winRate >= 50 ? 'text-primary' : 'text-text-muted'
@@ -140,7 +140,7 @@ export function BotsPage() {
                 </span>
               </TerminalTableCell>
               <TerminalTableCell>
-                <BotStatsCell botId={bot.id!} />
+                <BotStatsCell botId={bot.id} />
               </TerminalTableCell>
               <TerminalTableCell className="text-text-muted">
                 {formatDate(bot.created)}
